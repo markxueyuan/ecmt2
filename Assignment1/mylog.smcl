@@ -1,0 +1,583 @@
+{smcl}
+{com}{sf}{ul off}{txt}
+{com}. capture program drop _all
+{txt}
+{com}. capture estimates drop _all
+{txt}
+{com}. clear all
+{txt}
+{com}. set more off
+{txt}
+{com}. 
+. capture cd "D:/Lindo/Assignment1"
+{txt}
+{com}. 
+. if c(username)=="xueqingyan" {c -(}
+.         cd "/Users/xueqingyan/Desktop/ECMT 676 Assignments/Assignment 1"
+. {c )-}
+{txt}
+{com}. 
+. capture prog drop endog
+{txt}
+{com}. 
+. *****************************************************
+. **                                                 ** 
+. **    (1)         X = 0.8Z + 0.6u                  **
+. **                                                 **
+. *****************************************************
+. 
+. program endog, rclass
+{txt}  1{com}.         syntax , beta2(real)
+{txt}  2{com}.         capture drop _all
+{txt}  3{com}.         set obs 5000
+{txt}  4{com}.         local beta1 .2
+{txt}  5{com}.         tempvar z u e x y
+{txt}  6{com}.         gen `z' = rnormal(0,1)
+{txt}  7{com}.         gen `u' = rnormal(0,1)
+{txt}  8{com}.         gen `e' = rnormal(0,1)
+{txt}  9{com}.         gen `x' = 0.8*`z' + 0.6*`u'
+{txt} 10{com}.         gen `y' = .5 + `beta1'*`x' + `beta2'*`u' + `e'
+{txt} 11{com}.         regress `y' `x'
+{txt} 12{com}.         return scala beta1_hat = _b[`x']        
+{txt} 13{com}. end
+{txt}
+{com}. 
+. ********** simulate ***********************
+. 
+. local i 1
+{txt}
+{com}. forvalues b2=-1.0(0.1)1.0{c -(}
+{txt}  2{com}.         tempfile f`i'
+{txt}  3{com}.         simulate estbeta1 = r(beta1_hat) , reps(30) saving(`f`i''): endog, beta2(`b2')
+{txt}  4{com}.         gen beta2 = `b2'
+{txt}  5{com}.         save `f`i'' , replace
+{txt}  6{com}.         local ++i
+{txt}  7{com}. {c )-}
+{p2colset 7 17 21 2}{...}
+
+{txt}{p2col :command:}endog, beta2(-1){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_02000001.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog, beta2(-.9){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_02000002.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog, beta2(-.8){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_02000003.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog, beta2(-.7000000000000001){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_02000004.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog, beta2(-.6000000000000001){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_02000005.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog, beta2(-.5000000000000001){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_02000006.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog, beta2(-.4000000000000001){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_02000007.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog, beta2(-.3000000000000002){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_02000008.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog, beta2(-.2000000000000002){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_02000009.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog, beta2(-.1000000000000001){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_0200000a.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog, beta2(-1.38777878078e-16){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_0200000b.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog, beta2(.0999999999999999){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_0200000c.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog, beta2(.1999999999999999){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_0200000d.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog, beta2(.2999999999999999){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_0200000e.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog, beta2(.3999999999999999){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_0200000f.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog, beta2(.4999999999999999){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_0200000g.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog, beta2(.5999999999999999){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_0200000h.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog, beta2(.6999999999999998){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_0200000i.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog, beta2(.7999999999999998){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_0200000j.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog, beta2(.8999999999999998){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_0200000k.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog, beta2(.9999999999999998){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_0200000l.tmp saved
+
+{com}. 
+. ********* append data *********************
+. drop _all
+{txt}
+{com}. 
+. set obs 0
+{txt}{p}
+number of observations (_N)  was 0,
+now 0
+{p_end}
+
+{com}. gen estbeta1 = .
+{txt}
+{com}. gen beta2 = .
+{txt}
+{com}. 
+. local j 1
+{txt}
+{com}. forvalues b2=-1.0(0.1)1.0{c -(}
+{txt}  2{com}.         append using `f`j''
+{txt}  3{com}.         local ++j
+{txt}  4{com}. {c )-}
+{txt}
+{com}. 
+. ********* draw graph ********************
+. 
+. scatter estbeta1 beta2 , yline(.2) name("graph06")
+{res}{txt}
+{com}. 
+. 
+. 
+. *****************************************************
+. *****************************************************
+. **                                                 ** 
+. **     (2)        X = 0.8Z + 0.1u                  **
+. **                                                 **
+. *****************************************************
+. *****************************************************
+. clear
+{txt}
+{com}. 
+. program endog2, rclass
+{txt}  1{com}.         syntax , beta2(real)
+{txt}  2{com}.         capture drop _all
+{txt}  3{com}.         set obs 5000
+{txt}  4{com}.         local beta1 .2
+{txt}  5{com}.         tempvar z u e x y
+{txt}  6{com}.         gen `z' = rnormal(0,1)
+{txt}  7{com}.         gen `u' = rnormal(0,1)
+{txt}  8{com}.         gen `e' = rnormal(0,1)
+{txt}  9{com}.         gen `x' = 0.8*`z' + 0.1*`u'
+{txt} 10{com}.         gen `y' = .5 + `beta1'*`x' + `beta2'*`u' + `e'
+{txt} 11{com}.         regress `y' `x'
+{txt} 12{com}.         return scala beta1_hat = _b[`x']        
+{txt} 13{com}. end
+{txt}
+{com}. 
+. ********** simulate ***********************
+. 
+. local i 1
+{txt}
+{com}. forvalues b2=-1.0(0.1)1.0{c -(}
+{txt}  2{com}.         tempfile f`i'
+{txt}  3{com}.         simulate estbeta1 = r(beta1_hat) , reps(30) saving(`f`i''): endog2, beta2(`b2')
+{txt}  4{com}.         gen beta2 = `b2'
+{txt}  5{com}.         save `f`i'' , replace
+{txt}  6{com}.         local ++i
+{txt}  7{com}. {c )-}
+{p2colset 7 17 21 2}{...}
+
+{txt}{p2col :command:}endog2, beta2(-1){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_0200000m.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog2, beta2(-.9){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_0200000n.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog2, beta2(-.8){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_0200000o.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog2, beta2(-.7000000000000001){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_0200000p.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog2, beta2(-.6000000000000001){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_0200000q.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog2, beta2(-.5000000000000001){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_0200000r.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog2, beta2(-.4000000000000001){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_0200000s.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog2, beta2(-.3000000000000002){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_0200000t.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog2, beta2(-.2000000000000002){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_0200000u.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog2, beta2(-.1000000000000001){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_0200000v.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog2, beta2(-1.38777878078e-16){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_0200000w.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog2, beta2(.0999999999999999){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_0200000x.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog2, beta2(.1999999999999999){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_02000010.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog2, beta2(.2999999999999999){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_02000011.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog2, beta2(.3999999999999999){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_02000012.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog2, beta2(.4999999999999999){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_02000013.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog2, beta2(.5999999999999999){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_02000014.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog2, beta2(.6999999999999998){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_02000015.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog2, beta2(.7999999999999998){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_02000016.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog2, beta2(.8999999999999998){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_02000017.tmp saved
+{p2colset 7 17 21 2}{...}
+
+{p2col :command:}endog2, beta2(.9999999999999998){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+
+Simulations ({res}30{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..............................
+file C:\Users\Xue\AppData\Local\Temp\ST_02000018.tmp saved
+
+{com}. 
+. ********* append data *********************
+. drop _all
+{txt}
+{com}. 
+. set obs 0
+{txt}{p}
+number of observations (_N)  was 0,
+now 0
+{p_end}
+
+{com}. gen estbeta1 = .
+{txt}
+{com}. gen beta2 = .
+{txt}
+{com}. 
+. local j 1
+{txt}
+{com}. forvalues b2=-1.0(0.1)1.0{c -(}
+{txt}  2{com}.         append using `f`j''
+{txt}  3{com}.         local ++j
+{txt}  4{com}. {c )-}
+{txt}
+{com}. 
+. ********* draw graph ********************
+. 
+. scatter estbeta1 beta2 , yline(.2) name("graph01")
+{res}{txt}
+{com}. 
+. 
+. log close _all
+      {txt}name:  {res}<unnamed>
+       {txt}log:  {res}D:\Lindo\Assignment1\mylog.smcl
+  {txt}log type:  {res}smcl
+ {txt}closed on:  {res}21 Jan 2017, 18:01:43
+{txt}{.-}
+{smcl}
+{txt}{sf}{ul off}
