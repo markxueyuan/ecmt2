@@ -61,7 +61,7 @@ forvalues b2=-1.0(0.1)1.0{
 
 ********* draw graph ********************
 
-scatter estbeta1 beta2 , yline(.2) name("graph06")
+scatter estbeta1 beta2 , yline(.2) name("graph06") title("X = 0.8Z + 0.6u")
 
 
 
@@ -115,7 +115,7 @@ forvalues b2=-1.0(0.1)1.0{
 
 ********* draw graph ********************
 
-scatter estbeta1 beta2 , yline(.2) name("graph01")
+scatter estbeta1 beta2 , yline(.2) name("graph01") title("X = 0.8Z + 0.1u")
 
 
 log close _all
