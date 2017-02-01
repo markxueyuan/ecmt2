@@ -1,0 +1,230 @@
+{smcl}
+{com}{sf}{ul off}{txt}
+{com}. capture program drop _all
+{txt}
+{com}. capture estimates drop _all
+{txt}
+{com}. clear all
+{txt}
+{com}. set more off
+{txt}
+{com}. 
+. capture cd "D:/Lindo/Assignment2"
+{txt}
+{com}. 
+. if c(username)=="xueqingyan" {c -(}
+.         cd "/Users/xueqingyan/Desktop/ECMT 676 Assignments/Assignment 2"
+. {c )-}
+{txt}
+{com}. 
+. 
+. program endog, rclass
+{txt}  1{com}.         syntax , method(string) [beta2(real 1)]
+{txt}  2{com}.         capture drop _all
+{txt}  3{com}.         set obs 100
+{txt}  4{com}.         local beta0 .3
+{txt}  5{com}.         local beta1 1.5
+{txt}  6{com}.         tempvar z u e v x y
+{txt}  7{com}.         gen `z' = rnormal(0,1)
+{txt}  8{com}.         gen `u' = rnormal(0,1)
+{txt}  9{com}.         gen `e' = rnormal(0,1)
+{txt} 10{com}.         gen `v' = rnormal(0,1)
+{txt} 11{com}.         gen `x' = 0.4*`z' + 0.7*`u' + `v'
+{txt} 12{com}.         gen `y' = `beta0' + `beta1'*`x' + `beta2'*`u' + `e'
+{txt} 13{com}.         
+.         display "we output `method'"
+{txt} 14{com}.         
+.         if "`method'" == "ols" {c -(}
+{txt} 15{com}.                 regress `y' `x'
+{txt} 16{com}.                 test _b[`x'] = `beta1'
+{txt} 17{com}.                 return scala beta1_hat = _b[`x']
+{txt} 18{com}.                 return scala p_value = `r(p)'
+{txt} 19{com}.         {c )-}
+{txt} 20{com}.         else if "`method'" == "2sls" {c -(}
+{txt} 21{com}.                 tempvar predict
+{txt} 22{com}.                 regress `x' `z'
+{txt} 23{com}.                 predict `predict'
+{txt} 24{com}.                 regress `y' `predict'
+{txt} 25{com}.                 test _b[`predict'] = `beta1'
+{txt} 26{com}.                 return scala beta1_hat = _b[`predict']
+{txt} 27{com}.                 return scala p_value = `r(p)'
+{txt} 28{com}.         {c )-}
+{txt} 29{com}.         else if "`method'" == "iv" {c -(}
+{txt} 30{com}.                 ivregress 2sls `y' (`x' = `z')
+{txt} 31{com}.                 test _b[`x'] = `beta1'
+{txt} 32{com}.                 return scala beta1_hat = _b[`x']
+{txt} 33{com}.                 return scala p_value = `r(p)'   
+{txt} 34{com}.         {c )-}
+{txt} 35{com}. end
+{txt}
+{com}. 
+. endog , method("iv")
+{txt}{p}
+number of observations (_N)  was 0,
+now 100
+{p_end}
+we output iv
+{res}
+{txt}{col 1}Instrumental variables (2SLS) regression{col 51}Number of obs{col 67}= {res}       100
+{txt}{col 1}{col 51}Wald chi2({res}1{txt}){col 67}= {res}      0.16
+{txt}{col 1}{col 51}Prob > chi2{col 67}= {res}    0.6927
+{txt}{col 1}{col 51}R-squared{col 67}= {res}    0.2575
+{txt}{col 51}Root MSE{col 67}=    {res} 2.2598
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}    __000005{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      z{col 46}   P>|z|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 4}__000004 {c |}{col 14}{res}{space 2} .4012751{col 26}{space 2} 1.015221{col 37}{space 1}    0.40{col 46}{space 3}0.693{col 54}{space 4}-1.588521{col 67}{space 3} 2.391071
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .5448301{col 26}{space 2} .2507455{col 37}{space 1}    2.17{col 46}{space 3}0.030{col 54}{space 4}  .053378{col 67}{space 3} 1.036282
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{p 0 15 44}Instrumented:{space 2}__000004{p_end}
+{p 0 15 44}Instruments:{space 3}__000000{p_end}
+
+{p 0 7}{space 1}{text:( 1)}{space 1} {res}__000004 = 1.5{p_end}
+
+{txt}{col 12}chi2(  1) ={res}    1.17
+{txt}{col 10}Prob > chi2 =  {res}  0.2791
+{txt}
+{com}. 
+. ********** simulate ***********************
+. 
+. local methods ols iv 2sls
+{txt}
+{com}. 
+. foreach m of local methods{c -(}
+{txt}  2{com}.         simulate estbeta1 = r(beta1_hat) p_value = r(p_value) ///
+>         , reps(1000) : endog, method("`m'") beta2(1)
+{txt}  3{com}.         summ estbeta1
+{txt}  4{com}.         local est = r(mean)
+{txt}  5{com}.         summ p_value
+{txt}  6{com}.         local p = r(mean)
+{txt}  7{com}.         display as text "`m':  " as result `est' as text " " as result `p'
+{txt}  8{com}. {c )-}
+{p2colset 7 17 21 2}{...}
+
+{txt}{p2col :command:}endog, method("ols") beta2(1){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+{p2colset 7 17 21 2}{...}
+{p2col :p_value:}{res:r(p_value)}{p_end}
+
+Simulations ({res}1000{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..................................................    50
+..................................................   100
+..................................................   150
+..................................................   200
+..................................................   250
+..................................................   300
+..................................................   350
+..................................................   400
+..................................................   450
+..................................................   500
+..................................................   550
+..................................................   600
+..................................................   650
+..................................................   700
+..................................................   750
+..................................................   800
+..................................................   850
+..................................................   900
+..................................................   950
+..................................................  1000
+
+    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 4}estbeta1 {c |}{res}      1,000    1.931139    .1082368   1.592917   2.305044
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 5}p_value {c |}{res}      1,000    .0048518    .0250857   3.37e-12   .3979854
+{txt}ols:  {res}1.9311391{txt} {res}.0048518
+{p2colset 7 17 21 2}{...}
+
+{txt}{p2col :command:}endog, method("iv") beta2(1){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+{p2colset 7 17 21 2}{...}
+{p2col :p_value:}{res:r(p_value)}{p_end}
+
+Simulations ({res}1000{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..................................................    50
+..................................................   100
+..................................................   150
+..................................................   200
+..................................................   250
+..................................................   300
+..................................................   350
+..................................................   400
+..................................................   450
+..................................................   500
+..................................................   550
+..................................................   600
+..................................................   650
+..................................................   700
+..................................................   750
+..................................................   800
+..................................................   850
+..................................................   900
+..................................................   950
+..................................................  1000
+
+    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 4}estbeta1 {c |}{res}      1,000    1.406473    .5445929  -4.298312   3.018807
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 5}p_value {c |}{res}      1,000    .5365602    .2812217   .0004746   .9990142
+{txt}iv:  {res}1.4064727{txt} {res}.53656021
+{p2colset 7 17 21 2}{...}
+
+{txt}{p2col :command:}endog, method("2sls") beta2(1){p_end}
+{p2colset 6 17 21 2}{...}
+{p2col :estbeta1:}{res:r(beta1_hat)}{p_end}
+{p2colset 7 17 21 2}{...}
+{p2col :p_value:}{res:r(p_value)}{p_end}
+
+Simulations ({res}1000{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..................................................    50
+..................................................   100
+..................................................   150
+..................................................   200
+..................................................   250
+..................................................   300
+..................................................   350
+..................................................   400
+..................................................   450
+..................................................   500
+..................................................   550
+..................................................   600
+..................................................   650
+..................................................   700
+..................................................   750
+..................................................   800
+..................................................   850
+..................................................   900
+..................................................   950
+..................................................  1000
+
+    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 4}estbeta1 {c |}{res}      1,000    1.410874    .6649438   -9.44144   4.989259
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 5}p_value {c |}{res}      1,000    .6959109    .2080196   .0801608   .9996019
+{txt}2sls:  {res}1.4108735{txt} {res}.69591086
+{txt}
+{com}. 
+. 
+. log close _all
+      {txt}name:  {res}<unnamed>
+       {txt}log:  {res}D:\Lindo\Assignment2\mylog.smcl
+  {txt}log type:  {res}smcl
+ {txt}closed on:  {res} 1 Feb 2017, 03:11:29
+{txt}{.-}
+{smcl}
+{txt}{sf}{ul off}
