@@ -14,7 +14,7 @@ if c(username)=="xueqingyan" {
 
 
 program endog, rclass
-	syntax , method(string) [beta2(real 1)]
+	syntax [ , beta2(real 1)]
 	capture drop _all
 	set obs 100
 	local beta0 .3
@@ -27,47 +27,59 @@ program endog, rclass
 	gen `x' = 0.4*`z' + 0.7*`u' + `v'
 	gen `y' = `beta0' + `beta1'*`x' + `beta2'*`u' + `e'
 	
-	display "we output `method'"
-	
-	if "`method'" == "ols" {
+	* Method is ols:
 		regress `y' `x'
 		test _b[`x'] = `beta1'
-		return scala beta1_hat = _b[`x']
-		return scala p_value = `r(p)'
-	}
-	else if "`method'" == "2sls" {
+		return scala b1_ols = _b[`x']
+		return scala p_ols = `r(p)'
+	* Method is 2sls
 		tempvar predict
 		regress `x' `z'
 		predict `predict'
 		regress `y' `predict'
 		test _b[`predict'] = `beta1'
-		return scala beta1_hat = _b[`predict']
-		return scala p_value = `r(p)'
-	}
-	else if "`method'" == "iv" {
+		return scala b1_2sls = _b[`predict']
+		return scala p_2sls = `r(p)'
+	* Method is iv
 		ivregress 2sls `y' (`x' = `z')
 		test _b[`x'] = `beta1'
-		return scala beta1_hat = _b[`x']
-		return scala p_value = `r(p)'	
-	}
+		return scala b1_iv = _b[`x']
+		return scala p_iv = `r(p)'
+
 end
 
-endog , method("iv")
 
 ********** simulate ***********************
 
-local methods ols iv 2sls
+simulate b1_ols  = r(b1_ols)  p_ols  = r(p_ols)  ///
+	b1_2sls = r(b1_2sls) p_2sls = r(p_2sls) ///
+	b1_iv   = r(b1_iv)   p_iv   = r(p_iv)   ///
+	, reps(1000) : endog
+	
 
-foreach m of local methods{
-	simulate estbeta1 = r(beta1_hat) p_value = r(p_value) ///
-	, reps(1000) : endog, method("`m'") beta2(1)
-	summ estbeta1
-	local est = r(mean)
-	summ p_value
-	local p = r(mean)
-	display as text "`m':  " as result `est' as text " " as result `p'
-}
+********* print result ********************
 
+program print_result
+	display as text _dup(40) "-"
+	display "method"  _col(10) "estbeta1" ///
+			_col(22) "Pr{estbeta1 = 1}"
+	display as text _dup(40) "-"
+	
+	local methods ols 2sls iv
+
+	foreach m of local methods{
+		quietly summ b1_`m'
+		local b1 = r(mean)
+		quietly summ p_`m'
+		local p = r(mean)
+		display as text "`m':" ///
+				_col(10)  as result `b1' ///
+				_col(22) as result `p'
+	}
+	display as text _dup(40) "-"
+end
+
+print_result
 
 log close _all
 
@@ -77,11 +89,13 @@ log close _all
 Final results
 --------------
 
-method  estbeta1       Pr{estbeta1 = 1}
+
+method   estbeta1    Pr{estbeta1 = 1}
 ----------------------------------------
-ols:    1.9269887       .00396258
-iv:      .80695495      .50754814
-2sls:   1.4228056       .68970508
+ols:     1.9299889   .0035749
+2sls:    1.461433    .68885141
+iv:      1.461433    .50639441
 ----------------------------------------
+
 
 */
