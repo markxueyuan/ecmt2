@@ -35,30 +35,52 @@
 .         * Method is ols:
 .                 regress `y' `x'
 {txt} 14{com}.                 test _b[`x'] = `beta1'
-{txt} 15{com}.                 return scala b1_ols = _b[`x']
-{txt} 16{com}.                 return scala p_ols = `r(p)'
-{txt} 17{com}.         * Method is 2sls
+{txt} 15{com}.                 if `r(p)' < .01{c -(}
+{txt} 16{com}.                         local h1 = 1
+{txt} 17{com}.                 {c )-} 
+{txt} 18{com}.                 else {c -(}
+{txt} 19{com}.                         local h1 = 0
+{txt} 20{com}.                 {c )-}
+{txt} 21{com}.                 return scala b1_ols = _b[`x']
+{txt} 22{com}.                 return scala p_ols = `r(p)'
+{txt} 23{com}.                 return scala h1_ols = `h1'
+{txt} 24{com}.         * Method is 2sls
 .                 tempvar predict
-{txt} 18{com}.                 regress `x' `z'
-{txt} 19{com}.                 predict `predict'
-{txt} 20{com}.                 regress `y' `predict'
-{txt} 21{com}.                 test _b[`predict'] = `beta1'
-{txt} 22{com}.                 return scala b1_2sls = _b[`predict']
-{txt} 23{com}.                 return scala p_2sls = `r(p)'
-{txt} 24{com}.         * Method is iv
+{txt} 25{com}.                 regress `x' `z'
+{txt} 26{com}.                 predict `predict'
+{txt} 27{com}.                 regress `y' `predict'
+{txt} 28{com}.                 test _b[`predict'] = `beta1'
+{txt} 29{com}.                 if `r(p)' < .01{c -(}
+{txt} 30{com}.                         local h1 = 1
+{txt} 31{com}.                 {c )-} 
+{txt} 32{com}.                 else {c -(}
+{txt} 33{com}.                         local h1 = 0
+{txt} 34{com}.                 {c )-}
+{txt} 35{com}.                 return scala b1_2sls = _b[`predict']
+{txt} 36{com}.                 return scala p_2sls = `r(p)'
+{txt} 37{com}.                 return scala h1_2sls = `h1'
+{txt} 38{com}.         * Method is iv
 .                 ivregress 2sls `y' (`x' = `z')
-{txt} 25{com}.                 test _b[`x'] = `beta1'
-{txt} 26{com}.                 return scala b1_iv = _b[`x']
-{txt} 27{com}.                 return scala p_iv = `r(p)'
-{txt} 28{com}. end
+{txt} 39{com}.                 test _b[`x'] = `beta1'
+{txt} 40{com}.                 if `r(p)' < .01{c -(}
+{txt} 41{com}.                         local h1 = 1
+{txt} 42{com}.                 {c )-}
+{txt} 43{com}.                 else {c -(}
+{txt} 44{com}.                         local h1 = 0
+{txt} 45{com}.                 {c )-}
+{txt} 46{com}.                 return scala b1_iv = _b[`x']
+{txt} 47{com}.                 return scala p_iv = `r(p)'
+{txt} 48{com}.                 return scala h1_iv = `h1'
+{txt} 49{com}. end
 {txt}
 {com}. 
 . 
 . ********** simulate ***********************
 . 
-. simulate b1_ols  = r(b1_ols)  p_ols  = r(p_ols)  ///
->         b1_2sls = r(b1_2sls) p_2sls = r(p_2sls) ///
->         b1_iv   = r(b1_iv)   p_iv   = r(p_iv)   ///
+. simulate ///
+>     b1_ols  = r(b1_ols)  p_ols  = r(p_ols)  h1_ols  = r(h1_ols)  ///
+>         b1_2sls = r(b1_2sls) p_2sls = r(p_2sls) h1_2sls = r(h1_2sls) ///
+>         b1_iv   = r(b1_iv)   p_iv   = r(p_iv)   h1_iv   = r(h1_iv)   ///
 >         , reps(1000) : endog
 {p2colset 7 17 21 2}{...}
 
@@ -67,14 +89,20 @@
 {p2col :b1_ols:}{res:r(b1_ols)}{p_end}
 {p2colset 9 17 21 2}{...}
 {p2col :p_ols:}{res:r(p_ols)}{p_end}
+{p2colset 8 17 21 2}{...}
+{p2col :h1_ols:}{res:r(h1_ols)}{p_end}
 {p2colset 7 17 21 2}{...}
 {p2col :b1_2sls:}{res:r(b1_2sls)}{p_end}
 {p2colset 8 17 21 2}{...}
 {p2col :p_2sls:}{res:r(p_2sls)}{p_end}
+{p2colset 7 17 21 2}{...}
+{p2col :h1_2sls:}{res:r(h1_2sls)}{p_end}
 {p2colset 9 17 21 2}{...}
 {p2col :b1_iv:}{res:r(b1_iv)}{p_end}
 {p2colset 10 17 21 2}{...}
 {p2col :p_iv:}{res:r(p_iv)}{p_end}
+{p2colset 9 17 21 2}{...}
+{p2col :h1_iv:}{res:r(h1_iv)}{p_end}
 
 Simulations ({res}1000{txt})
 {hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
@@ -100,11 +128,15 @@ Simulations ({res}1000{txt})
 ..................................................  1000
 
 {com}.         
+. 
+. ********* print result ********************
+. 
 . program print_result
-{txt}  1{com}.         display as text _dup(40) "-"
+{txt}  1{com}.         display as text _dup(66) "-"
 {txt}  2{com}.         display "method"  _col(10) "estbeta1" ///
->                         _col(22) "Pr{c -(}estbeta1 = 1{c )-}"
-{txt}  3{com}.         display as text _dup(40) "-"
+>                         _col(22) "Pr{c -(}estbeta1 = 1{c )-}"   ///
+>                         _col(46) "Pr{c -(}H0 is rejected{c )-}"
+{txt}  3{com}.         display as text _dup(66) "-"
 {txt}  4{com}.         
 .         local methods ols 2sls iv
 {txt}  5{com}. 
@@ -113,29 +145,32 @@ Simulations ({res}1000{txt})
 {txt}  7{com}.                 local b1 = r(mean)
 {txt}  8{com}.                 quietly summ p_`m'
 {txt}  9{com}.                 local p = r(mean)
-{txt} 10{com}.                 display as text "`m':" ///
->                                 _col(10)  as result `b1' ///
->                                 _col(22) as result `p'
-{txt} 11{com}.         {c )-}
-{txt} 12{com}.         display as text _dup(40) "-"
-{txt} 13{com}. end
+{txt} 10{com}.                 quietly summ h1_`m'
+{txt} 11{com}.                 local h1 = r(mean)
+{txt} 12{com}.                 display as text "`m':" ///
+>                                 _col(10)  as result %5.3f `b1' ///
+>                                 _col(22) as result %5.3f `p'   ///
+>                                 _col(46) as result %5.3f `h1'
+{txt} 13{com}.         {c )-}
+{txt} 14{com}.         display as text _dup(66) "-"
+{txt} 15{com}. end
 {txt}
 {com}. 
 . print_result
-{txt}----------------------------------------
-method{col 10}estbeta1{col 22}Pr{estbeta1 = 1}
-----------------------------------------
-ols:{col 10}{res}1.9299889{col 22}.0035749
-{txt}2sls:{col 10}{res}1.461433{col 22}.68885141
-{txt}iv:{col 10}{res}1.461433{col 22}.50639441
-{txt}----------------------------------------
+{txt}------------------------------------------------------------------
+method{col 10}estbeta1{col 22}Pr{estbeta1 = 1}{col 46}Pr{H0 is rejected}
+------------------------------------------------------------------
+ols:{col 10}{res}1.920{col 22}0.004{col 46}0.914
+{txt}2sls:{col 10}{res}1.446{col 22}0.689{col 46}0.000
+{txt}iv:{col 10}{res}1.446{col 22}0.508{col 46}0.008
+{txt}------------------------------------------------------------------
 
 {com}. 
 . log close _all
       {txt}name:  {res}<unnamed>
        {txt}log:  {res}D:\Lindo\Assignment2\mylog.smcl
   {txt}log type:  {res}smcl
- {txt}closed on:  {res} 1 Feb 2017, 04:34:30
+ {txt}closed on:  {res} 5 Feb 2017, 17:35:21
 {txt}{.-}
 {smcl}
 {txt}{sf}{ul off}
