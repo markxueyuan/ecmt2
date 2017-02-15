@@ -1,0 +1,134 @@
+{smcl}
+{com}{sf}{ul off}{txt}
+{com}. capture program drop _all
+{txt}
+{com}. capture estimates drop _all
+{txt}
+{com}. clear all
+{txt}
+{com}. set more off
+{txt}
+{com}. 
+. capture cd "D:/Lindo/Assignment3"
+{txt}
+{com}. 
+. if c(username)=="xueqingyan" {c -(}
+.         cd "C:\Users\yanxueqing\Desktop\Metrics"
+. {c )-}
+{txt}
+{com}. 
+. 
+. program endog, rclass
+{txt}  1{com}.         syntax [ , trend(real 0)]
+{txt}  2{com}.         capture drop _all
+{txt}  3{com}.         
+.         tempvar y id r Treat t Post e TrPos
+{txt}  4{com}.         
+.         local n 400
+{txt}  5{com}.         set obs `n'
+{txt}  6{com}.         gen `id' = _n
+{txt}  7{com}.         gen `r' = runiform()
+{txt}  8{com}.         sort `r'
+{txt}  9{com}.         generate `Treat' = _n <= .5*`n'
+{txt} 10{com}.         expand 10
+{txt} 11{com}.         bysort `id' : gen `t' = _n 
+{txt} 12{com}.         gen `Post' = 1 if `t' > 5
+{txt} 13{com}.         replace `Post' = 0 if `t' < 6
+{txt} 14{com}.         local b0 1.2
+{txt} 15{com}.         local b1 2
+{txt} 16{com}.         local b2 1.5
+{txt} 17{com}.         local b3 2
+{txt} 18{com}.         
+.         gen `e' = rnormal(0,2)
+{txt} 19{com}.         gen `TrPos' = `Treat'*`Post'
+{txt} 20{com}.         gen `y' = `b0' + `b1'*`Treat' + `b2'*`Post'  /// 
+>         + `b3'*`Treat'*`Post'+ `trend'*`t'*`Treat' + `e'
+{txt} 21{com}.         
+.         * Method is ols:
+.                 regress `y' `Treat' `Post' `TrPos'
+{txt} 22{com}.                 test _b[`TrPos'] = `b3'
+{txt} 23{com}.                 if `r(p)' < .05{c -(}
+{txt} 24{com}.                         local h1 = 1
+{txt} 25{com}.                 {c )-} 
+{txt} 26{com}.                 else {c -(}
+{txt} 27{com}.                         local h1 = 0
+{txt} 28{com}.                 {c )-}
+{txt} 29{com}.                 return scala b3 = _b[`TrPos']
+{txt} 30{com}.                 return scala p = `r(p)'
+{txt} 31{com}.                 return scala h1 = `h1'
+{txt} 32{com}.                 
+. end
+{txt}
+{com}. 
+. 
+. ********** simulate ***********************
+. 
+. program siml, rclass
+{txt}  1{com}.         syntax [ , trend(real 0)]
+{txt}  2{com}.         capture drop _all
+{txt}  3{com}.         
+.         simulate ///
+>         b3  = r(b3)  p  = r(p)  h1  = r(h1)  ///
+>         , reps(500): endog, trend(`trend')
+{txt}  4{com}.         
+.         return scala trend = `trend'
+{txt}  5{com}.         quietly summ b3
+{txt}  6{com}.         return scala b3 = r(mean)
+{txt}  7{com}.         quietly summ p
+{txt}  8{com}.         return scala p = r(mean)
+{txt}  9{com}.         quietly summ h1
+{txt} 10{com}.         return scala h1 = r(mean)
+{txt} 11{com}.         
+. end
+{txt}
+{com}. 
+. 
+. 
+. 
+. ********* print result ********************
+. 
+. program print_result
+{txt}  1{com}.         display as result "Thanks for your patience!"
+{txt}  2{com}.         display as result "I set the simulate function implemented quietly,"
+{txt}  3{com}.         display as result "so that the table can be clearly printed."
+{txt}  4{com}.         display as text _dup(66) "-"
+{txt}  5{com}.         display "Trend"  _col(10) "estbeta3" ///
+>                         _col(22) "Pr{c -(}estbeta3 = 2{c )-}"   ///
+>                         _col(46) "Pr{c -(}H0 is rejected{c )-}"
+{txt}  6{com}.         display as text _dup(66) "-"
+{txt}  7{com}. 
+.         forvalues t=-.6(.2).6{c -(}
+{txt}  8{com}.                 quietly siml , trend(`t')
+{txt}  9{com}.                 display as result %5.1f `t' ///
+>                                 _col(10)  as result %5.3f `r(b3)' ///
+>                                 _col(22) as result %5.3f `r(p)'   ///
+>                                 _col(46) as result %5.3f `r(h1)'
+{txt} 10{com}.         {c )-}
+{txt} 11{com}.         display as text _dup(66) "-"
+{txt} 12{com}. end
+{txt}
+{com}. 
+. print_result
+{res}Thanks for your patience!
+I set the simulate function implemented quietly,
+so that the table can be clearly printed.
+{txt}------------------------------------------------------------------
+Trend{col 10}estbeta3{col 22}Pr{estbeta3 = 2}{col 46}Pr{H0 is rejected}
+------------------------------------------------------------------
+{res} -0.6{col 10}-0.994{col 22}0.000{col 46}1.000
+ -0.4{col 10}0.001{col 22}0.000{col 46}1.000
+ -0.2{col 10}1.000{col 22}0.000{col 46}1.000
+  0.0{col 10}2.004{col 22}0.527{col 46}0.034
+  0.2{col 10}3.001{col 22}0.000{col 46}1.000
+  0.4{col 10}3.998{col 22}0.000{col 46}1.000
+{txt}------------------------------------------------------------------
+
+{com}. 
+. log close _all
+      {txt}name:  {res}<unnamed>
+       {txt}log:  {res}D:\Lindo\Assignment3\mylog.smcl
+  {txt}log type:  {res}smcl
+ {txt}closed on:  {res}15 Feb 2017, 09:13:28
+{txt}{.-}
+{smcl}
+{txt}{sf}{ul off}
