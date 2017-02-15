@@ -1,0 +1,124 @@
+\documentclass[a4paper,11pt]{article}
+
+
+% define the title
+\author{Xue, Yuan}
+\title{Econometric II Notes}
+
+
+\usepackage{verbatim}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{tikz}
+\usetikzlibrary{graphs}
+
+%\pagestyle{headings}
+%\thispagestyle{headings}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\section{Philosophy}
+Learn how to read papers doing econometrics. Learn approaches to empirical research.
+\subsection{External validity and internal validity}
+\begin{itemize}
+	\item[-] Internal validity
+	
+The degree to which the research design yields estimation that reflects the true causal effect for the population, location or time under consideration.
+	\item[-] External validity
+	
+The degree to which the research design yields estimation that can be used to predict the causal effect in other population, location or time.
+	\item[-] Threats to internal validity
+	\begin{itemize}
+		\item[-] Selection bias, omitted variable bias, endogeneity.
+		\item[-] Misspecification of function form (linearity, interactions).
+		\item[-] Attrition
+		\item[-] Measurement error
+	\end{itemize}
+	\item[-] Threats to external validity
+	\begin{itemize}
+		\item[-] Interaction of the setting (agents, institutions, time) and treatment that is relevant.
+		\item[-] Internal validity
+	\end{itemize}
+\end{itemize}
+\paragraph{Model for individual $i$, group $g$, location $l$, time $t$}
+\begin{equation}
+	y_{igtl}=\alpha +(\beta_0+\beta_1x_{igtl})T_{igtl}+w_{igtl}\theta + \epsilon_{iglt}
+\end{equation}
+$x_{igtl}$: Interactive confounders.\\
+$T_{igtl}$: Treatment Effect.\\
+$T_{igtl}$: Additive confounders.
+
+An experiment in which $T_{iglt}$ is randomized will be internally valid. It will yield an estimation of effect for the distribution of $x$ represented in the study (from comparison of mean).
+\paragraph{Whether the estimation is externally valid depends on:}
+\begin{enumerate}
+	\item The degree to which the population/location/time of interest is reflected in the study.
+	\item The degree to which effects are heterogeneous.
+	\item Internal validity.
+\end{enumerate}
+\subsection{Structural vs reduced form estimation}
+\paragraph{``The battle ground"}
+	\begin{itemize}
+		\item[-] Credibility of theoretical vs statistical assumptions.
+		\item[-] How to achieve external validity.
+		\item[-] Types of questions that should be asked.		
+	\end{itemize}
+\paragraph{Structural approach}
+	\begin{itemize}
+		\item[-] Using economic theory as the starting point.
+		\item[-] Modelling a system involving a collection of endogenous variables, exogenous variables\ldots (maximization of profits/utility)
+		\item[-] Choice:
+		\begin{itemize}
+			\item[-] What to specify as endogenous or exgonenous variables are determined.
+			\item[-] What function form to use.
+			\item[$\rightarrow$] Generate equations corresponding to choices and/or aggregates.
+			\item[-] ML estimation of non-linear simultaneous equations.
+			\item[-] Parameters are ``fundamental", i.e., argubaly not context dependent.
+			\item[-] Allows for generality.
+			\item[-] Can simulate behavioral responses to policy as treatment happens.
+			\item[-] Can conduct welfare calculations.
+		\end{itemize}
+		\item[-] Weakness:
+		\begin{itemize}
+			\item[-] Comparatively weak support for exogenous assessment.
+			\item[-] Theoretical assumption may be overly restrictive.
+		\end{itemize}
+	\end{itemize}
+\paragraph{Reduced form/design-based/quasi-experimental approach}
+\begin{itemize}
+	\item[-]Doesn't try to uncover ``the model"generating data.
+	\item[-]Focuses on obtaining credible causal estimation of parameters of interest, not necessarily ``fundamental" parameters.
+	\item[-]\underline{Example}: Document effects of class size reductions on test scores instead of modeling test scores (structural).
+\end{itemize}
+
+\begin{figure}[!h]
+\centering
+	\tikz {
+		\node (a) at (0,0.5) {test scores};
+		\node (b) at (3,1) {teacher effort};
+		\node (c) at (3,0) {parent effort};
+		\node (d) at (6,.5) {class size};
+		\graph {
+			(a) <- (b);
+			(a) <- (c);
+			(b) <-> (c);
+			(b) <-> (d);
+			(d) ->[bend left] (a);
+		};
+}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+	\tikz {
+		\node (a) at (0,0) {test scores};
+		\node (b) [draw] at (0,1) {black box};
+		\node (c) at (0,2) {exogenous shock/change ($\Delta$) to class size};
+		\graph {
+			(a) <- (b);
+			(b) <- (c);
+		};
+}
+\end{figure}
+
+\end{document}

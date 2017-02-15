@@ -1,0 +1,213 @@
+\documentclass[a4paper,11pt]{article}
+
+% define the title
+\author{Xue, Yuan}
+\title{Econometric II Notes}
+
+
+\usepackage{verbatim}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{tikz}
+\usetikzlibrary{graphs}
+\usetikzlibrary{snakes}
+\usepackage{fourier}
+\usepackage{wrapfig}
+
+\newcommand{\myparagraph}[1]{\paragraph{#1}\mbox{}\par}
+\newcommand{\E}{\mathrm{E}}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\Cov}{\mathrm{Cov}}
+\newcommand{\T}{\mathrm{T}}
+\newcommand{\ATET}{\mathrm{ATET}}
+\newcommand{\DD}{\mathrm{DD}}
+
+%\pagestyle{headings}
+%\thispagestyle{headings}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\section{Difference In Differences}
+\subsection{DID basics}
+\myparagraph{Backgrounds}
+\begin{wrapfigure}{r}{0.3\textwidth}
+\begin{tikzpicture}
+\draw[->] (-0.2,0) -- (4.2,0) node[right]{};
+\draw[->] (0,-0.2) -- (0,3.8) node[above]{};
+\draw (2, 1pt) -- (2, -3pt) node[below]{$t$};
+\draw[decorate, decoration={snake, amplitude=1pt,segment length=2pt}] (0,1.5) -- (2,1.5);
+\draw[dashed] (2,1.5) -- (2,3);
+\draw[decorate, decoration={snake, amplitude=1pt,segment length=2pt}] (2,3) --(4,3);
+\end{tikzpicture}
+\label{trend}
+\end{wrapfigure}
+DID is focused on exploiting time-series variation. We could observe some individuals/groups both pre and post treatment and estimate:
+\begin{equation}
+	y_{it}=\alpha + \beta\,\text{Treated}_t + \epsilon_{it}
+\end{equation}
+Or,
+\begin{equation}
+	y_{it}=\alpha + \beta\,\text{Post}_t + \epsilon_{it}
+\end{equation}
+But do we believe $\Cov (\mathrm{Treated}_t,\epsilon_{it}) = 0$~? Usually not. World constantly evolves --- Other determinants of $y_{it}$ likely change.
+
+It's possible to make a convincing case --- What does the history of $y_{it}$ (\,$\E[y_{it}]$\,) look like leading to treatment?
+\begin{align}
+	\text{Flat} \quad & \Rightarrow \quad \text{Assumption is credible.} \nonumber \\
+	\text{Smoothly trending} \quad & \Rightarrow \quad \text{Model controling for trend must be credible.} \nonumber
+\end{align}
+Still, going in this direction implies making the case that treatment is the only reason outcomes difference between post and pre.\\
+Tough sell
+\footnote{A tough sell: something that it is difficult to persuade people to buy or accept (Longman Online Dictionary)}: 
+Easier with high frequency data. Then you can compare outcomes ``seconds'' post vs pre. This amounts to a regression-discontinuity design with time as the running variable. It is not useful when treatment doesn't have an immediate effect on outcome.
+
+DID brings an untreated comparison group to inform us about how outcomes would have evolved for the treatment group in the absence of treatment. It compares changes in outcomes among those in the treatment group to changes in outcomes among those in the control group.
+\begin{equation}
+	\E [\Delta y^{\T = 1}] - \E[\Delta y^{\T=0}]
+\end{equation}
+\myparagraph{Identifying assumption}
+The change observed for the control group provides a good counterfactual for how the treated group would have changed in the absence of treatment:
+\begin{alignat}{3}
+	&\E [\Delta y^0_i\,|\,\T = 0] 
+	&& = \E [\Delta y^0_i\,|\,\T = 1] \\
+	\Rightarrow \qquad
+	&\E [\Delta y^1_i\,|\,\T = 1]
+	&&- \E [\Delta y^0_i\,|\,\T = 0] \\
+	=\,
+	&\E [\Delta y^1_i\,|\,\T = 1]
+	&&- \E [\Delta y^0_i\,|\,\T = 1]  \\
+	=\,
+	&\ATET \phantom{} \nonumber
+\end{alignat}
+
+All we've done is to redefine outcome variable and assume ignorability: 
+\begin{equation}
+	\Delta y^0 \perp \T
+\end{equation}
+If we also assume
+\begin{equation}
+	\Delta y^1 \perp \T
+\end{equation}
+then we get ATE.
+\myparagraph{}
+The sample analogue is simply:
+\begin{equation}
+	\hat{\theta}_{\DD}
+	= (\bar{y}_{t=1}^{\T=1}
+	- \bar{y}_{t=0}^{\T=1})
+	- (\bar{y}_{t=1}^{\T=0}
+	- \bar{y}_{t=0}^{\T=0})
+\end{equation}
+Where $\T=1$ for treatment, $t=1$ is post time.
+\myparagraph{Two types of counterfactuals}
+\subsection{Regression Analogue of DID}
+\begin{equation}
+	y_{it} = \alpha + \beta P_t +\gamma\T _i+\theta P_t\T_i + \epsilon_{it}
+\end{equation}
+
+\myparagraph{Why do we adopt regression version?}
+\begin{itemize}
+	\item[-] Convenience for calculating std error.
+		\item[-] Control for covariates.\\
+	If Control for covariates really change the estimate of effect, then:
+	\begin{itemize}
+		\item[-] Test robustness.
+		\item[-] Address threats to validity of simplest model.
+		\item[-] Enhance precision.
+	\end{itemize}
+	\item[-] Easy to extend to multiple treatment/control groups and multiple (\,$>\!2$\,) time periods.
+		\begin{enumerate}
+		\item Control for systematic difference across periods with time period fixed effects.\\
+		(Comprehensive set of indicators corresponding to each period.~)
+		\item Control for systematic difference across individuals/groups with individual/group fixed effects.\\ (Comprehensive set of indicators corresponding to each individual/group.~)
+		\item As usual, the coefficient estimates the effect  on ``has been treated'' in the absence of treatment.
+		\end{enumerate}
+\end{itemize}
+
+
+\myparagraph{Generalized DID model}
+
+\begin{equation}
+	y_{it} = \alpha _i + \alpha _t + \theta\, \mathrm{Hasbeentreated}_{it} + \epsilon_{it}
+\end{equation}
+
+What this model allows besides more data:
+\begin{itemize}
+	\item[-] Treatment may happen at different points in time
+	\item[-] Can go beyond treatment/control --- ``Consider treatment intensity''.
+\end{itemize}
+
+\subsection{DID Examples}
+\myparagraph{Card (1990)}
+
+
+\subsection{Threats to DID Validity}
+
+\paragraph{Ideal}
+\myparagraph{Threat 1: Differential trends} 
+Our estimate under states effect --- biased down (negatively).
+\myparagraph{Threat 2: A 's DID}
+Selection into treatment induced by a bad shock to outcomes.
+\begin{itemize}
+	\item[-] If mean reversion happens, then our estimated treatment effect will confound the effect of treatment with mean reversion.
+\end{itemize}
+\myparagraph{Threat 3: Idiosyncratic shocks}
+Are there any other "treatments" specific to treatment or control group that are just associated with pre or post?
+\myparagraph{Threat 4: Compositional changes caused by treatment}
+\begin{itemize}
+	\item[-] Suppose people move into a group to get desirable treatment $\Delta$	over time for treated group effect:\\
+	Effect of treatment + Effect of composition change + Effects of other changes
+	\item[-] Subtraction off $\Delta$ for controls doesn't get rid of effect of composition $\Delta$, probably the opposite!
+	
+	\underline{Example}:
+	\begin{itemize}
+		\item[-] Native leave Miami as a result of Mariel boatlift in 1980.
+		\item[-] Mw hike in NJ causes stores to shutdown.
+	\end{itemize}
+	\item[-] There will be problem if those induced into or out of treatment are systematically different in expected outcomes.
+	\item[-] Can get around this problem with better data by estimating an ``intent-to-treat" effect, the effect on those who we anticipated being treated when policy was announced.
+\end{itemize}
+
+\subsection{Extensions of DID}
+\myparagraph{1. DID with dynamic treatment effects}
+Instead of one post-treatment indicator, have a set of indicators for leads and lags of the period when treatment is ``turned on".
+
+\underline{Example}: 2 year pre-treat, 1 year pre-treat, ..., 4 years post-treat, 5 years post treat.
+\begin{itemize}
+	\item[-] Coefficient on pre-treatment indicators usually should be zero unless you have a good story (falsification test).
+	\item[-] Coefficient on post-treatment indicators ?
+\end{itemize}
+
+The set of indicators gives you the difference in expected outcomes relative to the omitted category/periods (Controls for the expected changes due to passage of time, $\alpha_t$).
+
+In this example, it's the difference relative to $3^+$ years pre-treatment. If the last indicator was ``50 years post" instead of ``$5^+$" the difference would be relative to $3^+$ years pre and $6^+$ post.
+
+Not appropriate if we think of $6^+$ years as ``treated".
+\begin{align}
+	y_{it} = \alpha_s + \alpha_t & + \theta\text{Treated}_{st} + \epsilon_{it} \nonumber\\
+	& + \theta_{-2}\text{2preT} + \theta_{-1}\text{1preT} + \theta_0\text{T}+\ldots+\theta_5\text{5postT}
+\end{align}
+\myparagraph{2. Allowing for differential trends}
+\begin{equation}
+	y_{st}=\beta_s + \psi_s t + \gamma _t + \theta\,\text{Treated}_{st} + \epsilon_{st}
+\end{equation}
+
+	Identification is based on ? how outcomes diverge from trend for the treatment group following treatment relative to how outcomes diverge from trend for the control group over the same year. {Require more data}
+	
+	\underline{Note}: Assuming constant treatment effect (means shift) may lead to serious problems with this model. Group-specific trends + Assuming constant TE + Dynamic TE = Bad
+
+If the treatment effect is not constant (short lived, takes time to affect change, affect slope, etc.), then the model is misspecified in a bad way (Walfers, 2006 AER).
+
+The trend will be a weighted average of trends in pre + post period if doing the simple DID $\theta\text{Treated}_{st}$. Can think of this as ``Over-controlling" since treat may be affected by treatment.
+
+\begin{itemize}
+	\item[\danger] Controlling for variables affected by treatment causes bias. 
+	\item[-] No problem with only one period of post-treatment data because only pre-periods contribution to estimation trend.
+	\item[-] Analogously, no problem if we estimate the effect for each post period separately, even if done using a single model if it fully allows for treatment effect dynamics ? allowing treatment effect to ? across all post-treatment periods.
+\end{itemize}
+
+If you want to include group-specific trends, you must be very confident that there aren't dynamic treatment effect or estimate this sort of model where you fully allow for dynamic.
+	
+\end{document}
