@@ -97,7 +97,7 @@
 >                         _col(46) "Pr{c -(}H0 is rejected{c )-}"
 {txt}  6{com}.         display as text _dup(66) "-"
 {txt}  7{com}. 
-.         forvalues t=-.6(.2).6{c -(}
+.         forvalues t=-.6(.2).7{c -(}
 {txt}  8{com}.                 quietly siml , trend(`t')
 {txt}  9{com}.                 display as result %5.1f `t' ///
 >                                 _col(10)  as result %5.3f `r(b3)' ///
@@ -115,20 +115,21 @@ so that the table can be clearly printed.
 {txt}------------------------------------------------------------------
 Trend{col 10}estbeta3{col 22}Pr{estbeta3 = 2}{col 46}Pr{H0 is rejected}
 ------------------------------------------------------------------
-{res} -0.6{col 10}-0.994{col 22}0.000{col 46}1.000
- -0.4{col 10}0.001{col 22}0.000{col 46}1.000
+{res} -0.6{col 10}-0.999{col 22}0.000{col 46}1.000
+ -0.4{col 10}-0.001{col 22}0.000{col 46}1.000
  -0.2{col 10}1.000{col 22}0.000{col 46}1.000
-  0.0{col 10}2.004{col 22}0.527{col 46}0.034
-  0.2{col 10}3.001{col 22}0.000{col 46}1.000
-  0.4{col 10}3.998{col 22}0.000{col 46}1.000
+  0.0{col 10}2.007{col 22}0.506{col 46}0.050
+  0.2{col 10}3.002{col 22}0.000{col 46}1.000
+  0.4{col 10}3.999{col 22}0.000{col 46}1.000
+  0.6{col 10}4.997{col 22}0.000{col 46}1.000
 {txt}------------------------------------------------------------------
 
 {com}. 
 . log close _all
       {txt}name:  {res}<unnamed>
-       {txt}log:  {res}D:\Lindo\Assignment3\mylog.smcl
+       {txt}log:  {res}D:\Lindo\Assignments\Assignment3\mylog.smcl
   {txt}log type:  {res}smcl
- {txt}closed on:  {res}15 Feb 2017, 09:13:28
+ {txt}closed on:  {res}15 Feb 2017, 09:39:23
 {txt}{.-}
 {smcl}
 {txt}{sf}{ul off}
