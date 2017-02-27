@@ -1,0 +1,348 @@
+{smcl}
+{com}{sf}{ul off}{txt}
+{com}. capture program drop _all
+{txt}
+{com}. capture estimates drop _all
+{txt}
+{com}. clear all
+{txt}
+{com}. set more off
+{txt}
+{com}. 
+. capture cd "D:/Lindo/Assignments/Assignment4"
+{txt}
+{com}. 
+. if c(username)=="xueqingyan" {c -(}
+.         cd "C:\Users\yanxueqing\Desktop\ECMT 676 Assignments\Assignment 4"
+. {c )-}
+{txt}
+{com}. 
+. ** Implement part I.
+. 
+. program endog, rclass
+{txt}  1{com}.         *syntax [ , trend(real 0)]
+.         capture drop _all
+{txt}  2{com}.         
+.         tempvar id a_i r Tr t a_t Post Treat u_it e_it y
+{txt}  3{com}.         
+.         local n 200
+{txt}  4{com}.         set obs `n'
+{txt}  5{com}.         
+.         gen `id' = _n
+{txt}  6{com}.         
+.         gen `a_i' =rnormal(5,sqrt(8))
+{txt}  7{com}.         
+.         gen `r' = runiform()
+{txt}  8{com}.         sort `r'
+{txt}  9{com}.         generate `Tr' = _n <= .5*`n'
+{txt} 10{com}. 
+.         
+.         expand 15
+{txt} 11{com}.         bysort `id' : gen `t' = _n
+{txt} 12{com}.         
+.         xtset `id' `t'
+{txt} 13{com}.         
+.         gen `Post' = 1 if `t' > 6
+{txt} 14{com}.         replace `Post' = 0 if `t' < 7
+{txt} 15{com}.         
+.         gen `Treat' = `Tr'*`Post'
+{txt} 16{com}. 
+.         gen `a_t' = .
+{txt} 17{com}.         forvalues i = 1/15{c -(}
+{txt} 18{com}.                 local r = rnormal(1,sqrt(2))
+{txt} 19{com}.                 replace `a_t' = `r' if `t' == `i'
+{txt} 20{com}.         {c )-}
+{txt} 21{com}.         
+.         gen `u_it' = rnormal(0,sqrt(2))
+{txt} 22{com}.         
+.         gen `e_it' = 0
+{txt} 23{com}.         levelsof `id', local(num_id)
+{txt} 24{com}.         levelsof `t', local(num_t)
+{txt} 25{com}.         foreach ii of local num_id{c -(}
+{txt} 26{com}.                 replace `e_it' = `u_it' ///
+>                                 if `id' == `ii' & `t' == 1
+{txt} 27{com}.                 foreach tt of local num_t{c -(}
+{txt} 28{com}.                         if `tt' > 1 {c -(}
+{txt} 29{com}.                                 replace `e_it' = .25*L.`e_it' /// 
+>                                 + .5*`u_it' if `id' == `ii' & `t' == `tt'
+{txt} 30{com}.                         {c )-}
+{txt} 31{com}.                 {c )-}
+{txt} 32{com}.         {c )-}
+{txt} 33{com}.         
+.         
+.         local theta = 1.5
+{txt} 34{com}.         
+.         gen `y' = `a_i' + `a_t' + `theta'*`Treat' + `e_it'
+{txt} 35{com}.         
+.         * Regress assuing iid:
+.                 xtreg `y' i.`t' `Treat' , fe
+{txt} 36{com}.                 test _b[`Treat'] = `theta'
+{txt} 37{com}.                 if `r(p)' < .05{c -(}
+{txt} 38{com}.                         local h1 = 1
+{txt} 39{com}.                 {c )-} 
+{txt} 40{com}.                 else {c -(}
+{txt} 41{com}.                         local h1 = 0
+{txt} 42{com}.                 {c )-}
+{txt} 43{com}.                 return scala theta_1 = _b[`Treat']
+{txt} 44{com}.                 return scala std_1 = _se[`Treat']
+{txt} 45{com}.                 return scala p_1 = `r(p)'
+{txt} 46{com}.                 return scala h1_1 = `h1'
+{txt} 47{com}.                 
+.         * Regress clustering on id
+.         
+.                 xtreg `y'  i.`t' `Treat' , fe cluster(`id')
+{txt} 48{com}.                 test _b[`Treat'] = `theta'
+{txt} 49{com}.                 if `r(p)' < .05{c -(}
+{txt} 50{com}.                         local h1 = 1
+{txt} 51{com}.                 {c )-} 
+{txt} 52{com}.                 else {c -(}
+{txt} 53{com}.                         local h1 = 0
+{txt} 54{com}.                 {c )-}
+{txt} 55{com}.                 return scala theta_2 = _b[`Treat']
+{txt} 56{com}.                 return scala std_2 = _se[`Treat']
+{txt} 57{com}.                 return scala p_2 = `r(p)'
+{txt} 58{com}.                 return scala h1_2 = `h1'
+{txt} 59{com}.                 
+.         * Regress hetero-robust
+.                 local dummy
+{txt} 60{com}.                 local dummyt
+{txt} 61{com}.                 levelsof `id', local(num_id)
+{txt} 62{com}.                 levelsof `t', local(num_t)
+{txt} 63{com}.                 foreach ii of local num_id{c -(}
+{txt} 64{com}.                         if `ii' > 1 {c -(}
+{txt} 65{com}.                                 gen v`ii' = 1 if `id' == `ii'
+{txt} 66{com}.                                 replace v`ii' = 0 if v`ii' == .
+{txt} 67{com}.                                 local dummy `dummy' v`ii'
+{txt} 68{com}.                         {c )-}
+{txt} 69{com}.                 {c )-}
+{txt} 70{com}.                 foreach tt of local num_t{c -(}
+{txt} 71{com}.                         if `tt' > 1 {c -(}
+{txt} 72{com}.                                 gen vt`tt' = 1 if `t' == `tt'
+{txt} 73{com}.                                 replace vt`tt' = 0 if vt`tt' == .
+{txt} 74{com}.                                 local dummyt `dummyt' vt`tt'
+{txt} 75{com}.                         {c )-}
+{txt} 76{com}.                 {c )-}
+{txt} 77{com}.                 regress `y' `dummy' `dummyt' `Treat' , vce(robust)
+{txt} 78{com}.                 test _b[`Treat'] = `theta'
+{txt} 79{com}.                 if `r(p)' < .05{c -(}
+{txt} 80{com}.                         local h1 = 1
+{txt} 81{com}.                 {c )-} 
+{txt} 82{com}.                 else {c -(}
+{txt} 83{com}.                         local h1 = 0
+{txt} 84{com}.                 {c )-}
+{txt} 85{com}.                 return scala theta_3 = _b[`Treat']
+{txt} 86{com}.                 return scala std_3 = _se[`Treat']
+{txt} 87{com}.                 return scala p_3 = `r(p)'
+{txt} 88{com}.                 return scala h1_3 = `h1'
+{txt} 89{com}.                 drop `dummy' `dummyt'
+{txt} 90{com}. 
+.                 
+. end
+{txt}
+{com}. 
+. ** Implement part II and part III
+. 
+. program endog2, rclass
+{txt}  1{com}.         syntax [ , indicator(real 0)]
+{txt}  2{com}.         capture drop _all
+{txt}  3{com}.         
+.         tempvar id a_i r Tr t a_t Post Treat u_it e_it y outcome
+{txt}  4{com}.         
+.         local n 200
+{txt}  5{com}.         set obs `n'
+{txt}  6{com}.         
+.         gen `id' = _n   
+{txt}  7{com}.         gen `a_i' =rnormal(5,sqrt(8))
+{txt}  8{com}.         expand 15
+{txt}  9{com}.         bysort `id' : gen `t' = _n
+{txt} 10{com}.         
+.         xtset `id' `t'
+{txt} 11{com}.         
+.         gen `Post' = 1 if `t' > 6
+{txt} 12{com}.         quietly replace `Post' = 0 if `t' < 7
+{txt} 13{com}. 
+.         gen `a_t' = .
+{txt} 14{com}.         forvalues i = 1/15{c -(}
+{txt} 15{com}.                 local r = rnormal(1,sqrt(2))
+{txt} 16{com}.                 quietly replace `a_t' = `r' if `t' == `i'
+{txt} 17{com}.         {c )-}
+{txt} 18{com}.         
+.         gen `u_it' = rnormal(0,sqrt(2))
+{txt} 19{com}.         
+.         gen `e_it' = 0
+{txt} 20{com}.         levelsof `id', local(num_id)
+{txt} 21{com}.         levelsof `t', local(num_t)
+{txt} 22{com}.         foreach ii of local num_id{c -(}
+{txt} 23{com}.                 replace `e_it' = `u_it' ///
+>                                 if `id' == `ii' & `t' == 1
+{txt} 24{com}.                 foreach tt of local num_t{c -(}
+{txt} 25{com}.                         if `tt' > 1 {c -(}
+{txt} 26{com}.                                 replace `e_it' = .25*L.`e_it' /// 
+>                                 + .5*`u_it' if `id' == `ii' & `t' == `tt'
+{txt} 27{com}.                         {c )-}
+{txt} 28{com}.                 {c )-}
+{txt} 29{com}.         {c )-}
+{txt} 30{com}. 
+.         gen `outcome' = `a_i' + `a_t' + `e_it'
+{txt} 31{com}.         summ `outcome' if `t' == 6 , detail
+{txt} 32{com}.         gen `Tr' =  `outcome' < `r(p50)'
+{txt} 33{com}.         
+.         gen `Treat' = `Tr'*`Post'
+{txt} 34{com}.         
+.         
+.         local theta = 1.5
+{txt} 35{com}.         
+.         gen `y' = `a_i' + `a_t' + `theta'*`Treat' + `e_it'
+{txt} 36{com}.                 if `indicator' == 1 {c -(}
+{txt} 37{com}.                         xtreg `y'  i6.`t'#c.`Treat' i.`t' `Treat' , fe cluster(`id')
+{txt} 38{com}.                         test _b[i6.`t'#c.`Treat'] = 0
+{txt} 39{com}.                         if `r(p)' < .05{c -(}
+{txt} 40{com}.                                 local h1 = 1
+{txt} 41{com}.                         {c )-} 
+{txt} 42{com}.                         else {c -(}
+{txt} 43{com}.                                 local h1 = 0
+{txt} 44{com}.                         {c )-}
+{txt} 45{com}.                 {c )-}
+{txt} 46{com}.                 else {c -(}
+{txt} 47{com}.                         xtreg `y'  i.`t' `Treat' , fe cluster(`id')
+{txt} 48{com}.                         test _b[`Treat'] = `theta'
+{txt} 49{com}.                         if `r(p)' < .05{c -(}
+{txt} 50{com}.                                 local h1 = 1
+{txt} 51{com}.                         {c )-} 
+{txt} 52{com}.                         else {c -(}
+{txt} 53{com}.                                 local h1 = 0
+{txt} 54{com}.                         {c )-}
+{txt} 55{com}.                 {c )-}
+{txt} 56{com}.                 return scala theta_2 = _b[`Treat']
+{txt} 57{com}.                 return scala std_2 = _se[`Treat']
+{txt} 58{com}.                 return scala p_2 = `r(p)'
+{txt} 59{com}.                 return scala h1_2 = `h1'
+{txt} 60{com}.                 
+. end
+{txt}
+{com}. 
+. 
+. ********** simulate ***********************
+. 
+. * For part I
+. 
+. simulate ///
+>     theta_iid  = r(theta_1)  h1_iid  = r(h1_1)  std_iid  = r(std_1)  ///
+>         theta_cluster  = r(theta_2)  h1_cluster  = r(h1_2) /// 
+>                                          std_cluster  = r(std_2)  ///
+>         theta_robust  = r(theta_3)  h1_robust  = r(h1_3) /// 
+>                                          std_robust  = r(std_3)  ///
+>         , reps(10) : endog
+{p2colset 10 20 24 2}{...}
+
+{txt}{p2col :command:}endog{p_end}
+{p2colset 8 20 24 2}{...}
+{p2col :theta_iid:}{res:r(theta_1)}{p_end}
+{p2colset 11 20 24 2}{...}
+{p2col :h1_iid:}{res:r(h1_1)}{p_end}
+{p2colset 10 20 24 2}{...}
+{p2col :std_iid:}{res:r(std_1)}{p_end}
+{p2colset 4 20 24 2}{...}
+{p2col :theta_cluster:}{res:r(theta_2)}{p_end}
+{p2colset 7 20 24 2}{...}
+{p2col :h1_cluster:}{res:r(h1_2)}{p_end}
+{p2colset 6 20 24 2}{...}
+{p2col :std_cluster:}{res:r(std_2)}{p_end}
+{p2colset 5 20 24 2}{...}
+{p2col :theta_robust:}{res:r(theta_3)}{p_end}
+{p2colset 8 20 24 2}{...}
+{p2col :h1_robust:}{res:r(h1_3)}{p_end}
+{p2colset 7 20 24 2}{...}
+{p2col :std_robust:}{res:r(std_3)}{p_end}
+
+Simulations ({res}10{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+..........
+
+{com}.         
+. * For part II
+. simulate ///
+>         theta_cluster  = r(theta_2)  h1_cluster  = r(h1_2) /// 
+>                                          std_cluster  = r(std_2)  ///
+>         , reps(5) : endog2
+{p2colset 10 20 24 2}{...}
+
+{txt}{p2col :command:}endog2{p_end}
+{p2colset 4 20 24 2}{...}
+{p2col :theta_cluster:}{res:r(theta_2)}{p_end}
+{p2colset 7 20 24 2}{...}
+{p2col :h1_cluster:}{res:r(h1_2)}{p_end}
+{p2colset 6 20 24 2}{...}
+{p2col :std_cluster:}{res:r(std_2)}{p_end}
+
+Simulations ({res}5{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+.....
+
+{com}.         
+. * For part III
+. simulate ///
+>         theta_cluster  = r(theta_2)  h1_cluster  = r(h1_2) /// 
+>                                          std_cluster  = r(std_2)  ///
+>         , reps(5) : endog2 , indicator(1)
+{p2colset 10 20 24 2}{...}
+
+{txt}{p2col :command:}endog2, indicator(1){p_end}
+{p2colset 4 20 24 2}{...}
+{p2col :theta_cluster:}{res:r(theta_2)}{p_end}
+{p2colset 7 20 24 2}{...}
+{p2col :h1_cluster:}{res:r(h1_2)}{p_end}
+{p2colset 6 20 24 2}{...}
+{p2col :std_cluster:}{res:r(std_2)}{p_end}
+
+Simulations ({res}5{txt})
+{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
+.....
+
+{com}.         
+. 
+. ********* print result ********************
+. 
+. program print_result
+{txt}  1{com}.         display as text _dup(66) "-"
+{txt}  2{com}.         display "method"  _col(10) "estTheta" ///
+>                         _col(22) "Pr{c -(}H0 is rejected{c )-}" ///
+>                         _col(46) "Standard Error"
+{txt}  3{com}.         display as text _dup(66) "-"
+{txt}  4{com}.         
+.         local methods iid cluster robust
+{txt}  5{com}. 
+.         foreach m of local methods{c -(}
+{txt}  6{com}.                 capture quietly summ theta_`m'
+{txt}  7{com}.                 local theta = r(mean)
+{txt}  8{com}.                 capture quietly summ h1_`m'
+{txt}  9{com}.                 local h1 = r(mean)
+{txt} 10{com}.                 capture quietly summ std_`m'
+{txt} 11{com}.                 local std = r(mean)
+{txt} 12{com}.                 display as text "`m':" ///
+>                                 _col(10)  as result %5.3f `theta' ///
+>                                 _col(22) as result %5.3f `h1'   ///
+>                                 _col(46) as result %5.3f `std'
+{txt} 13{com}.         {c )-}
+{txt} 14{com}.         display as text _dup(66) "-"
+{txt} 15{com}. end
+{txt}
+{com}. 
+. print_result
+{txt}------------------------------------------------------------------
+method{col 10}estTheta{col 22}Pr{H0 is rejected}{col 46}Standard Error
+------------------------------------------------------------------
+iid:{col 10}{res}    .{col 22}    .{col 46}    .
+{txt}cluster:{col 10}{res}0.813{col 22}0.000{col 46}0.092
+{txt}robust:{col 10}{res}0.092{col 22}0.092{col 46}0.092
+{txt}------------------------------------------------------------------
+
+{com}. 
+. log close _all
+      {txt}name:  {res}<unnamed>
+       {txt}log:  {res}D:\Lindo\Assignments\Assignment4\mylog.smcl
+  {txt}log type:  {res}smcl
+ {txt}closed on:  {res}27 Feb 2017, 14:52:56
+{txt}{.-}
+{smcl}
+{txt}{sf}{ul off}
