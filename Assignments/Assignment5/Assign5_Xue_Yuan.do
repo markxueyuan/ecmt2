@@ -35,10 +35,14 @@ program bingen
 end
 
 * generate bins of length 1, 10, 25
-bingen , varname(bwtnorm) binname(bin01) binlen(1)  
-bingen , varname(bwtnorm) binname(bin10) binlen(10)
-bingen , varname(bwtnorm) binname(bin25) binlen(25)
 
+local binlens 01 10 25
+
+foreach l of local binlens{
+	bingen , varname(bwtnorm) binname(bin`l') binlen(`l')
+}
+
+* save main data
 tempfile raw
 save "`raw'"
 
@@ -46,45 +50,37 @@ tempfile bin01
 tempfile bin10
 tempfile bin25
 
-collapse (count) freq=bwtnorm , by(bin01)
-graph twoway scatter freq bin01 , ytitle(freq) ///
-      name("graph01") title("Frequencies, bin width=1")
-save `bin01'
+local bins bin01 bin10 bin25
 
-use `raw' , clear
-collapse (count) freq=bwtnorm , by(bin10)
-graph twoway scatter freq bin10 , ytitle(freq) ///
-      name("graph10") title("Frequencies, bin width=10")
-save `bin10'
-
-use `raw' , clear
-collapse (count) freq=bwtnorm , by(bin25)
-graph twoway scatter freq bin25 , ytitle(freq) ///
-      name("graph25") title("Frequencies, bin width=25")
-save `bin25'
+foreach bin of local bins{
+	use `raw' , clear
+	collapse (count) freq=bwtnorm , by(`bin')
+	graph twoway scatter freq `bin' , ytitle(freq) ///
+      name("graph_`bin'") title("Frequencies for `bin'")
+save ``bin''
+	
+}
 
 ***************
 **     A2    **
 ***************
 
-program myreg
-	args bin
+foreach bin of local bins{
+
+	use ``bin'' , clear
 	gen cut = 1 if `bin' < 0
 	replace cut = 0 if cut ==.
 	gen inter = cut * `bin'
+	
 	forvalues bw = 150(-50)50 {
 		display "`bin', bandwith=`bw':"
 		regress freq cut `bin' inter if abs(`bin') < `bw'
 	}
-end
-
-
-local bins bin01 bin10 bin25
-
-foreach bin of local bins{
-	use ``bin'' , clear
-	myreg `bin'
 }
 
 
+***************
+**     A3    **
+***************
 
+log close _all
