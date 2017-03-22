@@ -9,340 +9,1232 @@
 {com}. set more off
 {txt}
 {com}. 
-. capture cd "D:/Lindo/Assignments/Assignment4"
+. capture cd "D:/Lindo/Assignments/Assignment5"
 {txt}
 {com}. 
 . if c(username)=="xueqingyan" {c -(}
-.         cd "C:\Users\yanxueqing\Desktop\ECMT 676 Assignments\Assignment 4"
+.         cd "C:\Users\yanxueqing\Desktop\ECMT 676 Assignments\Assignment 5"
 . {c )-}
 {txt}
 {com}. 
-. ** Implement part I.
-. 
-. program endog, rclass
-{txt}  1{com}.         *syntax [ , trend(real 0)]
-.         capture drop _all
-{txt}  2{com}.         
-.         tempvar id a_i r Tr t a_t Post Treat u_it e_it y
-{txt}  3{com}.         
-.         local n 200
-{txt}  4{com}.         set obs `n'
-{txt}  5{com}.         
-.         gen `id' = _n
-{txt}  6{com}.         
-.         gen `a_i' =rnormal(5,sqrt(8))
-{txt}  7{com}.         
-.         gen `r' = runiform()
-{txt}  8{com}.         sort `r'
-{txt}  9{com}.         generate `Tr' = _n <= .5*`n'
-{txt} 10{com}. 
-.         
-.         expand 15
-{txt} 11{com}.         bysort `id' : gen `t' = _n
-{txt} 12{com}.         
-.         xtset `id' `t'
-{txt} 13{com}.         
-.         gen `Post' = 1 if `t' > 6
-{txt} 14{com}.         replace `Post' = 0 if `t' < 7
-{txt} 15{com}.         
-.         gen `Treat' = `Tr'*`Post'
-{txt} 16{com}. 
-.         gen `a_t' = .
-{txt} 17{com}.         forvalues i = 1/15{c -(}
-{txt} 18{com}.                 local r = rnormal(1,sqrt(2))
-{txt} 19{com}.                 replace `a_t' = `r' if `t' == `i'
-{txt} 20{com}.         {c )-}
-{txt} 21{com}.         
-.         gen `u_it' = rnormal(0,sqrt(2))
-{txt} 22{com}.         
-.         gen `e_it' = 0
-{txt} 23{com}.         levelsof `id', local(num_id)
-{txt} 24{com}.         levelsof `t', local(num_t)
-{txt} 25{com}.         foreach ii of local num_id{c -(}
-{txt} 26{com}.                 replace `e_it' = `u_it' ///
->                                 if `id' == `ii' & `t' == 1
-{txt} 27{com}.                 foreach tt of local num_t{c -(}
-{txt} 28{com}.                         if `tt' > 1 {c -(}
-{txt} 29{com}.                                 replace `e_it' = .25*L.`e_it' /// 
->                                 + .5*`u_it' if `id' == `ii' & `t' == `tt'
-{txt} 30{com}.                         {c )-}
-{txt} 31{com}.                 {c )-}
-{txt} 32{com}.         {c )-}
-{txt} 33{com}.         
-.         
-.         local theta = 1.5
-{txt} 34{com}.         
-.         gen `y' = `a_i' + `a_t' + `theta'*`Treat' + `e_it'
-{txt} 35{com}.         
-.         * Regress assuing iid:
-.                 xtreg `y' i.`t' `Treat' , fe
-{txt} 36{com}.                 test _b[`Treat'] = `theta'
-{txt} 37{com}.                 if `r(p)' < .05{c -(}
-{txt} 38{com}.                         local h1 = 1
-{txt} 39{com}.                 {c )-} 
-{txt} 40{com}.                 else {c -(}
-{txt} 41{com}.                         local h1 = 0
-{txt} 42{com}.                 {c )-}
-{txt} 43{com}.                 return scala theta_1 = _b[`Treat']
-{txt} 44{com}.                 return scala std_1 = _se[`Treat']
-{txt} 45{com}.                 return scala p_1 = `r(p)'
-{txt} 46{com}.                 return scala h1_1 = `h1'
-{txt} 47{com}.                 
-.         * Regress clustering on id
-.         
-.                 xtreg `y'  i.`t' `Treat' , fe cluster(`id')
-{txt} 48{com}.                 test _b[`Treat'] = `theta'
-{txt} 49{com}.                 if `r(p)' < .05{c -(}
-{txt} 50{com}.                         local h1 = 1
-{txt} 51{com}.                 {c )-} 
-{txt} 52{com}.                 else {c -(}
-{txt} 53{com}.                         local h1 = 0
-{txt} 54{com}.                 {c )-}
-{txt} 55{com}.                 return scala theta_2 = _b[`Treat']
-{txt} 56{com}.                 return scala std_2 = _se[`Treat']
-{txt} 57{com}.                 return scala p_2 = `r(p)'
-{txt} 58{com}.                 return scala h1_2 = `h1'
-{txt} 59{com}.                 
-.         * Regress hetero-robust
-.                 local dummy
-{txt} 60{com}.                 local dummyt
-{txt} 61{com}.                 levelsof `id', local(num_id)
-{txt} 62{com}.                 levelsof `t', local(num_t)
-{txt} 63{com}.                 foreach ii of local num_id{c -(}
-{txt} 64{com}.                         if `ii' > 1 {c -(}
-{txt} 65{com}.                                 gen v`ii' = 1 if `id' == `ii'
-{txt} 66{com}.                                 replace v`ii' = 0 if v`ii' == .
-{txt} 67{com}.                                 local dummy `dummy' v`ii'
-{txt} 68{com}.                         {c )-}
-{txt} 69{com}.                 {c )-}
-{txt} 70{com}.                 foreach tt of local num_t{c -(}
-{txt} 71{com}.                         if `tt' > 1 {c -(}
-{txt} 72{com}.                                 gen vt`tt' = 1 if `t' == `tt'
-{txt} 73{com}.                                 replace vt`tt' = 0 if vt`tt' == .
-{txt} 74{com}.                                 local dummyt `dummyt' vt`tt'
-{txt} 75{com}.                         {c )-}
-{txt} 76{com}.                 {c )-}
-{txt} 77{com}.                 regress `y' `dummy' `dummyt' `Treat' , vce(robust)
-{txt} 78{com}.                 test _b[`Treat'] = `theta'
-{txt} 79{com}.                 if `r(p)' < .05{c -(}
-{txt} 80{com}.                         local h1 = 1
-{txt} 81{com}.                 {c )-} 
-{txt} 82{com}.                 else {c -(}
-{txt} 83{com}.                         local h1 = 0
-{txt} 84{com}.                 {c )-}
-{txt} 85{com}.                 return scala theta_3 = _b[`Treat']
-{txt} 86{com}.                 return scala std_3 = _se[`Treat']
-{txt} 87{com}.                 return scala p_3 = `r(p)'
-{txt} 88{com}.                 return scala h1_3 = `h1'
-{txt} 89{com}.                 drop `dummy' `dummyt'
-{txt} 90{com}. 
-.                 
-. end
+. use "runandjump_sample1500g.dta"
 {txt}
 {com}. 
-. ** Implement part II and part III
+{txt}end of do-file
+
+{com}. describe
+
+{txt}Contains data from {res}runandjump_sample1500g.dta
+{txt}  obs:{res}       376,408                          
+{txt} vars:{res}            73                          2 Aug 2010 15:06
+{txt} size:{res}    33,123,904                          
+{txt}{hline}
+              storage   display    value
+variable name   type    format     label      variable label
+{hline}
+{p 0 48}{res}{bind:match          }{txt}{bind: byte    }{bind:{txt}%8.0g     }{space 1}{bind:         }{bind:  }{res}{res}Match status{p_end}
+{p 0 48}{bind:yob            }{txt}{bind: int     }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Year of birth{p_end}
+{p 0 48}{bind:yod            }{txt}{bind: int     }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Year of death{p_end}
+{p 0 48}{bind:staters        }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}State of Residence{p_end}
+{p 0 48}{bind:mom_age        }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Age of mother (at birth){p_end}
+{p 0 48}{bind:mom_race       }{txt}{bind: byte    }{bind:{txt}%8.0g     }{space 1}{bind:racelbl  }{bind:  }{res}{res}Race of mother{p_end}
+{p 0 48}{bind:mom_ed         }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Mother's education{p_end}
+{p 0 48}{bind:bweight        }{txt}{bind: int     }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Birth weight (grams){p_end}
+{p 0 48}{bind:gest           }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Gestation (weeks){p_end}
+{p 0 48}{bind:apgar5         }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}5-minute Apgar score{p_end}
+{p 0 48}{bind:agedth         }{txt}{bind: byte    }{bind:{txt}%16.0g    }{space 1}{txt}agedthlbl{p_end}
+{p 0 48}{space 44}{bind:  }{res}{res}Infant age at death{p_end}
+{p 0 48}{bind:nprenatal      }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Number of prenatal visits{p_end}
+{p 0 48}{bind:stateoc        }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}State of birth{p_end}
+{p 0 48}{bind:dad_age        }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Father's age{p_end}
+{p 0 48}{bind:dad_race       }{txt}{bind: byte    }{bind:{txt}%8.0g     }{space 1}{bind:racelbl  }{bind:  }{res}{res}Race of father{p_end}
+{p 0 48}{bind:sex            }{txt}{bind: byte    }{bind:{txt}%8.0g     }{space 1}{bind:         }{bind:  }{res}{res}Sex of child{p_end}
+{p 0 48}{bind:plural         }{txt}{bind: byte    }{bind:{txt}%8.0g     }{space 1}{bind:         }{bind:  }{res}{res}Plurality{p_end}
+{p 0 48}{bind:mom_origin     }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Mother's origin{p_end}
+{p 0 48}{bind:dad_origin     }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Father's origin{p_end}
+{p 0 48}{bind:tot_order      }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Total birth order{p_end}
+{p 0 48}{bind:live_order     }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Live birth order{p_end}
+{p 0 48}{bind:pldel          }{txt}{bind: byte    }{bind:{txt}%34.0g    }{space 1}{bind:pldellbl }{bind:  }{res}{res}Place of delivery{p_end}
+{p 0 48}{bind:attend         }{txt}{bind: byte    }{bind:{txt}%51.0g    }{space 1}{txt}attendlbl{p_end}
+{p 0 48}{space 44}{bind:  }{res}{res}Attendant at birth{p_end}
+{p 0 48}{bind:mom_sob        }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Mother's state of birth{p_end}
+{p 0 48}{bind:cityrs         }{txt}{bind: int     }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:countyrs       }{txt}{bind: int     }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}County of residence (NCHS){p_end}
+{p 0 48}{bind:file           }{txt}{bind: str3    }{bind:{txt}%9s       }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:stfips         }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}State of residence (FIPS){p_end}
+{p 0 48}{bind:countyfips     }{txt}{bind: int     }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}County of residence (FIPS){p_end}
+{p 0 48}{bind:flag_bw        }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Birth weight imputed{p_end}
+{p 0 48}{bind:year           }{txt}{bind: int     }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}File year{p_end}
+{p 0 48}{bind:death          }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Infant death{p_end}
+{p 0 48}{bind:mom_hisp       }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:dad_hisp       }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:bweightoz      }{txt}{bind: float   }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Birth weight (oz){p_end}
+{p 0 48}{bind:mom_edgroup    }{txt}{bind: byte    }{bind:{txt}%12.0g    }{space 1}{txt}edgrouplbl{p_end}
+{p 0 48}{space 44}{bind:  }{res}{res}Mom's education group{p_end}
+{p 0 48}{bind:mom_ed1        }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Less than HS{p_end}
+{p 0 48}{bind:mom_ed2        }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}HS only{p_end}
+{p 0 48}{bind:mom_ed3        }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Some college{p_end}
+{p 0 48}{bind:mom_ed4        }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}College or more{p_end}
+{p 0 48}{bind:gest28         }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Gestation < 28 weeks{p_end}
+{p 0 48}{bind:gest32         }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Gestation < 32 weeks{p_end}
+{p 0 48}{bind:gest37         }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Gestation < 37 weeks{p_end}
+{p 0 48}{bind:gest42         }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Gestation < 42 weeks{p_end}
+{p 0 48}{bind:apgar5_1       }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Apgar score <= 1{p_end}
+{p 0 48}{bind:apgar5_3       }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Apgar score <= 3{p_end}
+{p 0 48}{bind:apgar5_5       }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Apgar score <= 5{p_end}
+{p 0 48}{bind:apgar5_7       }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Apgar score <= 7{p_end}
+{p 0 48}{bind:agedth1        }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}One-hour mortality{p_end}
+{p 0 48}{bind:agedth2        }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}24-hour mortality{p_end}
+{p 0 48}{bind:agedth3        }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}One-week mortality{p_end}
+{p 0 48}{bind:agedth4        }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}28-day mortality{p_end}
+{p 0 48}{bind:agedth5        }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}One-year mortality{p_end}
+{p 0 48}{bind:gr_mult5       }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Birth weight is a multiple of 5 grams{p_end}
+{p 0 48}{bind:gr_mult10      }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Birth weight is a multiple of 10 grams{p_end}
+{p 0 48}{bind:gr_mult25      }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Birth weight is a multiple of 25 grams{p_end}
+{p 0 48}{bind:gr_mult50      }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Birth weight is a multiple of 50 grams{p_end}
+{p 0 48}{bind:gr_mult100     }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Birth weight is a multiple of 100 grams{p_end}
+{p 0 48}{bind:ounce          }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Birth weight is an ounce measure{p_end}
+{p 0 48}{bind:oz_mult4       }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Birth weight is a multiple of 4 ounces{p_end}
+{p 0 48}{bind:oz_mult8       }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Birth weight is a multiple of 8 ounces{p_end}
+{p 0 48}{bind:oz_mult16      }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Birth weight is a multiple of 16 ounces{p_end}
+{p 0 48}{bind:oz_multhalf    }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}Birth weight is a multiple of half ounces{p_end}
+{p 0 48}{bind:pldel1         }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:pldel2         }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:pldel3         }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:pldel9         }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:attend1        }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:attend2        }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:attend3        }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:attend9        }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:mom_move       }{txt}{bind: byte    }{bind:{txt}%9.0g     }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{p 0 48}{bind:person_id      }{txt}{bind: long    }{bind:{txt}%10.0g    }{space 1}{bind:         }{bind:  }{res}{res}{p_end}
+{txt}{hline}
+Sorted by: 
+
+{com}. 
 . 
-. program endog2, rclass
-{txt}  1{com}.         syntax [ , indicator(real 0)]
-{txt}  2{com}.         capture drop _all
-{txt}  3{com}.         
-.         tempvar id a_i r Tr t a_t Post Treat u_it e_it y outcome
-{txt}  4{com}.         
-.         local n 200
-{txt}  5{com}.         set obs `n'
-{txt}  6{com}.         
-.         gen `id' = _n   
-{txt}  7{com}.         gen `a_i' =rnormal(5,sqrt(8))
-{txt}  8{com}.         expand 15
-{txt}  9{com}.         bysort `id' : gen `t' = _n
-{txt} 10{com}.         
-.         xtset `id' `t'
-{txt} 11{com}.         
-.         gen `Post' = 1 if `t' > 6
-{txt} 12{com}.         quietly replace `Post' = 0 if `t' < 7
-{txt} 13{com}. 
-.         gen `a_t' = .
-{txt} 14{com}.         forvalues i = 1/15{c -(}
-{txt} 15{com}.                 local r = rnormal(1,sqrt(2))
-{txt} 16{com}.                 quietly replace `a_t' = `r' if `t' == `i'
-{txt} 17{com}.         {c )-}
-{txt} 18{com}.         
-.         gen `u_it' = rnormal(0,sqrt(2))
-{txt} 19{com}.         
-.         gen `e_it' = 0
-{txt} 20{com}.         levelsof `id', local(num_id)
-{txt} 21{com}.         levelsof `t', local(num_t)
-{txt} 22{com}.         foreach ii of local num_id{c -(}
-{txt} 23{com}.                 replace `e_it' = `u_it' ///
->                                 if `id' == `ii' & `t' == 1
-{txt} 24{com}.                 foreach tt of local num_t{c -(}
-{txt} 25{com}.                         if `tt' > 1 {c -(}
-{txt} 26{com}.                                 replace `e_it' = .25*L.`e_it' /// 
->                                 + .5*`u_it' if `id' == `ii' & `t' == `tt'
-{txt} 27{com}.                         {c )-}
-{txt} 28{com}.                 {c )-}
-{txt} 29{com}.         {c )-}
-{txt} 30{com}. 
-.         gen `outcome' = `a_i' + `a_t' + `e_it'
-{txt} 31{com}.         summ `outcome' if `t' == 6 , detail
-{txt} 32{com}.         gen `Tr' =  `outcome' < `r(p50)'
-{txt} 33{com}.         
-.         gen `Treat' = `Tr'*`Post'
-{txt} 34{com}.         
-.         
-.         local theta = 1.5
-{txt} 35{com}.         
-.         gen `y' = `a_i' + `a_t' + `theta'*`Treat' + `e_it'
-{txt} 36{com}.                 if `indicator' == 1 {c -(}
-{txt} 37{com}.                         xtreg `y'  i6.`t'#c.`Treat' i.`t' `Treat' , fe cluster(`id')
-{txt} 38{com}.                         test _b[i6.`t'#c.`Treat'] = 0
-{txt} 39{com}.                         if `r(p)' < .05{c -(}
-{txt} 40{com}.                                 local h1 = 1
-{txt} 41{com}.                         {c )-} 
-{txt} 42{com}.                         else {c -(}
-{txt} 43{com}.                                 local h1 = 0
-{txt} 44{com}.                         {c )-}
-{txt} 45{com}.                 {c )-}
-{txt} 46{com}.                 else {c -(}
-{txt} 47{com}.                         xtreg `y'  i.`t' `Treat' , fe cluster(`id')
-{txt} 48{com}.                         test _b[`Treat'] = `theta'
-{txt} 49{com}.                         if `r(p)' < .05{c -(}
-{txt} 50{com}.                                 local h1 = 1
-{txt} 51{com}.                         {c )-} 
-{txt} 52{com}.                         else {c -(}
-{txt} 53{com}.                                 local h1 = 0
-{txt} 54{com}.                         {c )-}
-{txt} 55{com}.                 {c )-}
-{txt} 56{com}.                 return scala theta_2 = _b[`Treat']
-{txt} 57{com}.                 return scala std_2 = _se[`Treat']
-{txt} 58{com}.                 return scala p_2 = `r(p)'
-{txt} 59{com}.                 return scala h1_2 = `h1'
-{txt} 60{com}.                 
-. end
+. 
+. 
+. 
+. 
+. 
+. describe ,sort
+{err}option {bf:sort} not allowed
+{txt}{search r(198), local:r(198);}
+
+{com}. help describe
+
+. do "C:\Users\Xue\AppData\Local\Temp\STD07000000.tmp"
+{txt}
+{com}. *normalize birth weight
+. gen bwtnorm = bweight - 1000
 {txt}
 {com}. 
-. 
-. ********** simulate ***********************
-. 
-. * For part I
-. 
-. simulate ///
->     theta_iid  = r(theta_1)  h1_iid  = r(h1_1)  std_iid  = r(std_1)  ///
->         theta_cluster  = r(theta_2)  h1_cluster  = r(h1_2) /// 
->                                          std_cluster  = r(std_2)  ///
->         theta_robust  = r(theta_3)  h1_robust  = r(h1_3) /// 
->                                          std_robust  = r(std_3)  ///
->         , reps(10) : endog
-{p2colset 10 20 24 2}{...}
+{txt}end of do-file
 
-{txt}{p2col :command:}endog{p_end}
-{p2colset 8 20 24 2}{...}
-{p2col :theta_iid:}{res:r(theta_1)}{p_end}
-{p2colset 11 20 24 2}{...}
-{p2col :h1_iid:}{res:r(h1_1)}{p_end}
-{p2colset 10 20 24 2}{...}
-{p2col :std_iid:}{res:r(std_1)}{p_end}
-{p2colset 4 20 24 2}{...}
-{p2col :theta_cluster:}{res:r(theta_2)}{p_end}
-{p2colset 7 20 24 2}{...}
-{p2col :h1_cluster:}{res:r(h1_2)}{p_end}
-{p2colset 6 20 24 2}{...}
-{p2col :std_cluster:}{res:r(std_2)}{p_end}
-{p2colset 5 20 24 2}{...}
-{p2col :theta_robust:}{res:r(theta_3)}{p_end}
-{p2colset 8 20 24 2}{...}
-{p2col :h1_robust:}{res:r(h1_3)}{p_end}
-{p2colset 7 20 24 2}{...}
-{p2col :std_robust:}{res:r(std_3)}{p_end}
-
-Simulations ({res}10{txt})
-{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
-..........
-
-{com}.         
-. * For part II
-. simulate ///
->         theta_cluster  = r(theta_2)  h1_cluster  = r(h1_2) /// 
->                                          std_cluster  = r(std_2)  ///
->         , reps(5) : endog2
-{p2colset 10 20 24 2}{...}
-
-{txt}{p2col :command:}endog2{p_end}
-{p2colset 4 20 24 2}{...}
-{p2col :theta_cluster:}{res:r(theta_2)}{p_end}
-{p2colset 7 20 24 2}{...}
-{p2col :h1_cluster:}{res:r(h1_2)}{p_end}
-{p2colset 6 20 24 2}{...}
-{p2col :std_cluster:}{res:r(std_2)}{p_end}
-
-Simulations ({res}5{txt})
-{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
-.....
-
-{com}.         
-. * For part III
-. simulate ///
->         theta_cluster  = r(theta_2)  h1_cluster  = r(h1_2) /// 
->                                          std_cluster  = r(std_2)  ///
->         , reps(5) : endog2 , indicator(1)
-{p2colset 10 20 24 2}{...}
-
-{txt}{p2col :command:}endog2, indicator(1){p_end}
-{p2colset 4 20 24 2}{...}
-{p2col :theta_cluster:}{res:r(theta_2)}{p_end}
-{p2colset 7 20 24 2}{...}
-{p2col :h1_cluster:}{res:r(h1_2)}{p_end}
-{p2colset 6 20 24 2}{...}
-{p2col :std_cluster:}{res:r(std_2)}{p_end}
-
-Simulations ({res}5{txt})
-{hline 4}{c +}{hline 3} 1 {hline 3}{c +}{hline 3} 2 {hline 3}{c +}{hline 3} 3 {hline 3}{c +}{hline 3} 4 {hline 3}{c +}{hline 3} 5 
-.....
-
-{com}.         
-. 
-. ********* print result ********************
-. 
-. program print_result
-{txt}  1{com}.         display as text _dup(66) "-"
-{txt}  2{com}.         display "method"  _col(10) "estTheta" ///
->                         _col(22) "Pr{c -(}H0 is rejected{c )-}" ///
->                         _col(46) "Standard Error"
-{txt}  3{com}.         display as text _dup(66) "-"
-{txt}  4{com}.         
-.         local methods iid cluster robust
-{txt}  5{com}. 
-.         foreach m of local methods{c -(}
-{txt}  6{com}.                 capture quietly summ theta_`m'
-{txt}  7{com}.                 local theta = r(mean)
-{txt}  8{com}.                 capture quietly summ h1_`m'
-{txt}  9{com}.                 local h1 = r(mean)
-{txt} 10{com}.                 capture quietly summ std_`m'
-{txt} 11{com}.                 local std = r(mean)
-{txt} 12{com}.                 display as text "`m':" ///
->                                 _col(10)  as result %5.3f `theta' ///
->                                 _col(22) as result %5.3f `h1'   ///
->                                 _col(46) as result %5.3f `std'
-{txt} 13{com}.         {c )-}
-{txt} 14{com}.         display as text _dup(66) "-"
-{txt} 15{com}. end
+{com}. do "C:\Users\Xue\AppData\Local\Temp\STD07000000.tmp"
 {txt}
-{com}. 
-. print_result
-{txt}------------------------------------------------------------------
-method{col 10}estTheta{col 22}Pr{H0 is rejected}{col 46}Standard Error
-------------------------------------------------------------------
-iid:{col 10}{res}    .{col 22}    .{col 46}    .
-{txt}cluster:{col 10}{res}0.813{col 22}0.000{col 46}0.092
-{txt}robust:{col 10}{res}0.092{col 22}0.092{col 46}0.092
-{txt}------------------------------------------------------------------
+{com}. tempfile raw
+{txt}
+{com}. save "`raw'"
+{txt}file C:\Users\Xue\AppData\Local\Temp\ST_07000001.tmp saved
 
 {com}. 
-. log close _all
-      {txt}name:  {res}<unnamed>
-       {txt}log:  {res}D:\Lindo\Assignments\Assignment4\mylog.smcl
-  {txt}log type:  {res}smcl
- {txt}closed on:  {res}27 Feb 2017, 14:52:56
-{txt}{.-}
+{txt}end of do-file
+
+{com}. list gwtnorm in 5/10
+{err}variable {bf}gwtnorm{sf} not found
+{txt}{search r(111), local:r(111);}
+
+{com}. list bwtnorm in 5/10
+{txt}
+     {c TLC}{hline 9}{c TRC}
+     {c |} {res}bwtnorm {txt}{c |}
+     {c LT}{hline 9}{c RT}
+  5. {c |} {res}    361 {txt}{c |}
+  6. {c |} {res}    361 {txt}{c |}
+  7. {c |} {res}    361 {txt}{c |}
+  8. {c |} {res}    361 {txt}{c |}
+  9. {c |} {res}    361 {txt}{c |}
+     {c LT}{hline 9}{c RT}
+ 10. {c |} {res}    361 {txt}{c |}
+     {c BLC}{hline 9}{c BRC}
+
+{com}. list bwtnorm
+{txt}
+        {c TLC}{hline 9}{c TRC}
+        {c |} {res}bwtnorm {txt}{c |}
+        {c LT}{hline 9}{c RT}
+     1. {c |} {res}    361 {txt}{c |}
+     2. {c |} {res}    361 {txt}{c |}
+     3. {c |} {res}    361 {txt}{c |}
+     4. {c |} {res}    361 {txt}{c |}
+     5. {c |} {res}    361 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+     6. {c |} {res}    361 {txt}{c |}
+     7. {c |} {res}    361 {txt}{c |}
+     8. {c |} {res}    361 {txt}{c |}
+     9. {c |} {res}    361 {txt}{c |}
+    10. {c |} {res}    361 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+    11. {c |} {res}    361 {txt}{c |}
+    12. {c |} {res}    361 {txt}{c |}
+    13. {c |} {res}    361 {txt}{c |}
+    14. {c |} {res}    361 {txt}{c |}
+    15. {c |} {res}    361 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+    16. {c |} {res}    361 {txt}{c |}
+    17. {c |} {res}    361 {txt}{c |}
+    18. {c |} {res}    361 {txt}{c |}
+    19. {c |} {res}    361 {txt}{c |}
+    20. {c |} {res}    361 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+    21. {c |} {res}    361 {txt}{c |}
+    22. {c |} {res}    361 {txt}{c |}
+    23. {c |} {res}    361 {txt}{c |}
+    24. {c |} {res}    361 {txt}{c |}
+    25. {c |} {res}    361 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+    26. {c |} {res}    361 {txt}{c |}
+    27. {c |} {res}    361 {txt}{c |}
+    28. {c |} {res}    389 {txt}{c |}
+    29. {c |} {res}    389 {txt}{c |}
+    30. {c |} {res}    389 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+    31. {c |} {res}    389 {txt}{c |}
+    32. {c |} {res}    389 {txt}{c |}
+    33. {c |} {res}    389 {txt}{c |}
+    34. {c |} {res}    389 {txt}{c |}
+    35. {c |} {res}    389 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+    36. {c |} {res}    389 {txt}{c |}
+    37. {c |} {res}    389 {txt}{c |}
+    38. {c |} {res}    389 {txt}{c |}
+    39. {c |} {res}    389 {txt}{c |}
+    40. {c |} {res}    389 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+    41. {c |} {res}    389 {txt}{c |}
+    42. {c |} {res}    389 {txt}{c |}
+    43. {c |} {res}    389 {txt}{c |}
+    44. {c |} {res}    389 {txt}{c |}
+    45. {c |} {res}    389 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+    46. {c |} {res}    389 {txt}{c |}
+    47. {c |} {res}    389 {txt}{c |}
+    48. {c |} {res}    389 {txt}{c |}
+    49. {c |} {res}    389 {txt}{c |}
+    50. {c |} {res}    389 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+    51. {c |} {res}    389 {txt}{c |}
+    52. {c |} {res}    389 {txt}{c |}
+    53. {c |} {res}    418 {txt}{c |}
+    54. {c |} {res}    418 {txt}{c |}
+    55. {c |} {res}    418 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+    56. {c |} {res}    418 {txt}{c |}
+    57. {c |} {res}    418 {txt}{c |}
+    58. {c |} {res}    418 {txt}{c |}
+    59. {c |} {res}    418 {txt}{c |}
+    60. {c |} {res}    418 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+    61. {c |} {res}    418 {txt}{c |}
+    62. {c |} {res}    418 {txt}{c |}
+    63. {c |} {res}    418 {txt}{c |}
+    64. {c |} {res}    418 {txt}{c |}
+    65. {c |} {res}    418 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+    66. {c |} {res}    418 {txt}{c |}
+    67. {c |} {res}    418 {txt}{c |}
+    68. {c |} {res}    418 {txt}{c |}
+    69. {c |} {res}    418 {txt}{c |}
+    70. {c |} {res}    418 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+    71. {c |} {res}    418 {txt}{c |}
+    72. {c |} {res}    418 {txt}{c |}
+    73. {c |} {res}    418 {txt}{c |}
+    74. {c |} {res}    418 {txt}{c |}
+    75. {c |} {res}    418 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+    76. {c |} {res}    418 {txt}{c |}
+    77. {c |} {res}    418 {txt}{c |}
+    78. {c |} {res}    418 {txt}{c |}
+    79. {c |} {res}    418 {txt}{c |}
+    80. {c |} {res}    418 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+    81. {c |} {res}    418 {txt}{c |}
+    82. {c |} {res}    446 {txt}{c |}
+    83. {c |} {res}    446 {txt}{c |}
+    84. {c |} {res}    446 {txt}{c |}
+    85. {c |} {res}    446 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+    86. {c |} {res}    446 {txt}{c |}
+    87. {c |} {res}    446 {txt}{c |}
+    88. {c |} {res}    446 {txt}{c |}
+    89. {c |} {res}    446 {txt}{c |}
+    90. {c |} {res}    446 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+    91. {c |} {res}    446 {txt}{c |}
+    92. {c |} {res}    446 {txt}{c |}
+    93. {c |} {res}    446 {txt}{c |}
+    94. {c |} {res}    446 {txt}{c |}
+    95. {c |} {res}    446 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+    96. {c |} {res}    446 {txt}{c |}
+    97. {c |} {res}    446 {txt}{c |}
+    98. {c |} {res}    446 {txt}{c |}
+    99. {c |} {res}    446 {txt}{c |}
+   100. {c |} {res}    446 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   101. {c |} {res}    446 {txt}{c |}
+   102. {c |} {res}    446 {txt}{c |}
+   103. {c |} {res}    446 {txt}{c |}
+   104. {c |} {res}    446 {txt}{c |}
+   105. {c |} {res}    446 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   106. {c |} {res}    446 {txt}{c |}
+   107. {c |} {res}    446 {txt}{c |}
+   108. {c |} {res}    446 {txt}{c |}
+   109. {c |} {res}    446 {txt}{c |}
+   110. {c |} {res}    446 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   111. {c |} {res}    474 {txt}{c |}
+   112. {c |} {res}    474 {txt}{c |}
+   113. {c |} {res}    474 {txt}{c |}
+   114. {c |} {res}    474 {txt}{c |}
+   115. {c |} {res}    474 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   116. {c |} {res}    474 {txt}{c |}
+   117. {c |} {res}    474 {txt}{c |}
+   118. {c |} {res}    474 {txt}{c |}
+   119. {c |} {res}    474 {txt}{c |}
+   120. {c |} {res}    474 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   121. {c |} {res}    474 {txt}{c |}
+   122. {c |} {res}    474 {txt}{c |}
+   123. {c |} {res}    474 {txt}{c |}
+   124. {c |} {res}    474 {txt}{c |}
+   125. {c |} {res}    474 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   126. {c |} {res}    474 {txt}{c |}
+   127. {c |} {res}    474 {txt}{c |}
+   128. {c |} {res}    474 {txt}{c |}
+   129. {c |} {res}    474 {txt}{c |}
+   130. {c |} {res}    474 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   131. {c |} {res}    474 {txt}{c |}
+   132. {c |} {res}    474 {txt}{c |}
+   133. {c |} {res}    474 {txt}{c |}
+   134. {c |} {res}    474 {txt}{c |}
+   135. {c |} {res}    474 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   136. {c |} {res}    474 {txt}{c |}
+   137. {c |} {res}    503 {txt}{c |}
+   138. {c |} {res}    503 {txt}{c |}
+   139. {c |} {res}    503 {txt}{c |}
+   140. {c |} {res}    503 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   141. {c |} {res}    503 {txt}{c |}
+   142. {c |} {res}    503 {txt}{c |}
+   143. {c |} {res}    503 {txt}{c |}
+   144. {c |} {res}    503 {txt}{c |}
+   145. {c |} {res}    503 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   146. {c |} {res}    503 {txt}{c |}
+   147. {c |} {res}    503 {txt}{c |}
+   148. {c |} {res}    503 {txt}{c |}
+   149. {c |} {res}    503 {txt}{c |}
+   150. {c |} {res}    503 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   151. {c |} {res}    503 {txt}{c |}
+   152. {c |} {res}    503 {txt}{c |}
+   153. {c |} {res}    503 {txt}{c |}
+   154. {c |} {res}    503 {txt}{c |}
+   155. {c |} {res}    503 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   156. {c |} {res}    503 {txt}{c |}
+   157. {c |} {res}    503 {txt}{c |}
+   158. {c |} {res}    503 {txt}{c |}
+   159. {c |} {res}    503 {txt}{c |}
+   160. {c |} {res}    503 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   161. {c |} {res}    503 {txt}{c |}
+   162. {c |} {res}    503 {txt}{c |}
+   163. {c |} {res}    503 {txt}{c |}
+   164. {c |} {res}    503 {txt}{c |}
+   165. {c |} {res}    503 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   166. {c |} {res}    503 {txt}{c |}
+   167. {c |} {res}    503 {txt}{c |}
+   168. {c |} {res}    503 {txt}{c |}
+   169. {c |} {res}    503 {txt}{c |}
+   170. {c |} {res}    531 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   171. {c |} {res}    531 {txt}{c |}
+   172. {c |} {res}    531 {txt}{c |}
+   173. {c |} {res}    531 {txt}{c |}
+   174. {c |} {res}    531 {txt}{c |}
+   175. {c |} {res}    531 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   176. {c |} {res}    531 {txt}{c |}
+   177. {c |} {res}    531 {txt}{c |}
+   178. {c |} {res}    531 {txt}{c |}
+   179. {c |} {res}    531 {txt}{c |}
+   180. {c |} {res}    531 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   181. {c |} {res}    531 {txt}{c |}
+   182. {c |} {res}    531 {txt}{c |}
+   183. {c |} {res}    531 {txt}{c |}
+   184. {c |} {res}    531 {txt}{c |}
+   185. {c |} {res}    531 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   186. {c |} {res}    531 {txt}{c |}
+   187. {c |} {res}    531 {txt}{c |}
+   188. {c |} {res}    531 {txt}{c |}
+   189. {c |} {res}    531 {txt}{c |}
+   190. {c |} {res}    531 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   191. {c |} {res}    531 {txt}{c |}
+   192. {c |} {res}    531 {txt}{c |}
+   193. {c |} {res}    531 {txt}{c |}
+   194. {c |} {res}    531 {txt}{c |}
+   195. {c |} {res}    531 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   196. {c |} {res}    531 {txt}{c |}
+   197. {c |} {res}    531 {txt}{c |}
+   198. {c |} {res}    531 {txt}{c |}
+   199. {c |} {res}    531 {txt}{c |}
+   200. {c |} {res}    531 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   201. {c |} {res}    531 {txt}{c |}
+   202. {c |} {res}    531 {txt}{c |}
+   203. {c |} {res}    531 {txt}{c |}
+   204. {c |} {res}    531 {txt}{c |}
+   205. {c |} {res}    531 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   206. {c |} {res}    559 {txt}{c |}
+   207. {c |} {res}    559 {txt}{c |}
+   208. {c |} {res}    559 {txt}{c |}
+   209. {c |} {res}    559 {txt}{c |}
+   210. {c |} {res}    559 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   211. {c |} {res}    559 {txt}{c |}
+   212. {c |} {res}    559 {txt}{c |}
+   213. {c |} {res}    559 {txt}{c |}
+   214. {c |} {res}    559 {txt}{c |}
+   215. {c |} {res}    559 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   216. {c |} {res}    559 {txt}{c |}
+   217. {c |} {res}    559 {txt}{c |}
+   218. {c |} {res}    559 {txt}{c |}
+   219. {c |} {res}    559 {txt}{c |}
+   220. {c |} {res}    559 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   221. {c |} {res}    559 {txt}{c |}
+   222. {c |} {res}    559 {txt}{c |}
+   223. {c |} {res}    559 {txt}{c |}
+   224. {c |} {res}    559 {txt}{c |}
+   225. {c |} {res}    559 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   226. {c |} {res}    559 {txt}{c |}
+   227. {c |} {res}    559 {txt}{c |}
+   228. {c |} {res}    559 {txt}{c |}
+   229. {c |} {res}    559 {txt}{c |}
+   230. {c |} {res}    559 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   231. {c |} {res}    559 {txt}{c |}
+   232. {c |} {res}    559 {txt}{c |}
+   233. {c |} {res}    559 {txt}{c |}
+   234. {c |} {res}    588 {txt}{c |}
+   235. {c |} {res}    588 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   236. {c |} {res}    588 {txt}{c |}
+   237. {c |} {res}    588 {txt}{c |}
+   238. {c |} {res}    588 {txt}{c |}
+   239. {c |} {res}    588 {txt}{c |}
+   240. {c |} {res}    588 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   241. {c |} {res}    588 {txt}{c |}
+   242. {c |} {res}    588 {txt}{c |}
+   243. {c |} {res}    588 {txt}{c |}
+   244. {c |} {res}    588 {txt}{c |}
+   245. {c |} {res}    588 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   246. {c |} {res}    588 {txt}{c |}
+   247. {c |} {res}    588 {txt}{c |}
+   248. {c |} {res}    588 {txt}{c |}
+   249. {c |} {res}    588 {txt}{c |}
+   250. {c |} {res}    588 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   251. {c |} {res}    588 {txt}{c |}
+   252. {c |} {res}    588 {txt}{c |}
+   253. {c |} {res}    588 {txt}{c |}
+   254. {c |} {res}    588 {txt}{c |}
+   255. {c |} {res}    588 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   256. {c |} {res}    588 {txt}{c |}
+   257. {c |} {res}    588 {txt}{c |}
+   258. {c |} {res}    588 {txt}{c |}
+   259. {c |} {res}    588 {txt}{c |}
+   260. {c |} {res}    588 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   261. {c |} {res}    616 {txt}{c |}
+   262. {c |} {res}    616 {txt}{c |}
+   263. {c |} {res}    616 {txt}{c |}
+   264. {c |} {res}    616 {txt}{c |}
+   265. {c |} {res}    616 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   266. {c |} {res}    616 {txt}{c |}
+   267. {c |} {res}    616 {txt}{c |}
+   268. {c |} {res}    616 {txt}{c |}
+   269. {c |} {res}    616 {txt}{c |}
+   270. {c |} {res}    616 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   271. {c |} {res}    616 {txt}{c |}
+   272. {c |} {res}    616 {txt}{c |}
+   273. {c |} {res}    616 {txt}{c |}
+   274. {c |} {res}    616 {txt}{c |}
+   275. {c |} {res}    616 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   276. {c |} {res}    616 {txt}{c |}
+   277. {c |} {res}    616 {txt}{c |}
+   278. {c |} {res}    616 {txt}{c |}
+   279. {c |} {res}    616 {txt}{c |}
+   280. {c |} {res}    616 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   281. {c |} {res}    616 {txt}{c |}
+   282. {c |} {res}    616 {txt}{c |}
+   283. {c |} {res}    616 {txt}{c |}
+   284. {c |} {res}    616 {txt}{c |}
+   285. {c |} {res}    616 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   286. {c |} {res}    616 {txt}{c |}
+   287. {c |} {res}    616 {txt}{c |}
+   288. {c |} {res}    616 {txt}{c |}
+   289. {c |} {res}    616 {txt}{c |}
+   290. {c |} {res}    616 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   291. {c |} {res}    616 {txt}{c |}
+   292. {c |} {res}    616 {txt}{c |}
+   293. {c |} {res}    616 {txt}{c |}
+   294. {c |} {res}    644 {txt}{c |}
+   295. {c |} {res}    644 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   296. {c |} {res}    644 {txt}{c |}
+   297. {c |} {res}    644 {txt}{c |}
+   298. {c |} {res}    644 {txt}{c |}
+   299. {c |} {res}    644 {txt}{c |}
+   300. {c |} {res}    644 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   301. {c |} {res}    644 {txt}{c |}
+   302. {c |} {res}    644 {txt}{c |}
+   303. {c |} {res}    644 {txt}{c |}
+   304. {c |} {res}    644 {txt}{c |}
+   305. {c |} {res}    644 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   306. {c |} {res}    644 {txt}{c |}
+   307. {c |} {res}    644 {txt}{c |}
+   308. {c |} {res}    644 {txt}{c |}
+   309. {c |} {res}    644 {txt}{c |}
+   310. {c |} {res}    644 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   311. {c |} {res}    644 {txt}{c |}
+   312. {c |} {res}    644 {txt}{c |}
+   313. {c |} {res}    644 {txt}{c |}
+   314. {c |} {res}    644 {txt}{c |}
+   315. {c |} {res}    644 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   316. {c |} {res}    644 {txt}{c |}
+   317. {c |} {res}    644 {txt}{c |}
+   318. {c |} {res}    644 {txt}{c |}
+   319. {c |} {res}    644 {txt}{c |}
+   320. {c |} {res}    644 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   321. {c |} {res}    644 {txt}{c |}
+   322. {c |} {res}    644 {txt}{c |}
+   323. {c |} {res}    644 {txt}{c |}
+   324. {c |} {res}    644 {txt}{c |}
+   325. {c |} {res}    644 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   326. {c |} {res}    644 {txt}{c |}
+   327. {c |} {res}    644 {txt}{c |}
+   328. {c |} {res}    644 {txt}{c |}
+   329. {c |} {res}    644 {txt}{c |}
+   330. {c |} {res}    644 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   331. {c |} {res}    350 {txt}{c |}
+   332. {c |} {res}    360 {txt}{c |}
+   333. {c |} {res}    361 {txt}{c |}
+   334. {c |} {res}    361 {txt}{c |}
+   335. {c |} {res}    370 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   336. {c |} {res}    380 {txt}{c |}
+   337. {c |} {res}    380 {txt}{c |}
+   338. {c |} {res}    380 {txt}{c |}
+   339. {c |} {res}    380 {txt}{c |}
+   340. {c |} {res}    400 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   341. {c |} {res}    404 {txt}{c |}
+   342. {c |} {res}    410 {txt}{c |}
+   343. {c |} {res}    420 {txt}{c |}
+   344. {c |} {res}    420 {txt}{c |}
+   345. {c |} {res}    431 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   346. {c |} {res}    446 {txt}{c |}
+   347. {c |} {res}    480 {txt}{c |}
+   348. {c |} {res}    480 {txt}{c |}
+   349. {c |} {res}    500 {txt}{c |}
+   350. {c |} {res}    500 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   351. {c |} {res}    500 {txt}{c |}
+   352. {c |} {res}    500 {txt}{c |}
+   353. {c |} {res}    503 {txt}{c |}
+   354. {c |} {res}    531 {txt}{c |}
+   355. {c |} {res}    540 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   356. {c |} {res}    540 {txt}{c |}
+   357. {c |} {res}    560 {txt}{c |}
+   358. {c |} {res}    560 {txt}{c |}
+   359. {c |} {res}    580 {txt}{c |}
+   360. {c |} {res}    580 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   361. {c |} {res}    588 {txt}{c |}
+   362. {c |} {res}    588 {txt}{c |}
+   363. {c |} {res}    588 {txt}{c |}
+   364. {c |} {res}    600 {txt}{c |}
+   365. {c |} {res}    616 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   366. {c |} {res}    616 {txt}{c |}
+   367. {c |} {res}    616 {txt}{c |}
+   368. {c |} {res}    620 {txt}{c |}
+   369. {c |} {res}    630 {txt}{c |}
+   370. {c |} {res}    640 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   371. {c |} {res}    644 {txt}{c |}
+   372. {c |} {res}    644 {txt}{c |}
+   373. {c |} {res}    650 {txt}{c |}
+   374. {c |} {res}    355 {txt}{c |}
+   375. {c |} {res}    360 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   376. {c |} {res}    360 {txt}{c |}
+   377. {c |} {res}    361 {txt}{c |}
+   378. {c |} {res}    361 {txt}{c |}
+   379. {c |} {res}    361 {txt}{c |}
+   380. {c |} {res}    361 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   381. {c |} {res}    361 {txt}{c |}
+   382. {c |} {res}    361 {txt}{c |}
+   383. {c |} {res}    361 {txt}{c |}
+   384. {c |} {res}    363 {txt}{c |}
+   385. {c |} {res}    370 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   386. {c |} {res}    380 {txt}{c |}
+   387. {c |} {res}    389 {txt}{c |}
+   388. {c |} {res}    389 {txt}{c |}
+   389. {c |} {res}    389 {txt}{c |}
+   390. {c |} {res}    389 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   391. {c |} {res}    389 {txt}{c |}
+   392. {c |} {res}    389 {txt}{c |}
+   393. {c |} {res}    400 {txt}{c |}
+   394. {c |} {res}    400 {txt}{c |}
+   395. {c |} {res}    400 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   396. {c |} {res}    400 {txt}{c |}
+   397. {c |} {res}    400 {txt}{c |}
+   398. {c |} {res}    410 {txt}{c |}
+   399. {c |} {res}    410 {txt}{c |}
+   400. {c |} {res}    418 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   401. {c |} {res}    418 {txt}{c |}
+   402. {c |} {res}    420 {txt}{c |}
+   403. {c |} {res}    420 {txt}{c |}
+   404. {c |} {res}    430 {txt}{c |}
+   405. {c |} {res}    446 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   406. {c |} {res}    446 {txt}{c |}
+   407. {c |} {res}    446 {txt}{c |}
+   408. {c |} {res}    446 {txt}{c |}
+   409. {c |} {res}    446 {txt}{c |}
+   410. {c |} {res}    446 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   411. {c |} {res}    446 {txt}{c |}
+   412. {c |} {res}    446 {txt}{c |}
+   413. {c |} {res}    446 {txt}{c |}
+   414. {c |} {res}    446 {txt}{c |}
+   415. {c |} {res}    460 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   416. {c |} {res}    465 {txt}{c |}
+   417. {c |} {res}    470 {txt}{c |}
+   418. {c |} {res}    474 {txt}{c |}
+   419. {c |} {res}    474 {txt}{c |}
+   420. {c |} {res}    474 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   421. {c |} {res}    474 {txt}{c |}
+   422. {c |} {res}    474 {txt}{c |}
+   423. {c |} {res}    474 {txt}{c |}
+   424. {c |} {res}    474 {txt}{c |}
+   425. {c |} {res}    474 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   426. {c |} {res}    474 {txt}{c |}
+   427. {c |} {res}    474 {txt}{c |}
+   428. {c |} {res}    480 {txt}{c |}
+   429. {c |} {res}    490 {txt}{c |}
+   430. {c |} {res}    500 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   431. {c |} {res}    500 {txt}{c |}
+   432. {c |} {res}    503 {txt}{c |}
+   433. {c |} {res}    503 {txt}{c |}
+   434. {c |} {res}    503 {txt}{c |}
+   435. {c |} {res}    503 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   436. {c |} {res}    503 {txt}{c |}
+   437. {c |} {res}    503 {txt}{c |}
+   438. {c |} {res}    503 {txt}{c |}
+   439. {c |} {res}    503 {txt}{c |}
+   440. {c |} {res}    520 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   441. {c |} {res}    520 {txt}{c |}
+   442. {c |} {res}    530 {txt}{c |}
+   443. {c |} {res}    530 {txt}{c |}
+   444. {c |} {res}    531 {txt}{c |}
+   445. {c |} {res}    531 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   446. {c |} {res}    531 {txt}{c |}
+   447. {c |} {res}    531 {txt}{c |}
+   448. {c |} {res}    531 {txt}{c |}
+   449. {c |} {res}    531 {txt}{c |}
+   450. {c |} {res}    531 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   451. {c |} {res}    531 {txt}{c |}
+   452. {c |} {res}    531 {txt}{c |}
+   453. {c |} {res}    531 {txt}{c |}
+   454. {c |} {res}    531 {txt}{c |}
+   455. {c |} {res}    537 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   456. {c |} {res}    540 {txt}{c |}
+   457. {c |} {res}    540 {txt}{c |}
+   458. {c |} {res}    558 {txt}{c |}
+   459. {c |} {res}    559 {txt}{c |}
+   460. {c |} {res}    559 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   461. {c |} {res}    559 {txt}{c |}
+   462. {c |} {res}    559 {txt}{c |}
+   463. {c |} {res}    559 {txt}{c |}
+   464. {c |} {res}    560 {txt}{c |}
+   465. {c |} {res}    570 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   466. {c |} {res}    570 {txt}{c |}
+   467. {c |} {res}    580 {txt}{c |}
+   468. {c |} {res}    580 {txt}{c |}
+   469. {c |} {res}    580 {txt}{c |}
+   470. {c |} {res}    588 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   471. {c |} {res}    588 {txt}{c |}
+   472. {c |} {res}    588 {txt}{c |}
+   473. {c |} {res}    588 {txt}{c |}
+   474. {c |} {res}    588 {txt}{c |}
+   475. {c |} {res}    588 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   476. {c |} {res}    588 {txt}{c |}
+   477. {c |} {res}    588 {txt}{c |}
+   478. {c |} {res}    600 {txt}{c |}
+   479. {c |} {res}    600 {txt}{c |}
+   480. {c |} {res}    600 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   481. {c |} {res}    610 {txt}{c |}
+   482. {c |} {res}    610 {txt}{c |}
+   483. {c |} {res}    616 {txt}{c |}
+   484. {c |} {res}    616 {txt}{c |}
+   485. {c |} {res}    616 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   486. {c |} {res}    616 {txt}{c |}
+   487. {c |} {res}    620 {txt}{c |}
+   488. {c |} {res}    620 {txt}{c |}
+   489. {c |} {res}    630 {txt}{c |}
+   490. {c |} {res}    644 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   491. {c |} {res}    644 {txt}{c |}
+   492. {c |} {res}    644 {txt}{c |}
+   493. {c |} {res}    650 {txt}{c |}
+   494. {c |} {res}    650 {txt}{c |}
+   495. {c |} {res}    650 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   496. {c |} {res}    350 {txt}{c |}
+   497. {c |} {res}    361 {txt}{c |}
+   498. {c |} {res}    361 {txt}{c |}
+   499. {c |} {res}    361 {txt}{c |}
+   500. {c |} {res}    361 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   501. {c |} {res}    361 {txt}{c |}
+   502. {c |} {res}    361 {txt}{c |}
+   503. {c |} {res}    361 {txt}{c |}
+   504. {c |} {res}    361 {txt}{c |}
+   505. {c |} {res}    361 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   506. {c |} {res}    361 {txt}{c |}
+   507. {c |} {res}    361 {txt}{c |}
+   508. {c |} {res}    361 {txt}{c |}
+   509. {c |} {res}    361 {txt}{c |}
+   510. {c |} {res}    361 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   511. {c |} {res}    361 {txt}{c |}
+   512. {c |} {res}    370 {txt}{c |}
+   513. {c |} {res}    375 {txt}{c |}
+   514. {c |} {res}    375 {txt}{c |}
+   515. {c |} {res}    385 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   516. {c |} {res}    389 {txt}{c |}
+   517. {c |} {res}    389 {txt}{c |}
+   518. {c |} {res}    389 {txt}{c |}
+   519. {c |} {res}    389 {txt}{c |}
+   520. {c |} {res}    389 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   521. {c |} {res}    389 {txt}{c |}
+   522. {c |} {res}    389 {txt}{c |}
+   523. {c |} {res}    389 {txt}{c |}
+   524. {c |} {res}    389 {txt}{c |}
+   525. {c |} {res}    389 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   526. {c |} {res}    389 {txt}{c |}
+   527. {c |} {res}    389 {txt}{c |}
+   528. {c |} {res}    389 {txt}{c |}
+   529. {c |} {res}    390 {txt}{c |}
+   530. {c |} {res}    400 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   531. {c |} {res}    400 {txt}{c |}
+   532. {c |} {res}    400 {txt}{c |}
+   533. {c |} {res}    410 {txt}{c |}
+   534. {c |} {res}    418 {txt}{c |}
+   535. {c |} {res}    418 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   536. {c |} {res}    418 {txt}{c |}
+   537. {c |} {res}    418 {txt}{c |}
+   538. {c |} {res}    418 {txt}{c |}
+   539. {c |} {res}    418 {txt}{c |}
+   540. {c |} {res}    418 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   541. {c |} {res}    418 {txt}{c |}
+   542. {c |} {res}    418 {txt}{c |}
+   543. {c |} {res}    430 {txt}{c |}
+   544. {c |} {res}    440 {txt}{c |}
+   545. {c |} {res}    446 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   546. {c |} {res}    446 {txt}{c |}
+   547. {c |} {res}    446 {txt}{c |}
+   548. {c |} {res}    446 {txt}{c |}
+   549. {c |} {res}    446 {txt}{c |}
+   550. {c |} {res}    446 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   551. {c |} {res}    446 {txt}{c |}
+   552. {c |} {res}    446 {txt}{c |}
+   553. {c |} {res}    446 {txt}{c |}
+   554. {c |} {res}    446 {txt}{c |}
+   555. {c |} {res}    446 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   556. {c |} {res}    446 {txt}{c |}
+   557. {c |} {res}    446 {txt}{c |}
+   558. {c |} {res}    446 {txt}{c |}
+   559. {c |} {res}    446 {txt}{c |}
+   560. {c |} {res}    450 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   561. {c |} {res}    474 {txt}{c |}
+   562. {c |} {res}    474 {txt}{c |}
+   563. {c |} {res}    474 {txt}{c |}
+   564. {c |} {res}    474 {txt}{c |}
+   565. {c |} {res}    474 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   566. {c |} {res}    474 {txt}{c |}
+   567. {c |} {res}    474 {txt}{c |}
+   568. {c |} {res}    474 {txt}{c |}
+   569. {c |} {res}    474 {txt}{c |}
+   570. {c |} {res}    474 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   571. {c |} {res}    474 {txt}{c |}
+   572. {c |} {res}    474 {txt}{c |}
+   573. {c |} {res}    474 {txt}{c |}
+   574. {c |} {res}    474 {txt}{c |}
+   575. {c |} {res}    480 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   576. {c |} {res}    500 {txt}{c |}
+   577. {c |} {res}    503 {txt}{c |}
+   578. {c |} {res}    503 {txt}{c |}
+   579. {c |} {res}    503 {txt}{c |}
+   580. {c |} {res}    503 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   581. {c |} {res}    503 {txt}{c |}
+   582. {c |} {res}    503 {txt}{c |}
+   583. {c |} {res}    503 {txt}{c |}
+   584. {c |} {res}    503 {txt}{c |}
+   585. {c |} {res}    503 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   586. {c |} {res}    503 {txt}{c |}
+   587. {c |} {res}    503 {txt}{c |}
+   588. {c |} {res}    515 {txt}{c |}
+   589. {c |} {res}    525 {txt}{c |}
+   590. {c |} {res}    531 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   591. {c |} {res}    531 {txt}{c |}
+   592. {c |} {res}    531 {txt}{c |}
+   593. {c |} {res}    531 {txt}{c |}
+   594. {c |} {res}    531 {txt}{c |}
+   595. {c |} {res}    531 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   596. {c |} {res}    531 {txt}{c |}
+   597. {c |} {res}    531 {txt}{c |}
+   598. {c |} {res}    531 {txt}{c |}
+   599. {c |} {res}    531 {txt}{c |}
+   600. {c |} {res}    531 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   601. {c |} {res}    531 {txt}{c |}
+   602. {c |} {res}    531 {txt}{c |}
+   603. {c |} {res}    531 {txt}{c |}
+   604. {c |} {res}    531 {txt}{c |}
+   605. {c |} {res}    535 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   606. {c |} {res}    540 {txt}{c |}
+   607. {c |} {res}    559 {txt}{c |}
+   608. {c |} {res}    559 {txt}{c |}
+   609. {c |} {res}    559 {txt}{c |}
+   610. {c |} {res}    559 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   611. {c |} {res}    559 {txt}{c |}
+   612. {c |} {res}    559 {txt}{c |}
+   613. {c |} {res}    559 {txt}{c |}
+   614. {c |} {res}    559 {txt}{c |}
+   615. {c |} {res}    559 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   616. {c |} {res}    559 {txt}{c |}
+   617. {c |} {res}    559 {txt}{c |}
+   618. {c |} {res}    559 {txt}{c |}
+   619. {c |} {res}    559 {txt}{c |}
+   620. {c |} {res}    570 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   621. {c |} {res}    588 {txt}{c |}
+   622. {c |} {res}    588 {txt}{c |}
+   623. {c |} {res}    588 {txt}{c |}
+   624. {c |} {res}    588 {txt}{c |}
+   625. {c |} {res}    588 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   626. {c |} {res}    588 {txt}{c |}
+   627. {c |} {res}    588 {txt}{c |}
+   628. {c |} {res}    588 {txt}{c |}
+   629. {c |} {res}    588 {txt}{c |}
+   630. {c |} {res}    588 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   631. {c |} {res}    588 {txt}{c |}
+   632. {c |} {res}    588 {txt}{c |}
+   633. {c |} {res}    588 {txt}{c |}
+   634. {c |} {res}    588 {txt}{c |}
+   635. {c |} {res}    588 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   636. {c |} {res}    588 {txt}{c |}
+   637. {c |} {res}    588 {txt}{c |}
+   638. {c |} {res}    588 {txt}{c |}
+   639. {c |} {res}    588 {txt}{c |}
+   640. {c |} {res}    588 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   641. {c |} {res}    588 {txt}{c |}
+   642. {c |} {res}    588 {txt}{c |}
+   643. {c |} {res}    588 {txt}{c |}
+   644. {c |} {res}    590 {txt}{c |}
+   645. {c |} {res}    590 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   646. {c |} {res}    616 {txt}{c |}
+   647. {c |} {res}    616 {txt}{c |}
+   648. {c |} {res}    616 {txt}{c |}
+   649. {c |} {res}    616 {txt}{c |}
+   650. {c |} {res}    616 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   651. {c |} {res}    616 {txt}{c |}
+   652. {c |} {res}    616 {txt}{c |}
+   653. {c |} {res}    616 {txt}{c |}
+   654. {c |} {res}    616 {txt}{c |}
+   655. {c |} {res}    616 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   656. {c |} {res}    616 {txt}{c |}
+   657. {c |} {res}    616 {txt}{c |}
+   658. {c |} {res}    620 {txt}{c |}
+   659. {c |} {res}    640 {txt}{c |}
+   660. {c |} {res}    644 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   661. {c |} {res}    644 {txt}{c |}
+   662. {c |} {res}    644 {txt}{c |}
+   663. {c |} {res}    644 {txt}{c |}
+   664. {c |} {res}    644 {txt}{c |}
+   665. {c |} {res}    644 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   666. {c |} {res}    644 {txt}{c |}
+   667. {c |} {res}    644 {txt}{c |}
+   668. {c |} {res}    644 {txt}{c |}
+   669. {c |} {res}    644 {txt}{c |}
+   670. {c |} {res}    644 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   671. {c |} {res}    644 {txt}{c |}
+   672. {c |} {res}    650 {txt}{c |}
+   673. {c |} {res}    650 {txt}{c |}
+   674. {c |} {res}    350 {txt}{c |}
+   675. {c |} {res}    350 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   676. {c |} {res}    350 {txt}{c |}
+   677. {c |} {res}    350 {txt}{c |}
+   678. {c |} {res}    350 {txt}{c |}
+   679. {c |} {res}    350 {txt}{c |}
+   680. {c |} {res}    350 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   681. {c |} {res}    350 {txt}{c |}
+   682. {c |} {res}    350 {txt}{c |}
+   683. {c |} {res}    350 {txt}{c |}
+   684. {c |} {res}    350 {txt}{c |}
+   685. {c |} {res}    350 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   686. {c |} {res}    351 {txt}{c |}
+   687. {c |} {res}    351 {txt}{c |}
+   688. {c |} {res}    355 {txt}{c |}
+   689. {c |} {res}    355 {txt}{c |}
+   690. {c |} {res}    355 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   691. {c |} {res}    355 {txt}{c |}
+   692. {c |} {res}    360 {txt}{c |}
+   693. {c |} {res}    360 {txt}{c |}
+   694. {c |} {res}    360 {txt}{c |}
+   695. {c |} {res}    360 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   696. {c |} {res}    360 {txt}{c |}
+   697. {c |} {res}    360 {txt}{c |}
+   698. {c |} {res}    360 {txt}{c |}
+   699. {c |} {res}    360 {txt}{c |}
+   700. {c |} {res}    360 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   701. {c |} {res}    360 {txt}{c |}
+   702. {c |} {res}    360 {txt}{c |}
+   703. {c |} {res}    360 {txt}{c |}
+   704. {c |} {res}    360 {txt}{c |}
+   705. {c |} {res}    360 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   706. {c |} {res}    360 {txt}{c |}
+   707. {c |} {res}    360 {txt}{c |}
+   708. {c |} {res}    360 {txt}{c |}
+   709. {c |} {res}    360 {txt}{c |}
+   710. {c |} {res}    361 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   711. {c |} {res}    361 {txt}{c |}
+   712. {c |} {res}    361 {txt}{c |}
+   713. {c |} {res}    361 {txt}{c |}
+   714. {c |} {res}    361 {txt}{c |}
+   715. {c |} {res}    361 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   716. {c |} {res}    361 {txt}{c |}
+   717. {c |} {res}    361 {txt}{c |}
+   718. {c |} {res}    361 {txt}{c |}
+   719. {c |} {res}    361 {txt}{c |}
+   720. {c |} {res}    361 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   721. {c |} {res}    361 {txt}{c |}
+   722. {c |} {res}    361 {txt}{c |}
+   723. {c |} {res}    361 {txt}{c |}
+   724. {c |} {res}    361 {txt}{c |}
+   725. {c |} {res}    361 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   726. {c |} {res}    361 {txt}{c |}
+   727. {c |} {res}    361 {txt}{c |}
+   728. {c |} {res}    361 {txt}{c |}
+   729. {c |} {res}    361 {txt}{c |}
+   730. {c |} {res}    361 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   731. {c |} {res}    361 {txt}{c |}
+   732. {c |} {res}    361 {txt}{c |}
+   733. {c |} {res}    361 {txt}{c |}
+   734. {c |} {res}    361 {txt}{c |}
+   735. {c |} {res}    361 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   736. {c |} {res}    361 {txt}{c |}
+   737. {c |} {res}    361 {txt}{c |}
+   738. {c |} {res}    362 {txt}{c |}
+   739. {c |} {res}    368 {txt}{c |}
+   740. {c |} {res}    370 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   741. {c |} {res}    370 {txt}{c |}
+   742. {c |} {res}    370 {txt}{c |}
+   743. {c |} {res}    370 {txt}{c |}
+   744. {c |} {res}    370 {txt}{c |}
+   745. {c |} {res}    370 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   746. {c |} {res}    370 {txt}{c |}
+   747. {c |} {res}    370 {txt}{c |}
+   748. {c |} {res}    374 {txt}{c |}
+   749. {c |} {res}    375 {txt}{c |}
+   750. {c |} {res}    377 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   751. {c |} {res}    380 {txt}{c |}
+   752. {c |} {res}    380 {txt}{c |}
+   753. {c |} {res}    380 {txt}{c |}
+   754. {c |} {res}    380 {txt}{c |}
+   755. {c |} {res}    380 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   756. {c |} {res}    380 {txt}{c |}
+   757. {c |} {res}    380 {txt}{c |}
+   758. {c |} {res}    380 {txt}{c |}
+   759. {c |} {res}    380 {txt}{c |}
+   760. {c |} {res}    380 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   761. {c |} {res}    380 {txt}{c |}
+   762. {c |} {res}    380 {txt}{c |}
+   763. {c |} {res}    383 {txt}{c |}
+   764. {c |} {res}    389 {txt}{c |}
+   765. {c |} {res}    389 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   766. {c |} {res}    389 {txt}{c |}
+   767. {c |} {res}    389 {txt}{c |}
+   768. {c |} {res}    389 {txt}{c |}
+   769. {c |} {res}    389 {txt}{c |}
+   770. {c |} {res}    389 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   771. {c |} {res}    389 {txt}{c |}
+   772. {c |} {res}    389 {txt}{c |}
+   773. {c |} {res}    389 {txt}{c |}
+   774. {c |} {res}    389 {txt}{c |}
+   775. {c |} {res}    389 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   776. {c |} {res}    389 {txt}{c |}
+   777. {c |} {res}    389 {txt}{c |}
+   778. {c |} {res}    389 {txt}{c |}
+   779. {c |} {res}    389 {txt}{c |}
+   780. {c |} {res}    389 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   781. {c |} {res}    389 {txt}{c |}
+   782. {c |} {res}    389 {txt}{c |}
+   783. {c |} {res}    389 {txt}{c |}
+   784. {c |} {res}    389 {txt}{c |}
+   785. {c |} {res}    389 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   786. {c |} {res}    389 {txt}{c |}
+   787. {c |} {res}    389 {txt}{c |}
+   788. {c |} {res}    389 {txt}{c |}
+   789. {c |} {res}    389 {txt}{c |}
+   790. {c |} {res}    389 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   791. {c |} {res}    390 {txt}{c |}
+   792. {c |} {res}    390 {txt}{c |}
+   793. {c |} {res}    390 {txt}{c |}
+   794. {c |} {res}    390 {txt}{c |}
+   795. {c |} {res}    390 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   796. {c |} {res}    390 {txt}{c |}
+   797. {c |} {res}    390 {txt}{c |}
+   798. {c |} {res}    390 {txt}{c |}
+   799. {c |} {res}    390 {txt}{c |}
+   800. {c |} {res}    390 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   801. {c |} {res}    396 {txt}{c |}
+   802. {c |} {res}    400 {txt}{c |}
+   803. {c |} {res}    400 {txt}{c |}
+   804. {c |} {res}    400 {txt}{c |}
+   805. {c |} {res}    400 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   806. {c |} {res}    400 {txt}{c |}
+   807. {c |} {res}    400 {txt}{c |}
+   808. {c |} {res}    400 {txt}{c |}
+   809. {c |} {res}    400 {txt}{c |}
+   810. {c |} {res}    400 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   811. {c |} {res}    400 {txt}{c |}
+   812. {c |} {res}    400 {txt}{c |}
+   813. {c |} {res}    400 {txt}{c |}
+   814. {c |} {res}    400 {txt}{c |}
+   815. {c |} {res}    400 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   816. {c |} {res}    400 {txt}{c |}
+   817. {c |} {res}    400 {txt}{c |}
+   818. {c |} {res}    400 {txt}{c |}
+   819. {c |} {res}    400 {txt}{c |}
+   820. {c |} {res}    400 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   821. {c |} {res}    400 {txt}{c |}
+   822. {c |} {res}    400 {txt}{c |}
+   823. {c |} {res}    400 {txt}{c |}
+   824. {c |} {res}    400 {txt}{c |}
+   825. {c |} {res}    400 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   826. {c |} {res}    400 {txt}{c |}
+   827. {c |} {res}    400 {txt}{c |}
+   828. {c |} {res}    400 {txt}{c |}
+   829. {c |} {res}    400 {txt}{c |}
+   830. {c |} {res}    400 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   831. {c |} {res}    403 {txt}{c |}
+   832. {c |} {res}    404 {txt}{c |}
+   833. {c |} {res}    405 {txt}{c |}
+   834. {c |} {res}    410 {txt}{c |}
+   835. {c |} {res}    410 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   836. {c |} {res}    410 {txt}{c |}
+   837. {c |} {res}    410 {txt}{c |}
+   838. {c |} {res}    410 {txt}{c |}
+   839. {c |} {res}    410 {txt}{c |}
+   840. {c |} {res}    410 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   841. {c |} {res}    410 {txt}{c |}
+   842. {c |} {res}    415 {txt}{c |}
+   843. {c |} {res}    415 {txt}{c |}
+   844. {c |} {res}    417 {txt}{c |}
+   845. {c |} {res}    417 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   846. {c |} {res}    417 {txt}{c |}
+   847. {c |} {res}    417 {txt}{c |}
+   848. {c |} {res}    417 {txt}{c |}
+   849. {c |} {res}    417 {txt}{c |}
+   850. {c |} {res}    417 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   851. {c |} {res}    418 {txt}{c |}
+   852. {c |} {res}    418 {txt}{c |}
+   853. {c |} {res}    418 {txt}{c |}
+   854. {c |} {res}    418 {txt}{c |}
+   855. {c |} {res}    418 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   856. {c |} {res}    418 {txt}{c |}
+   857. {c |} {res}    418 {txt}{c |}
+   858. {c |} {res}    418 {txt}{c |}
+   859. {c |} {res}    418 {txt}{c |}
+   860. {c |} {res}    418 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   861. {c |} {res}    418 {txt}{c |}
+   862. {c |} {res}    418 {txt}{c |}
+   863. {c |} {res}    418 {txt}{c |}
+   864. {c |} {res}    418 {txt}{c |}
+   865. {c |} {res}    418 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   866. {c |} {res}    420 {txt}{c |}
+   867. {c |} {res}    420 {txt}{c |}
+   868. {c |} {res}    420 {txt}{c |}
+   869. {c |} {res}    420 {txt}{c |}
+   870. {c |} {res}    420 {txt}{c |}
+        {c LT}{hline 9}{c RT}
+   871. {c |} {res}    420 {txt}{c |}
+{err}{hline 2}Break{hline 2}
+{txt}{search r(1), local:r(1);}
+
+{com}. max(bwtnorm)
+{err}command {bf}max{sf} is unrecognized
+{txt}{search r(199), local:r(199);}
+
+{com}. help max
+
+. summ bwtnorm
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 5}bwtnorm {c |}{res}    376,408    511.5756    89.01614        350        650
+
+{com}. summ bweight
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 5}bweight {c |}{res}    376,408    1511.576    89.01614       1350       1650
+
+{com}. do "C:\Users\Xue\AppData\Local\Temp\STD07000000.tmp"
+{txt}
+{com}. #delimit cr
+{txt}delimiter now cr
+{com}. capture log close
 {smcl}
-{txt}{sf}{ul off}
+{com}{sf}{ul off}

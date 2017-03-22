@@ -1,0 +1,285 @@
+{smcl}
+{com}{sf}{ul off}{txt}
+{com}. capture program drop _all
+{txt}
+{com}. capture estimates drop _all
+{txt}
+{com}. clear all
+{txt}
+{com}. set more off
+{txt}
+{com}. 
+. capture cd "D:/Lindo/Assignments/Assignment5"
+{txt}
+{com}. 
+. if c(username)=="xueqingyan" {c -(}
+.         cd "C:\Users\yanxueqing\Desktop\ECMT 676 Assignments\Assignment 5"
+. {c )-}
+{txt}
+{com}. 
+. use "runandjump_sample1500g.dta"
+{txt}
+{com}. 
+. *normalize birth weight
+. gen bwtnorm = bweight - 1500
+{txt}
+{com}. 
+. 
+. ***************
+. **     A1    **
+. ***************
+. 
+. * bingen generates a variable indicating bins that radiate out from 0.
+. * the bins are represented by their middle values.
+. 
+. program bingen
+{txt}  1{com}.         syntax  , varname(string) binname(string) [binlen(real 10)]
+{txt}  2{com}.         tokenize `varname'
+{txt}  3{com}.         local vn `1'
+{txt}  4{com}.         tokenize `binname'
+{txt}  5{com}.         local bn `1'
+{txt}  6{com}.         gen `bn' = `binlen' / 2 + `binlen' * floor(`vn' / `binlen')
+{txt}  7{com}. end
+{txt}
+{com}. 
+. * generate bins of length 1, 10, 25
+. bingen , varname(bwtnorm) binname(bin01) binlen(1)  
+{txt}
+{com}. bingen , varname(bwtnorm) binname(bin10) binlen(10)
+{txt}
+{com}. bingen , varname(bwtnorm) binname(bin25) binlen(25)
+{txt}
+{com}. 
+. tempfile raw
+{txt}
+{com}. save "`raw'"
+{txt}file C:\Users\Xue\AppData\Local\Temp\ST_07000001.tmp saved
+
+{com}. 
+. tempfile bin01
+{txt}
+{com}. tempfile bin10
+{txt}
+{com}. tempfile bin25
+{txt}
+{com}. 
+. collapse (count) freq=bwtnorm , by(bin01)
+{txt}
+{com}. graph twoway scatter freq bin01 , ytitle(freq) ///
+>       name("graph01") title("Frequencies, bin width=1")
+{res}{txt}
+{com}. save `bin01'
+{txt}file C:\Users\Xue\AppData\Local\Temp\ST_07000002.tmp saved
+
+{com}. 
+. use `raw' , clear
+{txt}
+{com}. collapse (count) freq=bwtnorm , by(bin10)
+{txt}
+{com}. graph twoway scatter freq bin10 , ytitle(freq) ///
+>       name("graph10") title("Frequencies, bin width=10")
+{res}{txt}
+{com}. save `bin10'
+{txt}file C:\Users\Xue\AppData\Local\Temp\ST_07000003.tmp saved
+
+{com}. 
+. use `raw' , clear
+{txt}
+{com}. collapse (count) freq=bwtnorm , by(bin25)
+{txt}
+{com}. graph twoway scatter freq bin25 , ytitle(freq) ///
+>       name("graph25") title("Frequencies, bin width=25")
+{res}{txt}
+{com}. save `bin25'
+{txt}file C:\Users\Xue\AppData\Local\Temp\ST_07000004.tmp saved
+
+{com}. 
+. ***************
+. **     A2    **
+. ***************
+. 
+. program myreg
+{txt}  1{com}.         args bin
+{txt}  2{com}.         gen cut = 1 if `bin' < 0
+{txt}  3{com}.         replace cut = 0 if cut ==.
+{txt}  4{com}.         gen inter = cut * `bin'
+{txt}  5{com}.         forvalues bw = 150(-50)50 {c -(}
+{txt}  6{com}.                 display "`bin', bandwith=`bw':"
+{txt}  7{com}.                 regress freq cut `bin' inter if abs(`bin') < `bw'
+{txt}  8{com}.         {c )-}
+{txt}  9{com}. end
+{txt}
+{com}. 
+. 
+. local bins bin01 bin10 bin25
+{txt}
+{com}. 
+. foreach bin of local bins{c -(}
+{txt}  2{com}.         use ``bin'' , clear
+{txt}  3{com}.         myreg `bin'
+{txt}  4{com}. {c )-}
+{txt}(151 missing values generated)
+(151 real changes made)
+bin01, bandwith=150:
+
+      Source {c |}       SS           df       MS      Number of obs   ={res}       300
+{txt}{hline 13}{c +}{hline 34}   F(3, 296)       = {res}     0.24
+{txt}       Model {c |} {res}   12735448         3  4245149.32   {txt}Prob > F        ={res}    0.8693
+{txt}    Residual {c |} {res} 5.2635e+09       296  17782115.3   {txt}R-squared       ={res}    0.0024
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}   -0.0077
+{txt}       Total {c |} {res} 5.2762e+09       299  17646292.9   {txt}Root MSE        =   {res} 4216.9
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}        freq{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 9}cut {c |}{col 14}{res}{space 2}-447.1754{col 26}{space 2}  973.864{col 37}{space 1}   -0.46{col 46}{space 3}0.646{col 54}{space 4} -2363.75{col 67}{space 3} 1469.399
+{txt}{space 7}bin01 {c |}{col 14}{res}{space 2} 1.123803{col 26}{space 2}  7.95161{col 37}{space 1}    0.14{col 46}{space 3}0.888{col 54}{space 4}-14.52505{col 67}{space 3} 16.77266
+{txt}{space 7}inter {c |}{col 14}{res}{space 2}-3.018299{col 26}{space 2} 11.24528{col 37}{space 1}   -0.27{col 46}{space 3}0.789{col 54}{space 4}-25.14912{col 67}{space 3} 19.11252
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 1356.641{col 26}{space 2} 688.6258{col 37}{space 1}    1.97{col 46}{space 3}0.050{col 54}{space 4} 1.418413{col 67}{space 3} 2711.864
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}bin01, bandwith=100:
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}       200
+{txt}{hline 13}{c +}{hline 34}   F(3, 196)       = {res}     0.18
+{txt}       Model {c |} {res} 8949578.74         3  2983192.91   {txt}Prob > F        ={res}    0.9098
+{txt}    Residual {c |} {res} 3.2461e+09       196  16561675.8   {txt}R-squared       ={res}    0.0027
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}   -0.0125
+{txt}       Total {c |} {res} 3.2550e+09       199  16356975.1   {txt}Root MSE        =   {res} 4069.6
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}        freq{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 9}cut {c |}{col 14}{res}{space 2}-740.1982{col 26}{space 2} 1151.101{col 37}{space 1}   -0.64{col 46}{space 3}0.521{col 54}{space 4}-3010.332{col 67}{space 3} 1529.935
+{txt}{space 7}bin01 {c |}{col 14}{res}{space 2}-4.347327{col 26}{space 2} 14.09823{col 37}{space 1}   -0.31{col 46}{space 3}0.758{col 54}{space 4}-32.15102{col 67}{space 3} 23.45637
+{txt}{space 7}inter {c |}{col 14}{res}{space 2}  1.09949{col 26}{space 2}  19.9379{col 37}{space 1}    0.06{col 46}{space 3}0.956{col 54}{space 4}-38.22087{col 67}{space 3} 40.41985
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 1600.046{col 26}{space 2} 813.9513{col 37}{space 1}    1.97{col 46}{space 3}0.051{col 54}{space 4}-5.180578{col 67}{space 3} 3205.273
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}bin01, bandwith=50:
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}       100
+{txt}{hline 13}{c +}{hline 34}   F(3, 96)        = {res}     0.50
+{txt}       Model {c |} {res} 22552516.1         3  7517505.37   {txt}Prob > F        ={res}    0.6802
+{txt}    Residual {c |} {res} 1.4308e+09        96  14903933.9   {txt}R-squared       ={res}    0.0155
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}   -0.0152
+{txt}       Total {c |} {res} 1.4533e+09        99  14680102.7   {txt}Root MSE        =   {res} 3860.6
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}        freq{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 9}cut {c |}{col 14}{res}{space 2}-1611.634{col 26}{space 2} 1544.456{col 37}{space 1}   -1.04{col 46}{space 3}0.299{col 54}{space 4}-4677.355{col 67}{space 3} 1454.087
+{txt}{space 7}bin01 {c |}{col 14}{res}{space 2}-38.86756{col 26}{space 2} 37.83319{col 37}{space 1}   -1.03{col 46}{space 3}0.307{col 54}{space 4}-113.9658{col 67}{space 3} 36.23072
+{txt}{space 7}inter {c |}{col 14}{res}{space 2} 33.74257{col 26}{space 2} 53.50421{col 37}{space 1}    0.63{col 46}{space 3}0.530{col 54}{space 4}-72.46245{col 67}{space 3} 139.9476
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 2319.949{col 26}{space 2} 1092.095{col 37}{space 1}    2.12{col 46}{space 3}0.036{col 54}{space 4} 152.1567{col 67}{space 3} 4487.741
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}(16 missing values generated)
+(16 real changes made)
+bin10, bandwith=150:
+
+      Source {c |}       SS           df       MS      Number of obs   ={res}        30
+{txt}{hline 13}{c +}{hline 34}   F(3, 26)        = {res}     0.30
+{txt}       Model {c |} {res}  127653492         3  42551164.1   {txt}Prob > F        ={res}    0.8216
+{txt}    Residual {c |} {res} 3.6283e+09        26   139548644   {txt}R-squared       ={res}    0.0340
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}   -0.0775
+{txt}       Total {c |} {res} 3.7559e+09        29   129514422   {txt}Root MSE        =   {res}  11813
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}        freq{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 9}cut {c |}{col 14}{res}{space 2}-4270.233{col 26}{space 2} 8641.478{col 37}{space 1}   -0.49{col 46}{space 3}0.625{col 54}{space 4}-22033.05{col 67}{space 3} 13492.58
+{txt}{space 7}bin10 {c |}{col 14}{res}{space 2} 13.06929{col 26}{space 2}  70.5966{col 37}{space 1}    0.19{col 46}{space 3}0.855{col 54}{space 4}-132.0441{col 67}{space 3} 158.1827
+{txt}{space 7}inter {c |}{col 14}{res}{space 2}-31.15857{col 26}{space 2} 99.83867{col 37}{space 1}   -0.31{col 46}{space 3}0.757{col 54}{space 4}-236.3799{col 67}{space 3} 174.0628
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 13429.07{col 26}{space 2} 6110.448{col 37}{space 1}    2.20{col 46}{space 3}0.037{col 54}{space 4} 868.8655{col 67}{space 3} 25989.27
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}bin10, bandwith=100:
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}        20
+{txt}{hline 13}{c +}{hline 34}   F(3, 16)        = {res}     0.20
+{txt}       Model {c |} {res} 88287924.2         3  29429308.1   {txt}Prob > F        ={res}    0.8930
+{txt}    Residual {c |} {res} 2.3225e+09        16   145153302   {txt}R-squared       ={res}    0.0366
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}   -0.1440
+{txt}       Total {c |} {res} 2.4107e+09        19   126881092   {txt}Root MSE        =   {res}  12048
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}        freq{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 9}cut {c |}{col 14}{res}{space 2}-7335.794{col 26}{space 2} 10816.76{col 37}{space 1}   -0.68{col 46}{space 3}0.507{col 54}{space 4}-30266.31{col 67}{space 3} 15594.72
+{txt}{space 7}bin10 {c |}{col 14}{res}{space 2}-41.95879{col 26}{space 2} 132.6437{col 37}{space 1}   -0.32{col 46}{space 3}0.756{col 54}{space 4}-323.1508{col 67}{space 3} 239.2332
+{txt}{space 7}inter {c |}{col 14}{res}{space 2} 9.289697{col 26}{space 2} 187.5865{col 37}{space 1}    0.05{col 46}{space 3}0.961{col 54}{space 4}-388.3758{col 67}{space 3} 406.9552
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 15924.74{col 26}{space 2} 7648.606{col 37}{space 1}    2.08{col 46}{space 3}0.054{col 54}{space 4}-289.5818{col 67}{space 3} 32139.06
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}bin10, bandwith=50:
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}        10
+{txt}{hline 13}{c +}{hline 34}   F(3, 6)         = {res}     0.25
+{txt}       Model {c |} {res}  122424828         3  40808276.1   {txt}Prob > F        ={res}    0.8620
+{txt}    Residual {c |} {res}  998734214         6   166455702   {txt}R-squared       ={res}    0.1092
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}   -0.3362
+{txt}       Total {c |} {res} 1.1212e+09         9   124573227   {txt}Root MSE        =   {res}  12902
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}        freq{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 9}cut {c |}{col 14}{res}{space 2} -11093.7{col 26}{space 2} 16572.63{col 37}{space 1}   -0.67{col 46}{space 3}0.528{col 54}{space 4}-51645.45{col 67}{space 3} 29458.05
+{txt}{space 7}bin10 {c |}{col 14}{res}{space 2}  -238.61{col 26}{space 2} 407.9898{col 37}{space 1}   -0.58{col 46}{space 3}0.580{col 54}{space 4}-1236.925{col 67}{space 3} 759.7052
+{txt}{space 7}inter {c |}{col 14}{res}{space 2}    238.2{col 26}{space 2} 576.9848{col 37}{space 1}    0.41{col 46}{space 3}0.694{col 54}{space 4}-1173.631{col 67}{space 3} 1650.031
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 19447.85{col 26}{space 2} 11718.62{col 37}{space 1}    1.66{col 46}{space 3}0.148{col 54}{space 4} -9226.57{col 67}{space 3} 48122.27
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}(7 missing values generated)
+(7 real changes made)
+bin25, bandwith=150:
+
+      Source {c |}       SS           df       MS      Number of obs   ={res}        12
+{txt}{hline 13}{c +}{hline 34}   F(3, 8)         = {res}     3.72
+{txt}       Model {c |} {res}  405391579         3   135130526   {txt}Prob > F        ={res}    0.0609
+{txt}    Residual {c |} {res}  290563099         8  36320387.4   {txt}R-squared       ={res}    0.5825
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.4259
+{txt}       Total {c |} {res}  695954678        11  63268607.1   {txt}Root MSE        =   {res} 6026.6
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}        freq{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 9}cut {c |}{col 14}{res}{space 2}-13216.73{col 26}{space 2} 7033.129{col 37}{space 1}   -1.88{col 46}{space 3}0.097{col 54}{space 4}-29435.16{col 67}{space 3} 3001.692
+{txt}{space 7}bin25 {c |}{col 14}{res}{space 2}    47.48{col 26}{space 2}  57.6257{col 37}{space 1}    0.82{col 46}{space 3}0.434{col 54}{space 4} -85.4051{col 67}{space 3} 180.3651
+{txt}{space 7}inter {c |}{col 14}{res}{space 2} -141.392{col 26}{space 2} 81.49504{col 37}{space 1}   -1.73{col 46}{space 3}0.121{col 54}{space 4}-329.3199{col 67}{space 3} 46.53591
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} 32462.17{col 26}{space 2} 4973.173{col 37}{space 1}    6.53{col 46}{space 3}0.000{col 54}{space 4} 20994.01{col 67}{space 3} 43930.33
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}bin25, bandwith=100:
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}         8
+{txt}{hline 13}{c +}{hline 34}   F(3, 4)         = {res}     2.68
+{txt}       Model {c |} {res}  360303867         3   120101289   {txt}Prob > F        ={res}    0.1824
+{txt}    Residual {c |} {res}  179276727         4  44819181.8   {txt}R-squared       ={res}    0.6677
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.4186
+{txt}       Total {c |} {res}  539580594         7    77082942   {txt}Root MSE        =   {res} 6694.7
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}        freq{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 9}cut {c |}{col 14}{res}{space 2}   -20013{col 26}{space 2} 9701.561{col 37}{space 1}   -2.06{col 46}{space 3}0.108{col 54}{space 4}-46948.85{col 67}{space 3} 6922.851
+{txt}{space 7}bin25 {c |}{col 14}{res}{space 2}    29.84{col 26}{space 2} 119.7587{col 37}{space 1}    0.25{col 46}{space 3}0.816{col 54}{space 4}-302.6634{col 67}{space 3} 362.3434
+{txt}{space 7}inter {c |}{col 14}{res}{space 2}  -279.72{col 26}{space 2} 169.3643{col 37}{space 1}   -1.65{col 46}{space 3}0.174{col 54}{space 4}-749.9508{col 67}{space 3} 190.5108
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2}    33075{col 26}{space 2} 6860.039{col 37}{space 1}    4.82{col 46}{space 3}0.009{col 54}{space 4} 14028.48{col 67}{space 3} 52121.52
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}bin25, bandwith=50:
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}         4
+{txt}{hline 13}{c +}{hline 34}   F(3, 0)         = {res}        .
+{txt}       Model {c |} {res}  446995413         3   148998471   {txt}Prob > F        ={res}         .
+{txt}    Residual {c |} {res}          0         0           .   {txt}R-squared       ={res}    1.0000
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}         .
+{txt}       Total {c |} {res}  446995413         3   148998471   {txt}Root MSE        =   {res}      0
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}        freq{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 9}cut {c |}{col 14}{res}{space 2} -38534.5{col 26}{space 2}        .{col 37}{space 1}       .{col 46}{space 3}    .{col 54}{space 4}        .{col 67}{space 3}        .
+{txt}{space 7}bin25 {c |}{col 14}{res}{space 2}   -80.92{col 26}{space 2}        .{col 37}{space 1}       .{col 46}{space 3}    .{col 54}{space 4}        .{col 67}{space 3}        .
+{txt}{space 7}inter {c |}{col 14}{res}{space 2}  -867.72{col 26}{space 2}        .{col 37}{space 1}       .{col 46}{space 3}    .{col 54}{space 4}        .{col 67}{space 3}        .
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2}  35729.5{col 26}{space 2}        .{col 37}{space 1}       .{col 46}{space 3}    .{col 54}{space 4}        .{col 67}{space 3}        .
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. 
+. 
+{txt}end of do-file
+
+{com}. 
