@@ -116,17 +116,38 @@ forvalues bw = 90(-30)30{
 ***************
 **     A4    **
 ***************
+
+** drump on ounces
+local grams
 drop if bweight == 1500
 forvalues oz = 51(1)54{
 	local gram = round(`oz'*28.3495)
+	local grams `grams' gram
 	gen oz`oz' = 1 if bweight == `gram'
 	replace oz`oz' = 0 if oz`oz' == .
 	gen inter`oz' = oz`oz' * bweight
 	foreach c of local chars{
-		display "reg: `c', bandwith: 25, oz:`oz'"
+		display "reg: `c', bandwith: 25, jump: `oz'oz"
 		regress `c' bweight inter`oz' if abs(bweight-`gram')<= 25
 	}	
 }
+
+** drump on 1500
+
+use `raw' , clear
+
+gen is1500 = 1 if bweight==1500
+replace is1500=0 if is1500==.
+gen inter2 = is1500 * bweight
+
+foreach g of local grams{
+	drop if bweight == `g'
+}
+
+foreach c of local chars{
+		display "reg: `c', bandwith: 25 jump: 1500g"
+		regress `c' bweight inter2 if abs(bweight- 1500)<= 25
+	}
 
 log close _all
 

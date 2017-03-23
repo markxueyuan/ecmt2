@@ -525,22 +525,27 @@ Linear regression                               Number of obs     = {res}    68,
 . ***************
 . **     A4    **
 . ***************
-. drop if bweight == 1500
+. 
+. ** drump on ounces
+. local grams
+{txt}
+{com}. drop if bweight == 1500
 {txt}(3,544 observations deleted)
 
 {com}. forvalues oz = 51(1)54{c -(}
 {txt}  2{com}.         local gram = round(`oz'*28.3495)
-{txt}  3{com}.         gen oz`oz' = 1 if bweight == `gram'
-{txt}  4{com}.         replace oz`oz' = 0 if oz`oz' == .
-{txt}  5{com}.         gen inter`oz' = oz`oz' * bweight
-{txt}  6{com}.         foreach c of local chars{c -(}
-{txt}  7{com}.                 display "reg: `c', bandwith: 25, oz:`oz'"
-{txt}  8{com}.                 regress `c' bweight inter`oz' if abs(bweight-`gram')<= 25
-{txt}  9{com}.         {c )-}       
-{txt} 10{com}. {c )-}
+{txt}  3{com}.         local grams `grams' `gram'
+{txt}  4{com}.         gen oz`oz' = 1 if bweight == `gram'
+{txt}  5{com}.         replace oz`oz' = 0 if oz`oz' == .
+{txt}  6{com}.         gen inter`oz' = oz`oz' * bweight
+{txt}  7{com}.         foreach c of local chars{c -(}
+{txt}  8{com}.                 display "reg: `c', bandwith: 25, jump: `oz'oz"
+{txt}  9{com}.                 regress `c' bweight inter`oz' if abs(bweight-`gram')<= 25
+{txt} 10{com}.         {c )-}       
+{txt} 11{com}. {c )-}
 {txt}(352,828 missing values generated)
 (352,828 real changes made)
-reg: mom_white, bandwith: 25, oz:51
+reg: mom_white, bandwith: 25, jump: 51oz
 
       Source {c |}       SS           df       MS      Number of obs   ={res}    39,519
 {txt}{hline 13}{c +}{hline 34}   F(2, 39516)     = {res}    16.30
@@ -556,7 +561,7 @@ reg: mom_white, bandwith: 25, oz:51
 {txt}{space 5}inter51 {c |}{col 14}{res}{space 2} .0000185{col 26}{space 2} 3.31e-06{col 37}{space 1}    5.58{col 46}{space 3}0.000{col 54}{space 4}  .000012{col 67}{space 3}  .000025
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .8900561{col 26}{space 2} .3490609{col 37}{space 1}    2.55{col 46}{space 3}0.011{col 54}{space 4} .2058882{col 67}{space 3} 1.574224
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: mom_high, bandwith: 25, oz:51
+{res}reg: mom_high, bandwith: 25, jump: 51oz
 
 {txt}      Source {c |}       SS           df       MS      Number of obs   ={res}    39,519
 {txt}{hline 13}{c +}{hline 34}   F(2, 39516)     = {res}     0.06
@@ -574,7 +579,7 @@ reg: mom_white, bandwith: 25, oz:51
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
 {res}{txt}(349,937 missing values generated)
 (349,937 real changes made)
-reg: mom_white, bandwith: 25, oz:52
+reg: mom_white, bandwith: 25, jump: 52oz
 
       Source {c |}       SS           df       MS      Number of obs   ={res}    41,928
 {txt}{hline 13}{c +}{hline 34}   F(2, 41925)     = {res}     9.61
@@ -590,7 +595,7 @@ reg: mom_white, bandwith: 25, oz:52
 {txt}{space 5}inter52 {c |}{col 14}{res}{space 2} .0000135{col 26}{space 2} 3.18e-06{col 37}{space 1}    4.24{col 46}{space 3}0.000{col 54}{space 4} 7.24e-06{col 67}{space 3} .0000197
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .3933215{col 26}{space 2} .3524947{col 37}{space 1}    1.12{col 46}{space 3}0.265{col 54}{space 4}-.2975754{col 67}{space 3} 1.084218
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: mom_high, bandwith: 25, oz:52
+{res}reg: mom_high, bandwith: 25, jump: 52oz
 
 {txt}      Source {c |}       SS           df       MS      Number of obs   ={res}    41,928
 {txt}{hline 13}{c +}{hline 34}   F(2, 41925)     = {res}     1.66
@@ -608,7 +613,7 @@ reg: mom_white, bandwith: 25, oz:52
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
 {res}{txt}(350,984 missing values generated)
 (350,984 real changes made)
-reg: mom_white, bandwith: 25, oz:53
+reg: mom_white, bandwith: 25, jump: 53oz
 
       Source {c |}       SS           df       MS      Number of obs   ={res}    40,358
 {txt}{hline 13}{c +}{hline 34}   F(2, 40355)     = {res}    20.58
@@ -624,7 +629,7 @@ reg: mom_white, bandwith: 25, oz:53
 {txt}{space 5}inter53 {c |}{col 14}{res}{space 2} .0000186{col 26}{space 2} 3.15e-06{col 37}{space 1}    5.90{col 46}{space 3}0.000{col 54}{space 4} .0000124{col 67}{space 3} .0000248
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2}-.1313147{col 26}{space 2} .3426568{col 37}{space 1}   -0.38{col 46}{space 3}0.702{col 54}{space 4}-.8029299{col 67}{space 3} .5403005
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: mom_high, bandwith: 25, oz:53
+{res}reg: mom_high, bandwith: 25, jump: 53oz
 
 {txt}      Source {c |}       SS           df       MS      Number of obs   ={res}    40,358
 {txt}{hline 13}{c +}{hline 34}   F(2, 40355)     = {res}     1.47
@@ -642,7 +647,7 @@ reg: mom_white, bandwith: 25, oz:53
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
 {res}{txt}(350,464 missing values generated)
 (350,464 real changes made)
-reg: mom_white, bandwith: 25, oz:54
+reg: mom_white, bandwith: 25, jump: 54oz
 
       Source {c |}       SS           df       MS      Number of obs   ={res}    43,655
 {txt}{hline 13}{c +}{hline 34}   F(2, 43652)     = {res}    12.46
@@ -658,7 +663,7 @@ reg: mom_white, bandwith: 25, oz:54
 {txt}{space 5}inter54 {c |}{col 14}{res}{space 2} .0000147{col 26}{space 2} 2.97e-06{col 37}{space 1}    4.94{col 46}{space 3}0.000{col 54}{space 4} 8.84e-06{col 67}{space 3} .0000205
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .3173713{col 26}{space 2} .3552408{col 37}{space 1}    0.89{col 46}{space 3}0.372{col 54}{space 4}-.3789071{col 67}{space 3}  1.01365
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: mom_high, bandwith: 25, oz:54
+{res}reg: mom_high, bandwith: 25, jump: 54oz
 
 {txt}      Source {c |}       SS           df       MS      Number of obs   ={res}    43,655
 {txt}{hline 13}{c +}{hline 34}   F(2, 43652)     = {res}     0.49
@@ -676,11 +681,72 @@ reg: mom_white, bandwith: 25, oz:54
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
 {res}{txt}
 {com}. 
+. ** drump on 1500
+. 
+. use `raw' , clear
+{txt}
+{com}. 
+. gen is1500 = 1 if bweight==1500
+{txt}(372,864 missing values generated)
+
+{com}. replace is1500=0 if is1500==.
+{txt}(372,864 real changes made)
+
+{com}. gen inter2 = is1500 * bweight
+{txt}
+{com}. 
+. foreach g of local grams{c -(}
+{txt}  2{com}.         drop if bweight == `g'
+{txt}  3{com}. {c )-}
+{txt}(20,036 observations deleted)
+(22,927 observations deleted)
+(21,880 observations deleted)
+(22,400 observations deleted)
+
+{com}. 
+. foreach c of local chars{c -(}
+{txt}  2{com}.                 display "reg: `c', bandwith: 25 jump: 1500g"
+{txt}  3{com}.                 regress `c' bweight inter2 if abs(bweight- 1500)<= 25
+{txt}  4{com}.         {c )-}
+reg: mom_white, bandwith: 25 jump: 1500g
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}    22,613
+{txt}{hline 13}{c +}{hline 34}   F(2, 22610)     = {res}     3.63
+{txt}       Model {c |} {res} 1.67224738         2  .836123689   {txt}Prob > F        ={res}    0.0265
+{txt}    Residual {c |} {res} 5203.96168    22,610   .23016195   {txt}R-squared       ={res}    0.0003
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.0002
+{txt}       Total {c |} {res} 5205.63393    22,612  .230215546   {txt}Root MSE        =   {res} .47975
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}   mom_white{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bweight {c |}{col 14}{res}{space 2} .0002922{col 26}{space 2} .0002211{col 37}{space 1}    1.32{col 46}{space 3}0.186{col 54}{space 4}-.0001412{col 67}{space 3} .0007256
+{txt}{space 6}inter2 {c |}{col 14}{res}{space 2}-.0000137{col 26}{space 2} 5.85e-06{col 37}{space 1}   -2.34{col 46}{space 3}0.019{col 54}{space 4}-.0000252{col 67}{space 3}-2.24e-06
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .2055841{col 26}{space 2} .3317622{col 37}{space 1}    0.62{col 46}{space 3}0.535{col 54}{space 4}-.4446926{col 67}{space 3} .8558608
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: mom_high, bandwith: 25 jump: 1500g
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}    22,613
+{txt}{hline 13}{c +}{hline 34}   F(2, 22610)     = {res}     2.60
+{txt}       Model {c |} {res} .984860652         2  .492430326   {txt}Prob > F        ={res}    0.0744
+{txt}    Residual {c |} {res} 4283.47143    22,610  .189450306   {txt}R-squared       ={res}    0.0002
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.0001
+{txt}       Total {c |} {res} 4284.45629    22,612  .189477104   {txt}Root MSE        =   {res} .43526
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}    mom_high{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bweight {c |}{col 14}{res}{space 2}-.0001323{col 26}{space 2} .0002006{col 37}{space 1}   -0.66{col 46}{space 3}0.510{col 54}{space 4}-.0005255{col 67}{space 3} .0002609
+{txt}{space 6}inter2 {c |}{col 14}{res}{space 2} .0000116{col 26}{space 2} 5.31e-06{col 37}{space 1}    2.18{col 46}{space 3}0.029{col 54}{space 4} 1.16e-06{col 67}{space 3}  .000022
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .4497102{col 26}{space 2} .3009939{col 37}{space 1}    1.49{col 46}{space 3}0.135{col 54}{space 4}-.1402587{col 67}{space 3} 1.039679
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. 
 . log close _all
       {txt}name:  {res}<unnamed>
        {txt}log:  {res}D:\Lindo\Assignments\Assignment5\mylog.smcl
   {txt}log type:  {res}smcl
- {txt}closed on:  {res}23 Mar 2017, 07:18:01
+ {txt}closed on:  {res}23 Mar 2017, 07:38:16
 {txt}{.-}
 {smcl}
 {txt}{sf}{ul off}
