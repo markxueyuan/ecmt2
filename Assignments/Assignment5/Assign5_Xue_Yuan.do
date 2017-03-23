@@ -95,11 +95,13 @@ replace cut = 0 if cut ==.
 
 gen inter = bwtnorm * cut
 
+save `raw' , replace
+
+local chars mom_white mom_high
 
 forvalues bw = 90(-30)30{
 	tempvar wght
 	gen `wght' = 1 - abs(bwtnorm / `bw')
-	local chars mom_white mom_high
 	foreach c of local chars{
 		display "reg: `c', bandwith: `bw', triangular kernel"
 		regress `c' bwtnorm cut inter [pweight=`wght'] ///
@@ -110,11 +112,23 @@ forvalues bw = 90(-30)30{
 	}
 }
 
-log close _all
 
 ***************
 **     A4    **
 ***************
+drop if bweight == 1500
+forvalues oz = 51(1)54{
+	local gram = round(`oz'*28.3495)
+	gen oz`oz' = 1 if bweight == `gram'
+	replace oz`oz' = 0 if oz`oz' == .
+	gen inter`oz' = oz`oz' * bweight
+	foreach c of local chars{
+		display "reg: `c', bandwith: 25, oz:`oz'"
+		regress `c' bweight inter`oz' if abs(bweight-`gram')<= 25
+	}	
+}
+
+log close _all
 
 
 

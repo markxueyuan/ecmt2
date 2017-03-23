@@ -290,20 +290,25 @@ bin25, bandwith=150:
 . gen inter = bwtnorm * cut
 {txt}
 {com}. 
-. 
+. save `raw' , replace
+{txt}file C:\Users\Xue\AppData\Local\Temp\ST_07000001.tmp saved
+
+{com}. 
+. local chars mom_white mom_high
+{txt}
+{com}. 
 . forvalues bw = 90(-30)30{c -(}
 {txt}  2{com}.         tempvar wght
 {txt}  3{com}.         gen `wght' = 1 - abs(bwtnorm / `bw')
-{txt}  4{com}.         local chars mom_white mom_high
-{txt}  5{com}.         foreach c of local chars{c -(}
-{txt}  6{com}.                 display "reg: `c', bandwith: `bw', triangular kernel"
-{txt}  7{com}.                 regress `c' bwtnorm cut inter [pweight=`wght'] ///
+{txt}  4{com}.         foreach c of local chars{c -(}
+{txt}  5{com}.                 display "reg: `c', bandwith: `bw', triangular kernel"
+{txt}  6{com}.                 regress `c' bwtnorm cut inter [pweight=`wght'] ///
 >                 if abs(bwtnorm) <= `bw'
-{txt}  8{com}.                 display "reg: `c', bandwith: `bw', Rectangular kernel"
-{txt}  9{com}.                 regress `c' bwtnorm cut inter ///
+{txt}  7{com}.                 display "reg: `c', bandwith: `bw', Rectangular kernel"
+{txt}  8{com}.                 regress `c' bwtnorm cut inter ///
 >                 if abs(bwtnorm) <= `bw'
-{txt} 10{com}.         {c )-}
-{txt} 11{com}. {c )-}
+{txt}  9{com}.         {c )-}
+{txt} 10{com}. {c )-}
 reg: mom_white, bandwith: 90, triangular kernel
 {txt}(sum of wgt is   1.0864e+05)
 
@@ -516,11 +521,166 @@ Linear regression                               Number of obs     = {res}    68,
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
 {res}{txt}
 {com}. 
+. 
+. ***************
+. **     A4    **
+. ***************
+. drop if bweight == 1500
+{txt}(3,544 observations deleted)
+
+{com}. forvalues oz = 51(1)54{c -(}
+{txt}  2{com}.         local gram = round(`oz'*28.3495)
+{txt}  3{com}.         gen oz`oz' = 1 if bweight == `gram'
+{txt}  4{com}.         replace oz`oz' = 0 if oz`oz' == .
+{txt}  5{com}.         gen inter`oz' = oz`oz' * bweight
+{txt}  6{com}.         foreach c of local chars{c -(}
+{txt}  7{com}.                 display "reg: `c', bandwith: 25, oz:`oz'"
+{txt}  8{com}.                 regress `c' bweight inter`oz' if abs(bweight-`gram')<= 25
+{txt}  9{com}.         {c )-}       
+{txt} 10{com}. {c )-}
+{txt}(352,828 missing values generated)
+(352,828 real changes made)
+reg: mom_white, bandwith: 25, oz:51
+
+      Source {c |}       SS           df       MS      Number of obs   ={res}    39,519
+{txt}{hline 13}{c +}{hline 34}   F(2, 39516)     = {res}    16.30
+{txt}       Model {c |} {res} 7.32609009         2  3.66304505   {txt}Prob > F        ={res}    0.0000
+{txt}    Residual {c |} {res} 8881.28491    39,516  .224751617   {txt}R-squared       ={res}    0.0008
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.0008
+{txt}       Total {c |} {res}   8888.611    39,518  .224925629   {txt}Root MSE        =   {res} .47408
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}   mom_white{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bweight {c |}{col 14}{res}{space 2}-.0001695{col 26}{space 2} .0002411{col 37}{space 1}   -0.70{col 46}{space 3}0.482{col 54}{space 4}-.0006421{col 67}{space 3} .0003031
+{txt}{space 5}inter51 {c |}{col 14}{res}{space 2} .0000185{col 26}{space 2} 3.31e-06{col 37}{space 1}    5.58{col 46}{space 3}0.000{col 54}{space 4}  .000012{col 67}{space 3}  .000025
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .8900561{col 26}{space 2} .3490609{col 37}{space 1}    2.55{col 46}{space 3}0.011{col 54}{space 4} .2058882{col 67}{space 3} 1.574224
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: mom_high, bandwith: 25, oz:51
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}    39,519
+{txt}{hline 13}{c +}{hline 34}   F(2, 39516)     = {res}     0.06
+{txt}       Model {c |} {res} .023952681         2  .011976341   {txt}Prob > F        ={res}    0.9383
+{txt}    Residual {c |} {res} 7429.87255    39,516  .188021879   {txt}R-squared       ={res}    0.0000
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}   -0.0000
+{txt}       Total {c |} {res} 7429.89651    39,518  .188012969   {txt}Root MSE        =   {res} .43361
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}    mom_high{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bweight {c |}{col 14}{res}{space 2}-.0000465{col 26}{space 2} .0002205{col 37}{space 1}   -0.21{col 46}{space 3}0.833{col 54}{space 4}-.0004787{col 67}{space 3} .0003857
+{txt}{space 5}inter51 {c |}{col 14}{res}{space 2}-9.25e-07{col 26}{space 2} 3.03e-06{col 37}{space 1}   -0.31{col 46}{space 3}0.760{col 54}{space 4}-6.86e-06{col 67}{space 3} 5.01e-06
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .3190132{col 26}{space 2}  .319267{col 37}{space 1}    1.00{col 46}{space 3}0.318{col 54}{space 4}-.3067578{col 67}{space 3} .9447842
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}(349,937 missing values generated)
+(349,937 real changes made)
+reg: mom_white, bandwith: 25, oz:52
+
+      Source {c |}       SS           df       MS      Number of obs   ={res}    41,928
+{txt}{hline 13}{c +}{hline 34}   F(2, 41925)     = {res}     9.61
+{txt}       Model {c |} {res} 4.34056971         2  2.17028486   {txt}Prob > F        ={res}    0.0001
+{txt}    Residual {c |} {res} 9472.45851    41,925  .225938188   {txt}R-squared       ={res}    0.0005
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.0004
+{txt}       Total {c |} {res} 9476.79908    41,927  .226030937   {txt}Root MSE        =   {res} .47533
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}   mom_white{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bweight {c |}{col 14}{res}{space 2} .0001701{col 26}{space 2} .0002394{col 37}{space 1}    0.71{col 46}{space 3}0.477{col 54}{space 4}-.0002991{col 67}{space 3} .0006394
+{txt}{space 5}inter52 {c |}{col 14}{res}{space 2} .0000135{col 26}{space 2} 3.18e-06{col 37}{space 1}    4.24{col 46}{space 3}0.000{col 54}{space 4} 7.24e-06{col 67}{space 3} .0000197
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .3933215{col 26}{space 2} .3524947{col 37}{space 1}    1.12{col 46}{space 3}0.265{col 54}{space 4}-.2975754{col 67}{space 3} 1.084218
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: mom_high, bandwith: 25, oz:52
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}    41,928
+{txt}{hline 13}{c +}{hline 34}   F(2, 41925)     = {res}     1.66
+{txt}       Model {c |} {res} .624278477         2  .312139239   {txt}Prob > F        ={res}    0.1898
+{txt}    Residual {c |} {res} 7874.85702    41,925   .18783201   {txt}R-squared       ={res}    0.0001
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.0000
+{txt}       Total {c |} {res}  7875.4813    41,927   .18783794   {txt}Root MSE        =   {res}  .4334
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}    mom_high{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bweight {c |}{col 14}{res}{space 2} .0002277{col 26}{space 2} .0002183{col 37}{space 1}    1.04{col 46}{space 3}0.297{col 54}{space 4}-.0002002{col 67}{space 3} .0006555
+{txt}{space 5}inter52 {c |}{col 14}{res}{space 2}-4.60e-06{col 26}{space 2} 2.90e-06{col 37}{space 1}   -1.59{col 46}{space 3}0.112{col 54}{space 4}-.0000103{col 67}{space 3} 1.08e-06
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2}-.0809964{col 26}{space 2} .3213976{col 37}{space 1}   -0.25{col 46}{space 3}0.801{col 54}{space 4}-.7109422{col 67}{space 3} .5489495
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}(350,984 missing values generated)
+(350,984 real changes made)
+reg: mom_white, bandwith: 25, oz:53
+
+      Source {c |}       SS           df       MS      Number of obs   ={res}    40,358
+{txt}{hline 13}{c +}{hline 34}   F(2, 40355)     = {res}    20.58
+{txt}       Model {c |} {res} 9.23959792         2  4.61979896   {txt}Prob > F        ={res}    0.0000
+{txt}    Residual {c |} {res} 9057.39938    40,355  .224443052   {txt}R-squared       ={res}    0.0010
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.0010
+{txt}       Total {c |} {res} 9066.63898    40,357  .224660876   {txt}Root MSE        =   {res} .47375
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}   mom_white{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bweight {c |}{col 14}{res}{space 2}  .000516{col 26}{space 2} .0002281{col 37}{space 1}    2.26{col 46}{space 3}0.024{col 54}{space 4} .0000689{col 67}{space 3} .0009631
+{txt}{space 5}inter53 {c |}{col 14}{res}{space 2} .0000186{col 26}{space 2} 3.15e-06{col 37}{space 1}    5.90{col 46}{space 3}0.000{col 54}{space 4} .0000124{col 67}{space 3} .0000248
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2}-.1313147{col 26}{space 2} .3426568{col 37}{space 1}   -0.38{col 46}{space 3}0.702{col 54}{space 4}-.8029299{col 67}{space 3} .5403005
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: mom_high, bandwith: 25, oz:53
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}    40,358
+{txt}{hline 13}{c +}{hline 34}   F(2, 40355)     = {res}     1.47
+{txt}       Model {c |} {res} .558042146         2  .279021073   {txt}Prob > F        ={res}    0.2291
+{txt}    Residual {c |} {res} 7641.74824    40,355  .189363108   {txt}R-squared       ={res}    0.0001
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.0000
+{txt}       Total {c |} {res} 7642.30628    40,357  .189367552   {txt}Root MSE        =   {res} .43516
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}    mom_high{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bweight {c |}{col 14}{res}{space 2}-.0003525{col 26}{space 2} .0002095{col 37}{space 1}   -1.68{col 46}{space 3}0.092{col 54}{space 4}-.0007632{col 67}{space 3} .0000582
+{txt}{space 5}inter53 {c |}{col 14}{res}{space 2} 1.20e-06{col 26}{space 2} 2.90e-06{col 37}{space 1}    0.41{col 46}{space 3}0.679{col 54}{space 4}-4.48e-06{col 67}{space 3} 6.87e-06
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .7824427{col 26}{space 2} .3147415{col 37}{space 1}    2.49{col 46}{space 3}0.013{col 54}{space 4} .1655423{col 67}{space 3} 1.399343
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}(350,464 missing values generated)
+(350,464 real changes made)
+reg: mom_white, bandwith: 25, oz:54
+
+      Source {c |}       SS           df       MS      Number of obs   ={res}    43,655
+{txt}{hline 13}{c +}{hline 34}   F(2, 43652)     = {res}    12.46
+{txt}       Model {c |} {res} 5.60953697         2  2.80476849   {txt}Prob > F        ={res}    0.0000
+{txt}    Residual {c |} {res} 9824.64473    43,652  .225067459   {txt}R-squared       ={res}    0.0006
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.0005
+{txt}       Total {c |} {res} 9830.25427    43,654  .225185648   {txt}Root MSE        =   {res} .47441
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}   mom_white{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bweight {c |}{col 14}{res}{space 2} .0002146{col 26}{space 2} .0002319{col 37}{space 1}    0.93{col 46}{space 3}0.355{col 54}{space 4}-.0002399{col 67}{space 3} .0006692
+{txt}{space 5}inter54 {c |}{col 14}{res}{space 2} .0000147{col 26}{space 2} 2.97e-06{col 37}{space 1}    4.94{col 46}{space 3}0.000{col 54}{space 4} 8.84e-06{col 67}{space 3} .0000205
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .3173713{col 26}{space 2} .3552408{col 37}{space 1}    0.89{col 46}{space 3}0.372{col 54}{space 4}-.3789071{col 67}{space 3}  1.01365
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: mom_high, bandwith: 25, oz:54
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}    43,655
+{txt}{hline 13}{c +}{hline 34}   F(2, 43652)     = {res}     0.49
+{txt}       Model {c |} {res} .183012264         2  .091506132   {txt}Prob > F        ={res}    0.6153
+{txt}    Residual {c |} {res} 8226.09952    43,652  .188447254   {txt}R-squared       ={res}    0.0000
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}   -0.0000
+{txt}       Total {c |} {res} 8226.28253    43,654  .188442812   {txt}Root MSE        =   {res} .43411
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}    mom_high{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bweight {c |}{col 14}{res}{space 2} .0001449{col 26}{space 2} .0002122{col 37}{space 1}    0.68{col 46}{space 3}0.495{col 54}{space 4} -.000271{col 67}{space 3} .0005609
+{txt}{space 5}inter54 {c |}{col 14}{res}{space 2}-1.86e-06{col 26}{space 2} 2.72e-06{col 37}{space 1}   -0.68{col 46}{space 3}0.494{col 54}{space 4}-7.18e-06{col 67}{space 3} 3.47e-06
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0313763{col 26}{space 2} .3250584{col 37}{space 1}    0.10{col 46}{space 3}0.923{col 54}{space 4}-.6057441{col 67}{space 3} .6684968
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. 
 . log close _all
       {txt}name:  {res}<unnamed>
        {txt}log:  {res}D:\Lindo\Assignments\Assignment5\mylog.smcl
   {txt}log type:  {res}smcl
- {txt}closed on:  {res}23 Mar 2017, 06:09:39
+ {txt}closed on:  {res}23 Mar 2017, 07:18:01
 {txt}{.-}
 {smcl}
 {txt}{sf}{ul off}
