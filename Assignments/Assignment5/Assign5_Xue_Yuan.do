@@ -82,5 +82,39 @@ foreach bin of local bins{
 ***************
 **     A3    **
 ***************
+use `raw' , clear
+
+gen mom_white = 1 if mom_race == "white":racelbl
+replace mom_white = 0 if mom_white == .
+
+gen mom_high = 1 if mom_ed < 12
+replace mom_high = 0 if mom_high ==.
+
+gen cut = 1 if bwtnorm >= 0
+replace cut = 0 if cut ==.
+
+gen inter = bwtnorm * cut
+
+
+forvalues bw = 90(-30)30{
+	tempvar wght
+	gen `wght' = 1 - abs(bwtnorm / `bw')
+	local chars mom_white mom_high
+	foreach c of local chars{
+		display "reg: `c', bandwith: `bw', triangular kernel"
+		regress `c' bwtnorm cut inter [pweight=`wght'] ///
+		if abs(bwtnorm) <= `bw'
+		display "reg: `c', bandwith: `bw', Rectangular kernel"
+		regress `c' bwtnorm cut inter ///
+		if abs(bwtnorm) <= `bw'
+	}
+}
 
 log close _all
+
+***************
+**     A4    **
+***************
+
+
+

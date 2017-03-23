@@ -263,12 +263,264 @@ bin25, bandwith=150:
 . ***************
 . **     A3    **
 . ***************
+. use `raw' , clear
+{txt}
+{com}. 
+. gen mom_white = 1 if mom_race == "white":racelbl
+{txt}(127,748 missing values generated)
+
+{com}. replace mom_white = 0 if mom_white == .
+{txt}(127,748 real changes made)
+
+{com}. 
+. gen mom_high = 1 if mom_ed < 12
+{txt}(282,280 missing values generated)
+
+{com}. replace mom_high = 0 if mom_high ==.
+{txt}(282,280 real changes made)
+
+{com}. 
+. gen cut = 1 if bwtnorm >= 0
+{txt}(157,733 missing values generated)
+
+{com}. replace cut = 0 if cut ==.
+{txt}(157,733 real changes made)
+
+{com}. 
+. gen inter = bwtnorm * cut
+{txt}
+{com}. 
 . 
+. forvalues bw = 90(-30)30{c -(}
+{txt}  2{com}.         tempvar wght
+{txt}  3{com}.         gen `wght' = 1 - abs(bwtnorm / `bw')
+{txt}  4{com}.         local chars mom_white mom_high
+{txt}  5{com}.         foreach c of local chars{c -(}
+{txt}  6{com}.                 display "reg: `c', bandwith: `bw', triangular kernel"
+{txt}  7{com}.                 regress `c' bwtnorm cut inter [pweight=`wght'] ///
+>                 if abs(bwtnorm) <= `bw'
+{txt}  8{com}.                 display "reg: `c', bandwith: `bw', Rectangular kernel"
+{txt}  9{com}.                 regress `c' bwtnorm cut inter ///
+>                 if abs(bwtnorm) <= `bw'
+{txt} 10{com}.         {c )-}
+{txt} 11{com}. {c )-}
+reg: mom_white, bandwith: 90, triangular kernel
+{txt}(sum of wgt is   1.0864e+05)
+
+Linear regression                               Number of obs     = {res}   230,248
+                                                {txt}F(3, 230244)      =  {res}     1.59
+                                                {txt}Prob > F          = {res}    0.1900
+                                                {txt}R-squared         = {res}    0.0000
+                                                {txt}Root MSE          =    {res} .47383
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}   mom_white{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2}-.0001098{col 26}{space 2} .0000826{col 37}{space 1}   -1.33{col 46}{space 3}0.184{col 54}{space 4}-.0002717{col 67}{space 3} .0000522
+{txt}{space 9}cut {c |}{col 14}{res}{space 2} .0048244{col 26}{space 2} .0047858{col 37}{space 1}    1.01{col 46}{space 3}0.313{col 54}{space 4}-.0045557{col 67}{space 3} .0142044
+{txt}{space 7}inter {c |}{col 14}{res}{space 2} .0001878{col 26}{space 2} .0001032{col 37}{space 1}    1.82{col 46}{space 3}0.069{col 54}{space 4}-.0000144{col 67}{space 3}   .00039
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .6540018{col 26}{space 2} .0040418{col 37}{space 1}  161.81{col 46}{space 3}0.000{col 54}{space 4}   .64608{col 67}{space 3} .6619236
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: mom_white, bandwith: 90, Rectangular kernel
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}   233,887
+{txt}{hline 13}{c +}{hline 34}   F(3, 233883)    = {res}     4.80
+{txt}       Model {c |} {res} 3.22240413         3  1.07413471   {txt}Prob > F        ={res}    0.0024
+{txt}    Residual {c |} {res} 52382.8355   233,883  .223970257   {txt}R-squared       ={res}    0.0001
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.0000
+{txt}       Total {c |} {res}  52386.058   233,886  .223981162   {txt}Root MSE        =   {res} .47325
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}   mom_white{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2} -.000036{col 26}{space 2} .0000628{col 37}{space 1}   -0.57{col 46}{space 3}0.566{col 54}{space 4}-.0001592{col 67}{space 3} .0000871
+{txt}{space 9}cut {c |}{col 14}{res}{space 2} .0011954{col 26}{space 2} .0042226{col 37}{space 1}    0.28{col 46}{space 3}0.777{col 54}{space 4}-.0070808{col 67}{space 3} .0094715
+{txt}{space 7}inter {c |}{col 14}{res}{space 2} .0001541{col 26}{space 2} .0000752{col 37}{space 1}    2.05{col 46}{space 3}0.040{col 54}{space 4} 6.70e-06{col 67}{space 3} .0003016
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2}  .656655{col 26}{space 2} .0035392{col 37}{space 1}  185.54{col 46}{space 3}0.000{col 54}{space 4} .6497182{col 67}{space 3} .6635918
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: mom_high, bandwith: 90, triangular kernel
+{txt}(sum of wgt is   1.0864e+05)
+
+Linear regression                               Number of obs     = {res}   230,248
+                                                {txt}F(3, 230244)      =  {res}     1.79
+                                                {txt}Prob > F          = {res}    0.1469
+                                                {txt}R-squared         = {res}    0.0000
+                                                {txt}Root MSE          =    {res} .43379
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}    mom_high{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2} .0000512{col 26}{space 2} .0000758{col 37}{space 1}    0.68{col 46}{space 3}0.500{col 54}{space 4}-.0000974{col 67}{space 3} .0001997
+{txt}{space 9}cut {c |}{col 14}{res}{space 2} .0020863{col 26}{space 2} .0043867{col 37}{space 1}    0.48{col 46}{space 3}0.634{col 54}{space 4}-.0065115{col 67}{space 3}  .010684
+{txt}{space 7}inter {c |}{col 14}{res}{space 2}-.0001767{col 26}{space 2} .0000946{col 37}{space 1}   -1.87{col 46}{space 3}0.062{col 54}{space 4}-.0003622{col 67}{space 3} 8.75e-06
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2}  .252662{col 26}{space 2} .0037012{col 37}{space 1}   68.26{col 46}{space 3}0.000{col 54}{space 4} .2454077{col 67}{space 3} .2599164
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: mom_high, bandwith: 90, Rectangular kernel
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}   233,887
+{txt}{hline 13}{c +}{hline 34}   F(3, 233883)    = {res}     1.89
+{txt}       Model {c |} {res}   1.061171         3  .353723668   {txt}Prob > F        ={res}    0.1294
+{txt}    Residual {c |} {res} 43854.8763   233,883  .187507755   {txt}R-squared       ={res}    0.0000
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.0000
+{txt}       Total {c |} {res} 43855.9374   233,886  .187509887   {txt}Root MSE        =   {res} .43302
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}    mom_high{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2} .0000323{col 26}{space 2} .0000575{col 37}{space 1}    0.56{col 46}{space 3}0.574{col 54}{space 4}-.0000803{col 67}{space 3}  .000145
+{txt}{space 9}cut {c |}{col 14}{res}{space 2} .0018185{col 26}{space 2} .0038636{col 37}{space 1}    0.47{col 46}{space 3}0.638{col 54}{space 4}-.0057541{col 67}{space 3}  .009391
+{txt}{space 7}inter {c |}{col 14}{res}{space 2}-.0001191{col 26}{space 2} .0000688{col 37}{space 1}   -1.73{col 46}{space 3}0.084{col 54}{space 4} -.000254{col 67}{space 3} .0000158
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .2519844{col 26}{space 2} .0032384{col 37}{space 1}   77.81{col 46}{space 3}0.000{col 54}{space 4} .2456374{col 67}{space 3} .2583315
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: mom_white, bandwith: 60, triangular kernel
+{txt}(sum of wgt is   7.2904e+04)
+
+Linear regression                               Number of obs     = {res}   158,693
+                                                {txt}F(3, 158689)      =  {res}     0.76
+                                                {txt}Prob > F          = {res}    0.5157
+                                                {txt}R-squared         = {res}    0.0000
+                                                {txt}Root MSE          =    {res} .47415
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}   mom_white{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2}  -.00022{col 26}{space 2} .0001628{col 37}{space 1}   -1.35{col 46}{space 3}0.176{col 54}{space 4}-.0005391{col 67}{space 3}  .000099
+{txt}{space 9}cut {c |}{col 14}{res}{space 2} .0084344{col 26}{space 2}  .006326{col 37}{space 1}    1.33{col 46}{space 3}0.182{col 54}{space 4}-.0039644{col 67}{space 3} .0208333
+{txt}{space 7}inter {c |}{col 14}{res}{space 2} .0002399{col 26}{space 2} .0001984{col 37}{space 1}    1.21{col 46}{space 3}0.227{col 54}{space 4} -.000149{col 67}{space 3} .0006288
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2}  .650969{col 26}{space 2} .0056191{col 37}{space 1}  115.85{col 46}{space 3}0.000{col 54}{space 4} .6399558{col 67}{space 3} .6619823
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: mom_white, bandwith: 60, Rectangular kernel
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}   163,422
+{txt}{hline 13}{c +}{hline 34}   F(3, 163418)    = {res}     2.72
+{txt}       Model {c |} {res} 1.83124249         3  .610414163   {txt}Prob > F        ={res}    0.0426
+{txt}    Residual {c |} {res} 36633.0304   163,418  .224167658   {txt}R-squared       ={res}    0.0000
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.0000
+{txt}       Total {c |} {res} 36634.8616   163,421  .224174749   {txt}Root MSE        =   {res} .47346
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}   mom_white{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2}-.0002151{col 26}{space 2} .0001185{col 37}{space 1}   -1.82{col 46}{space 3}0.069{col 54}{space 4}-.0004473{col 67}{space 3} .0000171
+{txt}{space 9}cut {c |}{col 14}{res}{space 2} .0067346{col 26}{space 2} .0054273{col 37}{space 1}    1.24{col 46}{space 3}0.215{col 54}{space 4}-.0039029{col 67}{space 3}  .017372
+{txt}{space 7}inter {c |}{col 14}{res}{space 2} .0003454{col 26}{space 2} .0001372{col 37}{space 1}    2.52{col 46}{space 3}0.012{col 54}{space 4} .0000765{col 67}{space 3} .0006143
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .6511002{col 26}{space 2} .0047601{col 37}{space 1}  136.78{col 46}{space 3}0.000{col 54}{space 4} .6417706{col 67}{space 3} .6604298
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: mom_high, bandwith: 60, triangular kernel
+{txt}(sum of wgt is   7.2904e+04)
+
+Linear regression                               Number of obs     = {res}   158,693
+                                                {txt}F(3, 158689)      =  {res}     1.33
+                                                {txt}Prob > F          = {res}    0.2626
+                                                {txt}R-squared         = {res}    0.0000
+                                                {txt}Root MSE          =    {res} .43437
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}    mom_high{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2} .0002018{col 26}{space 2} .0001497{col 37}{space 1}    1.35{col 46}{space 3}0.178{col 54}{space 4}-.0000917{col 67}{space 3} .0004953
+{txt}{space 9}cut {c |}{col 14}{res}{space 2}-.0017353{col 26}{space 2} .0058149{col 37}{space 1}   -0.30{col 46}{space 3}0.765{col 54}{space 4}-.0131323{col 67}{space 3} .0096617
+{txt}{space 7}inter {c |}{col 14}{res}{space 2}-.0003138{col 26}{space 2} .0001824{col 37}{space 1}   -1.72{col 46}{space 3}0.085{col 54}{space 4}-.0006713{col 67}{space 3} .0000437
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .2563954{col 26}{space 2} .0051652{col 37}{space 1}   49.64{col 46}{space 3}0.000{col 54}{space 4} .2462717{col 67}{space 3}  .266519
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: mom_high, bandwith: 60, Rectangular kernel
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}   163,422
+{txt}{hline 13}{c +}{hline 34}   F(3, 163418)    = {res}     2.35
+{txt}       Model {c |} {res} 1.32598122         3  .441993741   {txt}Prob > F        ={res}    0.0699
+{txt}    Residual {c |} {res} 30683.0043   163,418  .187757801   {txt}R-squared       ={res}    0.0000
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.0000
+{txt}       Total {c |} {res} 30684.3303   163,421  .187762468   {txt}Root MSE        =   {res} .43331
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}    mom_high{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2}  .000021{col 26}{space 2} .0001084{col 37}{space 1}    0.19{col 46}{space 3}0.847{col 54}{space 4}-.0001915{col 67}{space 3} .0002335
+{txt}{space 9}cut {c |}{col 14}{res}{space 2} .0038532{col 26}{space 2}  .004967{col 37}{space 1}    0.78{col 46}{space 3}0.438{col 54}{space 4}-.0058821{col 67}{space 3} .0135884
+{txt}{space 7}inter {c |}{col 14}{res}{space 2}-.0001882{col 26}{space 2} .0001256{col 37}{space 1}   -1.50{col 46}{space 3}0.134{col 54}{space 4}-.0004343{col 67}{space 3} .0000579
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2}  .251592{col 26}{space 2} .0043564{col 37}{space 1}   57.75{col 46}{space 3}0.000{col 54}{space 4} .2430536{col 67}{space 3} .2601304
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: mom_white, bandwith: 30, triangular kernel
+{txt}(sum of wgt is   3.6456e+04)
+
+Linear regression                               Number of obs     = {res}    68,207
+                                                {txt}F(3, 68203)       =  {res}     0.59
+                                                {txt}Prob > F          = {res}    0.6216
+                                                {txt}R-squared         = {res}    0.0000
+                                                {txt}Root MSE          =    {res} .47422
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}   mom_white{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2}-.0001789{col 26}{space 2} .0004595{col 37}{space 1}   -0.39{col 46}{space 3}0.697{col 54}{space 4}-.0010795{col 67}{space 3} .0007216
+{txt}{space 9}cut {c |}{col 14}{res}{space 2} .0071233{col 26}{space 2}  .011083{col 37}{space 1}    0.64{col 46}{space 3}0.520{col 54}{space 4}-.0145994{col 67}{space 3} .0288461
+{txt}{space 7}inter {c |}{col 14}{res}{space 2}  .000397{col 26}{space 2} .0006275{col 37}{space 1}    0.63{col 46}{space 3}0.527{col 54}{space 4} -.000833{col 67}{space 3} .0016269
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .6515227{col 26}{space 2} .0105288{col 37}{space 1}   61.88{col 46}{space 3}0.000{col 54}{space 4} .6308863{col 67}{space 3} .6721592
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: mom_white, bandwith: 30, Rectangular kernel
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}    72,941
+{txt}{hline 13}{c +}{hline 34}   F(3, 72937)     = {res}     6.07
+{txt}       Model {c |} {res} 4.11035915         3  1.37011972   {txt}Prob > F        ={res}    0.0004
+{txt}    Residual {c |} {res} 16451.7692    72,937  .225561364   {txt}R-squared       ={res}    0.0002
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.0002
+{txt}       Total {c |} {res} 16455.8796    72,940   .22560844   {txt}Root MSE        =   {res} .47493
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}   mom_white{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2}-.0004092{col 26}{space 2} .0004125{col 37}{space 1}   -0.99{col 46}{space 3}0.321{col 54}{space 4}-.0012177{col 67}{space 3} .0003992
+{txt}{space 9}cut {c |}{col 14}{res}{space 2} .0165312{col 26}{space 2}  .010414{col 37}{space 1}    1.59{col 46}{space 3}0.112{col 54}{space 4}-.0038801{col 67}{space 3} .0369426
+{txt}{space 7}inter {c |}{col 14}{res}{space 2}-.0006892{col 26}{space 2} .0004908{col 37}{space 1}   -1.40{col 46}{space 3}0.160{col 54}{space 4}-.0016512{col 67}{space 3} .0002728
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .6474943{col 26}{space 2} .0099173{col 37}{space 1}   65.29{col 46}{space 3}0.000{col 54}{space 4} .6280564{col 67}{space 3} .6669322
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: mom_high, bandwith: 30, triangular kernel
+{txt}(sum of wgt is   3.6456e+04)
+
+Linear regression                               Number of obs     = {res}    68,207
+                                                {txt}F(3, 68203)       =  {res}     1.25
+                                                {txt}Prob > F          = {res}    0.2910
+                                                {txt}R-squared         = {res}    0.0000
+                                                {txt}Root MSE          =    {res} .43535
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}    mom_high{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2} .0005457{col 26}{space 2} .0004243{col 37}{space 1}    1.29{col 46}{space 3}0.198{col 54}{space 4} -.000286{col 67}{space 3} .0013775
+{txt}{space 9}cut {c |}{col 14}{res}{space 2}-.0073401{col 26}{space 2}  .010231{col 37}{space 1}   -0.72{col 46}{space 3}0.473{col 54}{space 4}-.0273929{col 67}{space 3} .0127127
+{txt}{space 7}inter {c |}{col 14}{res}{space 2}-.0010674{col 26}{space 2} .0005751{col 37}{space 1}   -1.86{col 46}{space 3}0.063{col 54}{space 4}-.0021946{col 67}{space 3} .0000597
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .2635726{col 26}{space 2} .0097265{col 37}{space 1}   27.10{col 46}{space 3}0.000{col 54}{space 4} .2445087{col 67}{space 3} .2826365
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: mom_high, bandwith: 30, Rectangular kernel
+
+{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}    72,941
+{txt}{hline 13}{c +}{hline 34}   F(3, 72937)     = {res}     1.57
+{txt}       Model {c |} {res} .885489342         3  .295163114   {txt}Prob > F        ={res}    0.1954
+{txt}    Residual {c |} {res} 13750.1196    72,937  .188520498   {txt}R-squared       ={res}    0.0001
+{txt}{hline 13}{c +}{hline 34}   Adj R-squared   ={res}    0.0000
+{txt}       Total {c |} {res} 13751.0051    72,940  .188524884   {txt}Root MSE        =   {res} .43419
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 1}    mom_high{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2} .0006824{col 26}{space 2} .0003771{col 37}{space 1}    1.81{col 46}{space 3}0.070{col 54}{space 4}-.0000567{col 67}{space 3} .0014215
+{txt}{space 9}cut {c |}{col 14}{res}{space 2}-.0114803{col 26}{space 2} .0095206{col 37}{space 1}   -1.21{col 46}{space 3}0.228{col 54}{space 4}-.0301406{col 67}{space 3}   .00718
+{txt}{space 7}inter {c |}{col 14}{res}{space 2}-.0007758{col 26}{space 2} .0004487{col 37}{space 1}   -1.73{col 46}{space 3}0.084{col 54}{space 4}-.0016553{col 67}{space 3} .0001036
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .2659627{col 26}{space 2} .0090665{col 37}{space 1}   29.33{col 46}{space 3}0.000{col 54}{space 4} .2481924{col 67}{space 3} .2837331
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. 
 . log close _all
       {txt}name:  {res}<unnamed>
        {txt}log:  {res}D:\Lindo\Assignments\Assignment5\mylog.smcl
   {txt}log type:  {res}smcl
- {txt}closed on:  {res}22 Mar 2017, 04:55:53
+ {txt}closed on:  {res}23 Mar 2017, 06:09:39
 {txt}{.-}
 {smcl}
 {txt}{sf}{ul off}
