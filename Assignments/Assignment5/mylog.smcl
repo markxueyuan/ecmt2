@@ -56,7 +56,7 @@
 . tempfile raw
 {txt}
 {com}. save "`raw'"
-{txt}file C:\Users\Xue\AppData\Local\Temp\ST_07000001.tmp saved
+{txt}file C:\Users\Xue\AppData\Local\Temp\ST_09000001.tmp saved
 
 {com}. 
 . tempfile bin01
@@ -77,9 +77,9 @@
 {txt}  5{com}. save ``bin''
 {txt}  6{com}.         
 . {c )-}
-{res}{txt}file C:\Users\Xue\AppData\Local\Temp\ST_07000002.tmp saved
-{res}{txt}file C:\Users\Xue\AppData\Local\Temp\ST_07000003.tmp saved
-{res}{txt}file C:\Users\Xue\AppData\Local\Temp\ST_07000004.tmp saved
+{res}{txt}file C:\Users\Xue\AppData\Local\Temp\ST_09000002.tmp saved
+{res}{txt}file C:\Users\Xue\AppData\Local\Temp\ST_09000003.tmp saved
+{res}{txt}file C:\Users\Xue\AppData\Local\Temp\ST_09000004.tmp saved
 
 {com}. 
 . ***************
@@ -291,7 +291,7 @@ bin25, bandwith=150:
 {txt}
 {com}. 
 . save `raw' , replace
-{txt}file C:\Users\Xue\AppData\Local\Temp\ST_07000001.tmp saved
+{txt}file C:\Users\Xue\AppData\Local\Temp\ST_09000001.tmp saved
 
 {com}. 
 . local chars mom_white mom_high
@@ -526,13 +526,19 @@ Linear regression                               Number of obs     = {res}    68,
 . **     A4    **
 . ***************
 . 
-. ** drump on ounces
+. ** jump on ounces
 . local grams
 {txt}
 {com}. drop if bweight == 1500
 {txt}(3,544 observations deleted)
 
-{com}. forvalues oz = 51(1)54{c -(}
+{com}. tempfile raw2
+{txt}
+{com}. save `raw2'
+{txt}file C:\Users\Xue\AppData\Local\Temp\ST_09000005.tmp saved
+
+{com}. 
+. forvalues oz = 51(1)54{c -(}
 {txt}  2{com}.         local gram = round(`oz'*28.3495)
 {txt}  3{com}.         local grams `grams' `gram'
 {txt}  4{com}.         gen oz`oz' = 1 if bweight == `gram'
@@ -681,7 +687,7 @@ reg: mom_white, bandwith: 25, jump: 54oz
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
 {res}{txt}
 {com}. 
-. ** drump on 1500
+. ** jump on 1500
 . 
 . use `raw' , clear
 {txt}
@@ -707,7 +713,7 @@ reg: mom_white, bandwith: 25, jump: 54oz
 . foreach c of local chars{c -(}
 {txt}  2{com}.                 display "reg: `c', bandwith: 25 jump: 1500g"
 {txt}  3{com}.                 regress `c' bweight inter2 if abs(bweight- 1500)<= 25
-{txt}  4{com}.         {c )-}
+{txt}  4{com}. {c )-}
 reg: mom_white, bandwith: 25 jump: 1500g
 
 {txt}      Source {c |}       SS           df       MS      Number of obs   ={res}    22,613
@@ -742,11 +748,620 @@ reg: mom_white, bandwith: 25 jump: 1500g
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
 {res}{txt}
 {com}. 
+. ***************
+. **     B1    **
+. ***************
+. 
+. use `raw' , clear
+{txt}
+{com}. 
+. forvalues bw = 90(-30)30{c -(}
+{txt}  2{com}.         tempvar wght
+{txt}  3{com}.         gen `wght' = 1 - abs(bwtnorm / `bw')
+{txt}  4{com}.         display "reg: one-year mortality, bandwith: `bw', triangular kernel"
+{txt}  5{com}.         regress agedth5 bwtnorm cut inter [pweight=`wght'] ///
+>         if abs(bwtnorm) <= `bw' , vce(robust)
+{txt}  6{com}.         display "reg: one-year mortality, bandwith: `bw', Rectangular kernel"
+{txt}  7{com}.         regress agedth5 bwtnorm cut inter ///
+>         if abs(bwtnorm) <= `bw' , vce(robust)
+{txt}  8{com}. {c )-}
+reg: one-year mortality, bandwith: 90, triangular kernel
+{txt}(sum of wgt is   1.0864e+05)
+
+Linear regression                               Number of obs     = {res}   230,248
+                                                {txt}F(3, 230244)      =  {res}    34.57
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.0004
+                                                {txt}Root MSE          =    {res} .23378
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}     agedth5{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2}-.0001662{col 26}{space 2} .0000397{col 37}{space 1}   -4.19{col 46}{space 3}0.000{col 54}{space 4}-.0002441{col 67}{space 3}-.0000884
+{txt}{space 9}cut {c |}{col 14}{res}{space 2} .0113705{col 26}{space 2} .0023379{col 37}{space 1}    4.86{col 46}{space 3}0.000{col 54}{space 4} .0067883{col 67}{space 3} .0159526
+{txt}{space 7}inter {c |}{col 14}{res}{space 2}-.0000858{col 26}{space 2} .0000506{col 37}{space 1}   -1.70{col 46}{space 3}0.090{col 54}{space 4} -.000185{col 67}{space 3} .0000134
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0525216{col 26}{space 2} .0019256{col 37}{space 1}   27.28{col 46}{space 3}0.000{col 54}{space 4} .0487475{col 67}{space 3} .0562957
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: one-year mortality, bandwith: 90, Rectangular kernel
+
+{txt}Linear regression                               Number of obs     = {res}   233,887
+                                                {txt}F(3, 233883)      =  {res}    35.10
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.0004
+                                                {txt}Root MSE          =    {res}  .2318
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}     agedth5{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2}-.0001275{col 26}{space 2} .0000314{col 37}{space 1}   -4.06{col 46}{space 3}0.000{col 54}{space 4}-.0001891{col 67}{space 3}-.0000659
+{txt}{space 9}cut {c |}{col 14}{res}{space 2}   .00737{col 26}{space 2} .0020897{col 37}{space 1}    3.53{col 46}{space 3}0.000{col 54}{space 4} .0032744{col 67}{space 3} .0114657
+{txt}{space 7}inter {c |}{col 14}{res}{space 2}-.0000175{col 26}{space 2} .0000374{col 37}{space 1}   -0.47{col 46}{space 3}0.640{col 54}{space 4}-.0000908{col 67}{space 3} .0000558
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2}  .053915{col 26}{space 2}  .001738{col 37}{space 1}   31.02{col 46}{space 3}0.000{col 54}{space 4} .0505085{col 67}{space 3} .0573215
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: one-year mortality, bandwith: 60, triangular kernel
+{txt}(sum of wgt is   7.2904e+04)
+
+Linear regression                               Number of obs     = {res}   158,693
+                                                {txt}F(3, 158689)      =  {res}    21.55
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.0005
+                                                {txt}Root MSE          =    {res}  .2355
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}     agedth5{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2}-.0002791{col 26}{space 2} .0000756{col 37}{space 1}   -3.69{col 46}{space 3}0.000{col 54}{space 4}-.0004272{col 67}{space 3}-.0001309
+{txt}{space 9}cut {c |}{col 14}{res}{space 2} .0160892{col 26}{space 2} .0030151{col 37}{space 1}    5.34{col 46}{space 3}0.000{col 54}{space 4} .0101797{col 67}{space 3} .0219986
+{txt}{space 7}inter {c |}{col 14}{res}{space 2}-.0001281{col 26}{space 2} .0000952{col 37}{space 1}   -1.35{col 46}{space 3}0.178{col 54}{space 4}-.0003146{col 67}{space 3} .0000585
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0496651{col 26}{space 2} .0026027{col 37}{space 1}   19.08{col 46}{space 3}0.000{col 54}{space 4}  .044564{col 67}{space 3} .0547662
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: one-year mortality, bandwith: 60, Rectangular kernel
+
+{txt}Linear regression                               Number of obs     = {res}   163,422
+                                                {txt}F(3, 163418)      =  {res}    20.14
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.0004
+                                                {txt}Root MSE          =    {res}  .2325
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}     agedth5{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2}-.0001839{col 26}{space 2} .0000582{col 37}{space 1}   -3.16{col 46}{space 3}0.002{col 54}{space 4} -.000298{col 67}{space 3}-.0000697
+{txt}{space 9}cut {c |}{col 14}{res}{space 2} .0109996{col 26}{space 2} .0026628{col 37}{space 1}    4.13{col 46}{space 3}0.000{col 54}{space 4} .0057806{col 67}{space 3} .0162186
+{txt}{space 7}inter {c |}{col 14}{res}{space 2}-.0000431{col 26}{space 2} .0000676{col 37}{space 1}   -0.64{col 46}{space 3}0.524{col 54}{space 4}-.0001756{col 67}{space 3} .0000894
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0521945{col 26}{space 2} .0023054{col 37}{space 1}   22.64{col 46}{space 3}0.000{col 54}{space 4}  .047676{col 67}{space 3}  .056713
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: one-year mortality, bandwith: 30, triangular kernel
+{txt}(sum of wgt is   3.6456e+04)
+
+Linear regression                               Number of obs     = {res}    68,207
+                                                {txt}F(3, 68203)       =  {res}    23.88
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.0011
+                                                {txt}Root MSE          =    {res} .24078
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}     agedth5{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2}-.0005537{col 26}{space 2} .0002071{col 37}{space 1}   -2.67{col 46}{space 3}0.008{col 54}{space 4}-.0009596{col 67}{space 3}-.0001477
+{txt}{space 9}cut {c |}{col 14}{res}{space 2}  .026285{col 26}{space 2} .0050705{col 37}{space 1}    5.18{col 46}{space 3}0.000{col 54}{space 4} .0163469{col 67}{space 3} .0362231
+{txt}{space 7}inter {c |}{col 14}{res}{space 2}-.0011247{col 26}{space 2} .0002989{col 37}{space 1}   -3.76{col 46}{space 3}0.000{col 54}{space 4}-.0017105{col 67}{space 3}-.0005389
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0444994{col 26}{space 2}  .004718{col 37}{space 1}    9.43{col 46}{space 3}0.000{col 54}{space 4} .0352522{col 67}{space 3} .0537466
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: one-year mortality, bandwith: 30, Rectangular kernel
+
+{txt}Linear regression                               Number of obs     = {res}    72,941
+                                                {txt}F(3, 72937)       =  {res}    18.36
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.0007
+                                                {txt}Root MSE          =    {res}  .2354
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}     agedth5{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2}-.0004644{col 26}{space 2} .0001901{col 37}{space 1}   -2.44{col 46}{space 3}0.015{col 54}{space 4} -.000837{col 67}{space 3}-.0000919
+{txt}{space 9}cut {c |}{col 14}{res}{space 2} .0213731{col 26}{space 2} .0048196{col 37}{space 1}    4.43{col 46}{space 3}0.000{col 54}{space 4} .0119266{col 67}{space 3} .0308195
+{txt}{space 7}inter {c |}{col 14}{res}{space 2} -.000394{col 26}{space 2} .0002283{col 37}{space 1}   -1.73{col 46}{space 3}0.084{col 54}{space 4}-.0008415{col 67}{space 3} .0000535
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0460607{col 26}{space 2} .0045264{col 37}{space 1}   10.18{col 46}{space 3}0.000{col 54}{space 4}  .037189{col 67}{space 3} .0549323
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. 
+. ***************
+. **     B2    **
+. ***************
+. 
+. use `raw2' , clear
+{txt}
+{com}. 
+. forvalues bw = 90(-30)30{c -(}
+{txt}  2{com}.         tempvar wght
+{txt}  3{com}.         gen `wght' = 1 - abs(bwtnorm / `bw')
+{txt}  4{com}.         display "reg: one-year mortality, bandwith: `bw', triangular kernel" ///
+>         ", birth weight 1500 dropped"
+{txt}  5{com}.         regress agedth5 bwtnorm cut inter [pweight=`wght'] ///
+>         if abs(bwtnorm) <= `bw' , vce(robust)
+{txt}  6{com}.         display "reg: one-year mortality, bandwith: `bw', Rectangular kernel" ///
+>         ", birth weight 1500 dropped"
+{txt}  7{com}.         regress agedth5 bwtnorm cut inter ///
+>         if abs(bwtnorm) <= `bw' , vce(robust)
+{txt}  8{com}. {c )-}
+reg: one-year mortality, bandwith: 90, triangular kernel, birth weight 1500 dropped
+{txt}(sum of wgt is   1.0509e+05)
+
+Linear regression                               Number of obs     = {res}   226,704
+                                                {txt}F(3, 226700)      =  {res}    23.28
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.0002
+                                                {txt}Root MSE          =    {res} .23107
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}     agedth5{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2}-.0001662{col 26}{space 2} .0000397{col 37}{space 1}   -4.19{col 46}{space 3}0.000{col 54}{space 4}-.0002441{col 67}{space 3}-.0000884
+{txt}{space 9}cut {c |}{col 14}{res}{space 2} .0065019{col 26}{space 2} .0023468{col 37}{space 1}    2.77{col 46}{space 3}0.006{col 54}{space 4} .0019022{col 67}{space 3} .0111015
+{txt}{space 7}inter {c |}{col 14}{res}{space 2} .0000226{col 26}{space 2} .0000506{col 37}{space 1}    0.45{col 46}{space 3}0.655{col 54}{space 4}-.0000766{col 67}{space 3} .0001218
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0525216{col 26}{space 2} .0019256{col 37}{space 1}   27.28{col 46}{space 3}0.000{col 54}{space 4} .0487475{col 67}{space 3} .0562957
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: one-year mortality, bandwith: 90, Rectangular kernel, birth weight 1500 dropped
+
+{txt}Linear regression                               Number of obs     = {res}   230,343
+                                                {txt}F(3, 230339)      =  {res}    29.28
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.0004
+                                                {txt}Root MSE          =    {res} .23051
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}     agedth5{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2}-.0001275{col 26}{space 2} .0000314{col 37}{space 1}   -4.06{col 46}{space 3}0.000{col 54}{space 4}-.0001891{col 67}{space 3}-.0000659
+{txt}{space 9}cut {c |}{col 14}{res}{space 2} .0037559{col 26}{space 2} .0020991{col 37}{space 1}    1.79{col 46}{space 3}0.074{col 54}{space 4}-.0003583{col 67}{space 3} .0078701
+{txt}{space 7}inter {c |}{col 14}{res}{space 2} .0000365{col 26}{space 2} .0000375{col 37}{space 1}    0.97{col 46}{space 3}0.331{col 54}{space 4} -.000037{col 67}{space 3}   .00011
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2}  .053915{col 26}{space 2}  .001738{col 37}{space 1}   31.02{col 46}{space 3}0.000{col 54}{space 4} .0505085{col 67}{space 3} .0573215
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: one-year mortality, bandwith: 60, triangular kernel, birth weight 1500 dropped
+{txt}(sum of wgt is   6.9360e+04)
+
+Linear regression                               Number of obs     = {res}   155,149
+                                                {txt}F(3, 155145)      =  {res}    10.51
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.0002
+                                                {txt}Root MSE          =    {res}  .2315
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}     agedth5{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2}-.0002791{col 26}{space 2} .0000756{col 37}{space 1}   -3.69{col 46}{space 3}0.000{col 54}{space 4}-.0004272{col 67}{space 3}-.0001309
+{txt}{space 9}cut {c |}{col 14}{res}{space 2} .0101215{col 26}{space 2} .0030321{col 37}{space 1}    3.34{col 46}{space 3}0.001{col 54}{space 4} .0041787{col 67}{space 3} .0160644
+{txt}{space 7}inter {c |}{col 14}{res}{space 2} .0000771{col 26}{space 2} .0000954{col 37}{space 1}    0.81{col 46}{space 3}0.419{col 54}{space 4}-.0001098{col 67}{space 3} .0002641
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0496651{col 26}{space 2} .0026027{col 37}{space 1}   19.08{col 46}{space 3}0.000{col 54}{space 4}  .044564{col 67}{space 3} .0547662
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: one-year mortality, bandwith: 60, Rectangular kernel, birth weight 1500 dropped
+
+{txt}Linear regression                               Number of obs     = {res}   159,878
+                                                {txt}F(3, 159874)      =  {res}    12.70
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.0002
+                                                {txt}Root MSE          =    {res} .23068
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}     agedth5{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2}-.0001839{col 26}{space 2} .0000582{col 37}{space 1}   -3.16{col 46}{space 3}0.002{col 54}{space 4} -.000298{col 67}{space 3}-.0000697
+{txt}{space 9}cut {c |}{col 14}{res}{space 2} .0064796{col 26}{space 2} .0026772{col 37}{space 1}    2.42{col 46}{space 3}0.016{col 54}{space 4} .0012324{col 67}{space 3} .0117268
+{txt}{space 7}inter {c |}{col 14}{res}{space 2} .0000544{col 26}{space 2} .0000678{col 37}{space 1}    0.80{col 46}{space 3}0.423{col 54}{space 4}-.0000786{col 67}{space 3} .0001873
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0521945{col 26}{space 2} .0023054{col 37}{space 1}   22.64{col 46}{space 3}0.000{col 54}{space 4}  .047676{col 67}{space 3}  .056713
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: one-year mortality, bandwith: 30, triangular kernel, birth weight 1500 dropped
+{txt}(sum of wgt is   3.2912e+04)
+
+Linear regression                               Number of obs     = {res}    64,663
+                                                {txt}F(3, 64659)       =  {res}     6.41
+                                                {txt}Prob > F          = {res}    0.0002
+                                                {txt}R-squared         = {res}    0.0003
+                                                {txt}Root MSE          =    {res} .23311
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}     agedth5{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2}-.0005537{col 26}{space 2} .0002071{col 37}{space 1}   -2.67{col 46}{space 3}0.008{col 54}{space 4}-.0009596{col 67}{space 3}-.0001477
+{txt}{space 9}cut {c |}{col 14}{res}{space 2} .0175433{col 26}{space 2} .0050809{col 37}{space 1}    3.45{col 46}{space 3}0.001{col 54}{space 4} .0075847{col 67}{space 3} .0275018
+{txt}{space 7}inter {c |}{col 14}{res}{space 2}-.0001528{col 26}{space 2} .0002911{col 37}{space 1}   -0.53{col 46}{space 3}0.600{col 54}{space 4}-.0007233{col 67}{space 3} .0004177
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0444994{col 26}{space 2}  .004718{col 37}{space 1}    9.43{col 46}{space 3}0.000{col 54}{space 4} .0352522{col 67}{space 3} .0537466
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: one-year mortality, bandwith: 30, Rectangular kernel, birth weight 1500 dropped
+
+{txt}Linear regression                               Number of obs     = {res}    69,397
+                                                {txt}F(3, 69393)       =  {res}     7.38
+                                                {txt}Prob > F          = {res}    0.0001
+                                                {txt}R-squared         = {res}    0.0003
+                                                {txt}Root MSE          =    {res} .23141
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}     agedth5{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2}-.0004644{col 26}{space 2} .0001901{col 37}{space 1}   -2.44{col 46}{space 3}0.015{col 54}{space 4} -.000837{col 67}{space 3}-.0000919
+{txt}{space 9}cut {c |}{col 14}{res}{space 2} .0150936{col 26}{space 2} .0048413{col 37}{space 1}    3.12{col 46}{space 3}0.002{col 54}{space 4} .0056046{col 67}{space 3} .0245826
+{txt}{space 7}inter {c |}{col 14}{res}{space 2}-.0000515{col 26}{space 2} .0002294{col 37}{space 1}   -0.22{col 46}{space 3}0.822{col 54}{space 4}-.0005012{col 67}{space 3} .0003981
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0460607{col 26}{space 2} .0045264{col 37}{space 1}   10.18{col 46}{space 3}0.000{col 54}{space 4}  .037189{col 67}{space 3} .0549324
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. 
+. ***************
+. **     B3    **
+. ***************
+. 
+. foreach g of local grams{c -(}
+{txt}  2{com}.         drop if bweight == `g'
+{txt}  3{com}. {c )-}
+{txt}(20,036 observations deleted)
+(22,927 observations deleted)
+(21,880 observations deleted)
+(22,400 observations deleted)
+
+{com}. 
+. forvalues bw = 90(-30)30{c -(}
+{txt}  2{com}.         tempvar wght
+{txt}  3{com}.         gen `wght' = 1 - abs(bwtnorm / `bw')
+{txt}  4{com}.         display "reg: one-year mortality, bandwith: `bw', triangular kernel" ///
+>         ", birth weight 1500 dropped, exact ounces dropped"
+{txt}  5{com}.         regress agedth5 bwtnorm cut inter [pweight=`wght'] ///
+>         if abs(bwtnorm) <= `bw' , vce(robust)
+{txt}  6{com}.         display "reg: one-year mortality, bandwith: `bw', Rectangular kernel" ///
+>         ", birth weight 1500 dropped, exact ounces dropped"
+{txt}  7{com}.         regress agedth5 bwtnorm cut inter ///
+>         if abs(bwtnorm) <= `bw' , vce(robust)
+{txt}  8{com}. {c )-}
+reg: one-year mortality, bandwith: 90, triangular kernel, birth weight 1500 dropped, exact ounces dropped
+{txt}(sum of wgt is   4.4941e+04)
+
+Linear regression                               Number of obs     = {res}   139,461
+                                                {txt}F(3, 139457)      =  {res}    13.79
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.0003
+                                                {txt}Root MSE          =    {res} .22368
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}     agedth5{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2}-.0001698{col 26}{space 2} .0000455{col 37}{space 1}   -3.73{col 46}{space 3}0.000{col 54}{space 4} -.000259{col 67}{space 3}-.0000806
+{txt}{space 9}cut {c |}{col 14}{res}{space 2} .0011816{col 26}{space 2} .0035608{col 37}{space 1}    0.33{col 46}{space 3}0.740{col 54}{space 4}-.0057976{col 67}{space 3} .0081607
+{txt}{space 7}inter {c |}{col 14}{res}{space 2} .0001679{col 26}{space 2} .0000645{col 37}{space 1}    2.60{col 46}{space 3}0.009{col 54}{space 4} .0000415{col 67}{space 3} .0002942
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0496614{col 26}{space 2} .0025732{col 37}{space 1}   19.30{col 46}{space 3}0.000{col 54}{space 4}  .044618{col 67}{space 3} .0547047
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: one-year mortality, bandwith: 90, Rectangular kernel, birth weight 1500 dropped, exact ounces dropped
+
+{txt}Linear regression                               Number of obs     = {res}   143,100
+                                                {txt}F(3, 143096)      =  {res}    22.63
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.0005
+                                                {txt}Root MSE          =    {res} .22655
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}     agedth5{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2}-.0001691{col 26}{space 2} .0000377{col 37}{space 1}   -4.49{col 46}{space 3}0.000{col 54}{space 4}-.0002429{col 67}{space 3}-.0000952
+{txt}{space 9}cut {c |}{col 14}{res}{space 2} .0008659{col 26}{space 2} .0031552{col 37}{space 1}    0.27{col 46}{space 3}0.784{col 54}{space 4}-.0053182{col 67}{space 3} .0070501
+{txt}{space 7}inter {c |}{col 14}{res}{space 2} .0001743{col 26}{space 2} .0000482{col 37}{space 1}    3.61{col 46}{space 3}0.000{col 54}{space 4} .0000797{col 67}{space 3} .0002688
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0496883{col 26}{space 2} .0024203{col 37}{space 1}   20.53{col 46}{space 3}0.000{col 54}{space 4} .0449445{col 67}{space 3}  .054432
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: one-year mortality, bandwith: 60, triangular kernel, birth weight 1500 dropped, exact ounces dropped
+{txt}(sum of wgt is   2.2751e+04)
+
+Linear regression                               Number of obs     = {res}    67,906
+                                                {txt}F(3, 67902)       =  {res}     3.62
+                                                {txt}Prob > F          = {res}    0.0124
+                                                {txt}R-squared         = {res}    0.0002
+                                                {txt}Root MSE          =    {res} .22197
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}     agedth5{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2}-.0002623{col 26}{space 2} .0001143{col 37}{space 1}   -2.29{col 46}{space 3}0.022{col 54}{space 4}-.0004864{col 67}{space 3}-.0000382
+{txt}{space 9}cut {c |}{col 14}{res}{space 2} .0037264{col 26}{space 2}  .004687{col 37}{space 1}    0.80{col 46}{space 3}0.427{col 54}{space 4}-.0054602{col 67}{space 3}  .012913
+{txt}{space 7}inter {c |}{col 14}{res}{space 2} .0002123{col 26}{space 2} .0001461{col 37}{space 1}    1.45{col 46}{space 3}0.146{col 54}{space 4} -.000074{col 67}{space 3} .0004987
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0479328{col 26}{space 2} .0035126{col 37}{space 1}   13.65{col 46}{space 3}0.000{col 54}{space 4}  .041048{col 67}{space 3} .0548175
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: one-year mortality, bandwith: 60, Rectangular kernel, birth weight 1500 dropped, exact ounces dropped
+
+{txt}Linear regression                               Number of obs     = {res}    72,635
+                                                {txt}F(3, 72631)       =  {res}     2.52
+                                                {txt}Prob > F          = {res}    0.0562
+                                                {txt}R-squared         = {res}    0.0001
+                                                {txt}Root MSE          =    {res} .22302
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}     agedth5{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2}-.0001327{col 26}{space 2} .0000841{col 37}{space 1}   -1.58{col 46}{space 3}0.115{col 54}{space 4}-.0002975{col 67}{space 3} .0000321
+{txt}{space 9}cut {c |}{col 14}{res}{space 2}-.0009024{col 26}{space 2} .0040746{col 37}{space 1}   -0.22{col 46}{space 3}0.825{col 54}{space 4}-.0088886{col 67}{space 3} .0070838
+{txt}{space 7}inter {c |}{col 14}{res}{space 2} .0001623{col 26}{space 2} .0000999{col 37}{space 1}    1.62{col 46}{space 3}0.104{col 54}{space 4}-.0000336{col 67}{space 3} .0003582
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0507792{col 26}{space 2}  .003127{col 37}{space 1}   16.24{col 46}{space 3}0.000{col 54}{space 4} .0446503{col 67}{space 3}  .056908
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: one-year mortality, bandwith: 30, triangular kernel, birth weight 1500 dropped, exact ounces dropped
+{txt}(sum of wgt is   1.0163e+04)
+
+Linear regression                               Number of obs     = {res}    19,856
+                                                {txt}F(3, 19852)       =  {res}     1.07
+                                                {txt}Prob > F          = {res}    0.3607
+                                                {txt}R-squared         = {res}    0.0002
+                                                {txt}Root MSE          =    {res} .22069
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}     agedth5{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2}-.0005877{col 26}{space 2} .0003681{col 37}{space 1}   -1.60{col 46}{space 3}0.110{col 54}{space 4}-.0013091{col 67}{space 3} .0001337
+{txt}{space 9}cut {c |}{col 14}{res}{space 2} .0095127{col 26}{space 2} .0074632{col 37}{space 1}    1.27{col 46}{space 3}0.202{col 54}{space 4}-.0051159{col 67}{space 3} .0241412
+{txt}{space 7}inter {c |}{col 14}{res}{space 2}  .000377{col 26}{space 2} .0004882{col 37}{space 1}    0.77{col 46}{space 3}0.440{col 54}{space 4}  -.00058{col 67}{space 3} .0013339
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2}  .044189{col 26}{space 2}  .005655{col 37}{space 1}    7.81{col 46}{space 3}0.000{col 54}{space 4} .0331048{col 67}{space 3} .0552732
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: one-year mortality, bandwith: 30, Rectangular kernel, birth weight 1500 dropped, exact ounces dropped
+
+{txt}Linear regression                               Number of obs     = {res}    24,590
+                                                {txt}F(3, 24586)       =  {res}     1.14
+                                                {txt}Prob > F          = {res}    0.3306
+                                                {txt}R-squared         = {res}    0.0001
+                                                {txt}Root MSE          =    {res} .22082
+
+{txt}{hline 13}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 14}{c |}{col 26}    Robust
+{col 1}     agedth5{col 14}{c |}      Coef.{col 26}   Std. Err.{col 38}      t{col 46}   P>|t|{col 54}     [95% Con{col 67}f. Interval]
+{hline 13}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 5}bwtnorm {c |}{col 14}{res}{space 2}-.0003123{col 26}{space 2} .0002481{col 37}{space 1}   -1.26{col 46}{space 3}0.208{col 54}{space 4}-.0007986{col 67}{space 3} .0001741
+{txt}{space 9}cut {c |}{col 14}{res}{space 2} .0060316{col 26}{space 2} .0062735{col 37}{space 1}    0.96{col 46}{space 3}0.336{col 54}{space 4}-.0062648{col 67}{space 3}  .018328
+{txt}{space 7}inter {c |}{col 14}{res}{space 2} .0001207{col 26}{space 2} .0003204{col 37}{space 1}    0.38{col 46}{space 3}0.706{col 54}{space 4}-.0005074{col 67}{space 3} .0007488
+{txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0474673{col 26}{space 2} .0047457{col 37}{space 1}   10.00{col 46}{space 3}0.000{col 54}{space 4} .0381655{col 67}{space 3} .0567691
+{txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. 
+. 
+. ***************
+. **     B4    **
+. ***************
+. use `raw2' , clear
+{txt}
+{com}. 
+. local heaps
+{txt}
+{com}. local heapinters
+{txt}
+{com}. 
+. foreach g of local grams{c -(}
+{txt}  2{com}.         gen heap_`g' = 1 if bweight == `g'
+{txt}  3{com}.         replace heap_`g' = 0 if heap_`g' == .
+{txt}  4{com}.         gen heapinter_`g' = heap_`g' * bwtnorm
+{txt}  5{com}.         local heaps `heaps' heap_`g'
+{txt}  6{com}.         local heapinters `heapinters' heapinter_`g'
+{txt}  7{com}. {c )-}
+{txt}(352,828 missing values generated)
+(352,828 real changes made)
+(349,937 missing values generated)
+(349,937 real changes made)
+(350,984 missing values generated)
+(350,984 real changes made)
+(350,464 missing values generated)
+(350,464 real changes made)
+
+{com}. 
+. 
+. forvalues bw = 90(-30)30{c -(}
+{txt}  2{com}.         tempvar wght
+{txt}  3{com}.         gen `wght' = 1 - abs(bwtnorm / `bw')
+{txt}  4{com}.         display "reg: one-year mortality, bandwith: `bw', triangular kernel" ///
+>         ", birth weight 1500 dropped, ounce heap controlled"
+{txt}  5{com}.         regress agedth5 bwtnorm cut inter `heaps' `heapinters' [pweight=`wght'] ///
+>         if abs(bwtnorm) <= `bw' , vce(robust)
+{txt}  6{com}.         display "reg: one-year mortality, bandwith: `bw', Rectangular kernel" ///
+>         ", birth weight 1500 dropped, ounce heap controlled"
+{txt}  7{com}.         regress agedth5 bwtnorm cut inter `heaps' `heapinters' ///
+>         if abs(bwtnorm) <= `bw' , vce(robust)
+{txt}  8{com}. {c )-}
+reg: one-year mortality, bandwith: 90, triangular kernel, birth weight 1500 dropped, ounce heap controlled
+{txt}(sum of wgt is   1.0509e+05)
+note: heap_1446 omitted because of collinearity
+note: heap_1474 omitted because of collinearity
+note: heap_1503 omitted because of collinearity
+note: heap_1531 omitted because of collinearity
+
+Linear regression                               Number of obs     = {res}   226,704
+                                                {txt}F(7, 226696)      =  {res}    12.13
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.0004
+                                                {txt}Root MSE          =    {res} .23105
+
+{txt}{hline 15}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 16}{c |}{col 28}    Robust
+{col 1}       agedth5{col 16}{c |}      Coef.{col 28}   Std. Err.{col 40}      t{col 48}   P>|t|{col 56}     [95% Con{col 69}f. Interval]
+{hline 15}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 7}bwtnorm {c |}{col 16}{res}{space 2}-.0001698{col 28}{space 2} .0000455{col 39}{space 1}   -3.73{col 48}{space 3}0.000{col 56}{space 4} -.000259{col 69}{space 3}-.0000806
+{txt}{space 11}cut {c |}{col 16}{res}{space 2} .0011816{col 28}{space 2} .0035608{col 39}{space 1}    0.33{col 48}{space 3}0.740{col 56}{space 4}-.0057976{col 69}{space 3} .0081607
+{txt}{space 9}inter {c |}{col 16}{res}{space 2} .0001679{col 28}{space 2} .0000645{col 39}{space 1}    2.60{col 48}{space 3}0.009{col 56}{space 4} .0000415{col 69}{space 3} .0002942
+{txt}{space 5}heap_1446 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
+{space 5}heap_1474 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
+{space 5}heap_1503 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
+{space 5}heap_1531 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
+heapinter_1446 {c |}{col 16}{res}{space 2}-.0000908{col 28}{space 2} .0000383{col 39}{space 1}   -2.37{col 48}{space 3}0.018{col 56}{space 4}-.0001659{col 69}{space 3}-.0000157
+{txt}heapinter_1474 {c |}{col 16}{res}{space 2}-.0001798{col 28}{space 2} .0000857{col 39}{space 1}   -2.10{col 48}{space 3}0.036{col 56}{space 4}-.0003478{col 69}{space 3}-.0000119
+{txt}heapinter_1503 {c |}{col 16}{res}{space 2} .0033163{col 28}{space 2} .0009462{col 39}{space 1}    3.50{col 48}{space 3}0.000{col 56}{space 4} .0014618{col 69}{space 3} .0051708
+{txt}heapinter_1531 {c |}{col 16}{res}{space 2} .0001634{col 28}{space 2} .0000638{col 39}{space 1}    2.56{col 48}{space 3}0.010{col 56}{space 4} .0000382{col 69}{space 3} .0002885
+{txt}{space 9}_cons {c |}{col 16}{res}{space 2} .0496614{col 28}{space 2} .0025732{col 39}{space 1}   19.30{col 48}{space 3}0.000{col 56}{space 4}  .044618{col 69}{space 3} .0547047
+{txt}{hline 15}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: one-year mortality, bandwith: 90, Rectangular kernel, birth weight 1500 dropped, ounce heap controlled
+{txt}note: heap_1446 omitted because of collinearity
+note: heap_1474 omitted because of collinearity
+note: heap_1503 omitted because of collinearity
+note: heap_1531 omitted because of collinearity
+
+Linear regression                               Number of obs     = {res}   230,343
+                                                {txt}F(7, 230335)      =  {res}    16.07
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.0005
+                                                {txt}Root MSE          =    {res}  .2305
+
+{txt}{hline 15}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 16}{c |}{col 28}    Robust
+{col 1}       agedth5{col 16}{c |}      Coef.{col 28}   Std. Err.{col 40}      t{col 48}   P>|t|{col 56}     [95% Con{col 69}f. Interval]
+{hline 15}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 7}bwtnorm {c |}{col 16}{res}{space 2}-.0001691{col 28}{space 2} .0000377{col 39}{space 1}   -4.49{col 48}{space 3}0.000{col 56}{space 4}-.0002429{col 69}{space 3}-.0000952
+{txt}{space 11}cut {c |}{col 16}{res}{space 2} .0008659{col 28}{space 2} .0031552{col 39}{space 1}    0.27{col 48}{space 3}0.784{col 56}{space 4}-.0053182{col 69}{space 3} .0070501
+{txt}{space 9}inter {c |}{col 16}{res}{space 2} .0001743{col 28}{space 2} .0000482{col 39}{space 1}    3.61{col 48}{space 3}0.000{col 56}{space 4} .0000797{col 69}{space 3} .0002688
+{txt}{space 5}heap_1446 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
+{space 5}heap_1474 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
+{space 5}heap_1503 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
+{space 5}heap_1531 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
+heapinter_1446 {c |}{col 16}{res}{space 2}-.0000911{col 28}{space 2} .0000372{col 39}{space 1}   -2.45{col 48}{space 3}0.014{col 56}{space 4} -.000164{col 69}{space 3}-.0000182
+{txt}heapinter_1474 {c |}{col 16}{res}{space 2}-.0001795{col 28}{space 2} .0000853{col 39}{space 1}   -2.10{col 48}{space 3}0.035{col 56}{space 4}-.0003468{col 69}{space 3}-.0000122
+{txt}heapinter_1503 {c |}{col 16}{res}{space 2} .0034054{col 28}{space 2} .0008416{col 39}{space 1}    4.05{col 48}{space 3}0.000{col 56}{space 4} .0017559{col 69}{space 3} .0050549
+{txt}heapinter_1531 {c |}{col 16}{res}{space 2} .0001656{col 28}{space 2} .0000629{col 39}{space 1}    2.63{col 48}{space 3}0.008{col 56}{space 4} .0000423{col 69}{space 3} .0002889
+{txt}{space 9}_cons {c |}{col 16}{res}{space 2} .0496883{col 28}{space 2} .0024203{col 39}{space 1}   20.53{col 48}{space 3}0.000{col 56}{space 4} .0449445{col 69}{space 3}  .054432
+{txt}{hline 15}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: one-year mortality, bandwith: 60, triangular kernel, birth weight 1500 dropped, ounce heap controlled
+{txt}(sum of wgt is   6.9360e+04)
+note: heap_1446 omitted because of collinearity
+note: heap_1474 omitted because of collinearity
+note: heap_1503 omitted because of collinearity
+note: heap_1531 omitted because of collinearity
+
+Linear regression                               Number of obs     = {res}   155,149
+                                                {txt}F(7, 155141)      =  {res}     7.78
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.0003
+                                                {txt}Root MSE          =    {res} .23149
+
+{txt}{hline 15}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 16}{c |}{col 28}    Robust
+{col 1}       agedth5{col 16}{c |}      Coef.{col 28}   Std. Err.{col 40}      t{col 48}   P>|t|{col 56}     [95% Con{col 69}f. Interval]
+{hline 15}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 7}bwtnorm {c |}{col 16}{res}{space 2}-.0002623{col 28}{space 2} .0001143{col 39}{space 1}   -2.29{col 48}{space 3}0.022{col 56}{space 4}-.0004864{col 69}{space 3}-.0000382
+{txt}{space 11}cut {c |}{col 16}{res}{space 2} .0037264{col 28}{space 2}  .004687{col 39}{space 1}    0.80{col 48}{space 3}0.427{col 56}{space 4}-.0054601{col 69}{space 3} .0129128
+{txt}{space 9}inter {c |}{col 16}{res}{space 2} .0002123{col 28}{space 2} .0001461{col 39}{space 1}    1.45{col 48}{space 3}0.146{col 56}{space 4} -.000074{col 69}{space 3} .0004987
+{txt}{space 5}heap_1446 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
+{space 5}heap_1474 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
+{space 5}heap_1503 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
+{space 5}heap_1531 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
+heapinter_1446 {c |}{col 16}{res}{space 2}-.0000304{col 28}{space 2} .0000719{col 39}{space 1}   -0.42{col 48}{space 3}0.673{col 56}{space 4}-.0001713{col 69}{space 3} .0001106
+{txt}heapinter_1474 {c |}{col 16}{res}{space 2}-.0001538{col 28}{space 2}  .000087{col 39}{space 1}   -1.77{col 48}{space 3}0.077{col 56}{space 4}-.0003243{col 69}{space 3} .0000167
+{txt}heapinter_1503 {c |}{col 16}{res}{space 2} .0030923{col 28}{space 2} .0010952{col 39}{space 1}    2.82{col 48}{space 3}0.005{col 56}{space 4} .0009457{col 69}{space 3} .0052388
+{txt}heapinter_1531 {c |}{col 16}{res}{space 2} .0001851{col 28}{space 2} .0000664{col 39}{space 1}    2.79{col 48}{space 3}0.005{col 56}{space 4} .0000549{col 69}{space 3} .0003152
+{txt}{space 9}_cons {c |}{col 16}{res}{space 2} .0479328{col 28}{space 2} .0035126{col 39}{space 1}   13.65{col 48}{space 3}0.000{col 56}{space 4} .0410481{col 69}{space 3} .0548174
+{txt}{hline 15}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: one-year mortality, bandwith: 60, Rectangular kernel, birth weight 1500 dropped, ounce heap controlled
+{txt}note: heap_1446 omitted because of collinearity
+note: heap_1474 omitted because of collinearity
+note: heap_1503 omitted because of collinearity
+note: heap_1531 omitted because of collinearity
+
+Linear regression                               Number of obs     = {res}   159,878
+                                                {txt}F(7, 159870)      =  {res}     8.35
+                                                {txt}Prob > F          = {res}    0.0000
+                                                {txt}R-squared         = {res}    0.0004
+                                                {txt}Root MSE          =    {res} .23067
+
+{txt}{hline 15}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 16}{c |}{col 28}    Robust
+{col 1}       agedth5{col 16}{c |}      Coef.{col 28}   Std. Err.{col 40}      t{col 48}   P>|t|{col 56}     [95% Con{col 69}f. Interval]
+{hline 15}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 7}bwtnorm {c |}{col 16}{res}{space 2}-.0001327{col 28}{space 2} .0000841{col 39}{space 1}   -1.58{col 48}{space 3}0.115{col 56}{space 4}-.0002975{col 69}{space 3} .0000321
+{txt}{space 11}cut {c |}{col 16}{res}{space 2}-.0009024{col 28}{space 2} .0040746{col 39}{space 1}   -0.22{col 48}{space 3}0.825{col 56}{space 4}-.0088885{col 69}{space 3} .0070837
+{txt}{space 9}inter {c |}{col 16}{res}{space 2} .0001623{col 28}{space 2} .0000999{col 39}{space 1}    1.62{col 48}{space 3}0.104{col 56}{space 4}-.0000335{col 69}{space 3} .0003582
+{txt}{space 5}heap_1446 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
+{space 5}heap_1474 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
+{space 5}heap_1503 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
+{space 5}heap_1531 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
+heapinter_1446 {c |}{col 16}{res}{space 2}-.0001072{col 28}{space 2} .0000537{col 39}{space 1}   -2.00{col 48}{space 3}0.046{col 56}{space 4}-.0002126{col 69}{space 3}-1.92e-06
+{txt}heapinter_1474 {c |}{col 16}{res}{space 2}-.0001739{col 28}{space 2} .0000856{col 39}{space 1}   -2.03{col 48}{space 3}0.042{col 56}{space 4}-.0003418{col 69}{space 3}-6.12e-06
+{txt}heapinter_1503 {c |}{col 16}{res}{space 2} .0036068{col 28}{space 2} .0009819{col 39}{space 1}    3.67{col 48}{space 3}0.000{col 56}{space 4} .0016823{col 69}{space 3} .0055313
+{txt}heapinter_1531 {c |}{col 16}{res}{space 2}  .000163{col 28}{space 2} .0000636{col 39}{space 1}    2.56{col 48}{space 3}0.010{col 56}{space 4} .0000383{col 69}{space 3} .0002877
+{txt}{space 9}_cons {c |}{col 16}{res}{space 2} .0507792{col 28}{space 2}  .003127{col 39}{space 1}   16.24{col 48}{space 3}0.000{col 56}{space 4} .0446504{col 69}{space 3} .0569079
+{txt}{hline 15}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: one-year mortality, bandwith: 30, triangular kernel, birth weight 1500 dropped, ounce heap controlled
+{txt}(sum of wgt is   3.2912e+04)
+note: heap_1446 omitted because of collinearity
+note: heap_1474 omitted because of collinearity
+note: heap_1503 omitted because of collinearity
+note: heap_1531 omitted because of collinearity
+note: heapinter_1446 omitted because of collinearity
+note: heapinter_1531 omitted because of collinearity
+
+Linear regression                               Number of obs     = {res}    64,663
+                                                {txt}F(5, 64657)       =  {res}     4.25
+                                                {txt}Prob > F          = {res}    0.0007
+                                                {txt}R-squared         = {res}    0.0004
+                                                {txt}Root MSE          =    {res}  .2331
+
+{txt}{hline 15}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 16}{c |}{col 28}    Robust
+{col 1}       agedth5{col 16}{c |}      Coef.{col 28}   Std. Err.{col 40}      t{col 48}   P>|t|{col 56}     [95% Con{col 69}f. Interval]
+{hline 15}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 7}bwtnorm {c |}{col 16}{res}{space 2}-.0005877{col 28}{space 2}  .000368{col 39}{space 1}   -1.60{col 48}{space 3}0.110{col 56}{space 4} -.001309{col 69}{space 3} .0001337
+{txt}{space 11}cut {c |}{col 16}{res}{space 2} .0095127{col 28}{space 2} .0074628{col 39}{space 1}    1.27{col 48}{space 3}0.202{col 56}{space 4}-.0051145{col 69}{space 3} .0241398
+{txt}{space 9}inter {c |}{col 16}{res}{space 2}  .000377{col 28}{space 2} .0004882{col 39}{space 1}    0.77{col 48}{space 3}0.440{col 56}{space 4}-.0005799{col 69}{space 3} .0013338
+{txt}{space 5}heap_1446 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
+{space 5}heap_1474 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
+{space 5}heap_1503 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
+{space 5}heap_1531 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
+heapinter_1446 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
+heapinter_1474 {c |}{col 16}{res}{space 2} .0000276{col 28}{space 2} .0002021{col 39}{space 1}    0.14{col 48}{space 3}0.892{col 56}{space 4}-.0003685{col 69}{space 3} .0004237
+{txt}heapinter_1503 {c |}{col 16}{res}{space 2} .0025722{col 28}{space 2} .0014494{col 39}{space 1}    1.77{col 48}{space 3}0.076{col 56}{space 4}-.0002687{col 69}{space 3} .0054131
+{txt}heapinter_1531 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
+{space 9}_cons {c |}{col 16}{res}{space 2}  .044189{col 28}{space 2} .0056547{col 39}{space 1}    7.81{col 48}{space 3}0.000{col 56}{space 4} .0331059{col 69}{space 3} .0552721
+{txt}{hline 15}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}reg: one-year mortality, bandwith: 30, Rectangular kernel, birth weight 1500 dropped, ounce heap controlled
+{txt}note: heap_1446 omitted because of collinearity
+note: heap_1474 omitted because of collinearity
+note: heap_1503 omitted because of collinearity
+note: heap_1531 omitted because of collinearity
+note: heapinter_1446 omitted because of collinearity
+note: heapinter_1531 omitted because of collinearity
+
+Linear regression                               Number of obs     = {res}    69,397
+                                                {txt}F(5, 69391)       =  {res}     5.27
+                                                {txt}Prob > F          = {res}    0.0001
+                                                {txt}R-squared         = {res}    0.0004
+                                                {txt}Root MSE          =    {res} .23141
+
+{txt}{hline 15}{c TT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{col 16}{c |}{col 28}    Robust
+{col 1}       agedth5{col 16}{c |}      Coef.{col 28}   Std. Err.{col 40}      t{col 48}   P>|t|{col 56}     [95% Con{col 69}f. Interval]
+{hline 15}{c +}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{space 7}bwtnorm {c |}{col 16}{res}{space 2}-.0003123{col 28}{space 2} .0002481{col 39}{space 1}   -1.26{col 48}{space 3}0.208{col 56}{space 4}-.0007985{col 69}{space 3}  .000174
+{txt}{space 11}cut {c |}{col 16}{res}{space 2} .0060316{col 28}{space 2} .0062733{col 39}{space 1}    0.96{col 48}{space 3}0.336{col 56}{space 4} -.006264{col 69}{space 3} .0183272
+{txt}{space 9}inter {c |}{col 16}{res}{space 2} .0001207{col 28}{space 2} .0003204{col 39}{space 1}    0.38{col 48}{space 3}0.706{col 56}{space 4}-.0005074{col 69}{space 3} .0007487
+{txt}{space 5}heap_1446 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
+{space 5}heap_1474 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
+{space 5}heap_1503 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
+{space 5}heap_1531 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
+heapinter_1446 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
+heapinter_1474 {c |}{col 16}{res}{space 2}-.0001218{col 28}{space 2} .0001317{col 39}{space 1}   -0.92{col 48}{space 3}0.355{col 56}{space 4}-.0003799{col 69}{space 3} .0001364
+{txt}heapinter_1503 {c |}{col 16}{res}{space 2} .0026206{col 28}{space 2} .0013072{col 39}{space 1}    2.00{col 48}{space 3}0.045{col 56}{space 4} .0000585{col 69}{space 3} .0051828
+{txt}heapinter_1531 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
+{space 9}_cons {c |}{col 16}{res}{space 2} .0474673{col 28}{space 2} .0047455{col 39}{space 1}   10.00{col 48}{space 3}0.000{col 56}{space 4} .0381662{col 69}{space 3} .0567684
+{txt}{hline 15}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
+{res}{txt}
+{com}. 
+. 
+. 
 . log close _all
       {txt}name:  {res}<unnamed>
        {txt}log:  {res}D:\Lindo\Assignments\Assignment5\mylog.smcl
   {txt}log type:  {res}smcl
- {txt}closed on:  {res}23 Mar 2017, 07:38:16
+ {txt}closed on:  {res}25 Mar 2017, 00:21:02
 {txt}{.-}
 {smcl}
 {txt}{sf}{ul off}

@@ -117,12 +117,15 @@ forvalues bw = 90(-30)30{
 **     A4    **
 ***************
 
-** drump on ounces
+** jump on ounces
 local grams
 drop if bweight == 1500
+tempfile raw2
+save `raw2'
+
 forvalues oz = 51(1)54{
 	local gram = round(`oz'*28.3495)
-	local grams `grams' gram
+	local grams `grams' `gram'
 	gen oz`oz' = 1 if bweight == `gram'
 	replace oz`oz' = 0 if oz`oz' == .
 	gen inter`oz' = oz`oz' * bweight
@@ -132,7 +135,7 @@ forvalues oz = 51(1)54{
 	}	
 }
 
-** drump on 1500
+** jump on 1500
 
 use `raw' , clear
 
@@ -147,7 +150,97 @@ foreach g of local grams{
 foreach c of local chars{
 		display "reg: `c', bandwith: 25 jump: 1500g"
 		regress `c' bweight inter2 if abs(bweight- 1500)<= 25
-	}
+}
+
+***************
+**     B1    **
+***************
+
+use `raw' , clear
+
+forvalues bw = 90(-30)30{
+	tempvar wght
+	gen `wght' = 1 - abs(bwtnorm / `bw')
+	display "reg: one-year mortality, bandwith: `bw', triangular kernel"
+	regress agedth5 bwtnorm cut inter [pweight=`wght'] ///
+	if abs(bwtnorm) <= `bw' , vce(robust)
+	display "reg: one-year mortality, bandwith: `bw', Rectangular kernel"
+	regress agedth5 bwtnorm cut inter ///
+	if abs(bwtnorm) <= `bw' , vce(robust)
+}
+
+***************
+**     B2    **
+***************
+
+use `raw2' , clear
+
+forvalues bw = 90(-30)30{
+	tempvar wght
+	gen `wght' = 1 - abs(bwtnorm / `bw')
+	display "reg: one-year mortality, bandwith: `bw', triangular kernel" ///
+	", birth weight 1500 dropped"
+	regress agedth5 bwtnorm cut inter [pweight=`wght'] ///
+	if abs(bwtnorm) <= `bw' , vce(robust)
+	display "reg: one-year mortality, bandwith: `bw', Rectangular kernel" ///
+	", birth weight 1500 dropped"
+	regress agedth5 bwtnorm cut inter ///
+	if abs(bwtnorm) <= `bw' , vce(robust)
+}
+
+***************
+**     B3    **
+***************
+
+foreach g of local grams{
+	drop if bweight == `g'
+}
+
+forvalues bw = 90(-30)30{
+	tempvar wght
+	gen `wght' = 1 - abs(bwtnorm / `bw')
+	display "reg: one-year mortality, bandwith: `bw', triangular kernel" ///
+	", birth weight 1500 dropped, exact ounces dropped"
+	regress agedth5 bwtnorm cut inter [pweight=`wght'] ///
+	if abs(bwtnorm) <= `bw' , vce(robust)
+	display "reg: one-year mortality, bandwith: `bw', Rectangular kernel" ///
+	", birth weight 1500 dropped, exact ounces dropped"
+	regress agedth5 bwtnorm cut inter ///
+	if abs(bwtnorm) <= `bw' , vce(robust)
+}
+
+
+***************
+**     B4    **
+***************
+use `raw2' , clear
+
+local heaps
+local heapinters
+
+foreach g of local grams{
+	gen heap_`g' = 1 if bweight == `g'
+	replace heap_`g' = 0 if heap_`g' == .
+	gen heapinter_`g' = heap_`g' * bwtnorm
+	local heaps `heaps' heap_`g'
+	local heapinters `heapinters' heapinter_`g'
+}
+
+
+forvalues bw = 90(-30)30{
+	tempvar wght
+	gen `wght' = 1 - abs(bwtnorm / `bw')
+	display "reg: one-year mortality, bandwith: `bw', triangular kernel" ///
+	", birth weight 1500 dropped, ounce heap controlled"
+	regress agedth5 bwtnorm cut inter `heaps' `heapinters' [pweight=`wght'] ///
+	if abs(bwtnorm) <= `bw' , vce(robust)
+	display "reg: one-year mortality, bandwith: `bw', Rectangular kernel" ///
+	", birth weight 1500 dropped, ounce heap controlled"
+	regress agedth5 bwtnorm cut inter `heaps' `heapinters' ///
+	if abs(bwtnorm) <= `bw' , vce(robust)
+}
+
+
 
 log close _all
 
