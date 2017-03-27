@@ -1,0 +1,25 @@
+\begin{table}[htbp]\centering
+\def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\caption{Test continuity via characteristics, bandwidth: 30}
+\begin{tabular}{l*{4}{c}}
+\hline\hline
+            &\multicolumn{1}{c}{mom\_white\_TK}&\multicolumn{1}{c}{mom\_white\_RK}&\multicolumn{1}{c}{mom\_high\_TK}&\multicolumn{1}{c}{mom\_high\_RK}\\
+\hline
+bwtnorm     &   -0.000179         &   -0.000409         &    0.000546         &    0.000682\sym{*}  \\
+            &     (-0.39)         &     (-0.99)         &      (1.29)         &      (1.81)         \\
+[1em]
+cut         &     0.00712         &      0.0165         &    -0.00734         &     -0.0115         \\
+            &      (0.64)         &      (1.59)         &     (-0.72)         &     (-1.21)         \\
+[1em]
+inter       &    0.000397         &   -0.000689         &    -0.00107\sym{*}  &   -0.000776\sym{*}  \\
+            &      (0.63)         &     (-1.40)         &     (-1.86)         &     (-1.73)         \\
+[1em]
+\_cons      &       0.652\sym{***}&       0.647\sym{***}&       0.264\sym{***}&       0.266\sym{***}\\
+            &     (61.88)         &     (65.29)         &     (27.10)         &     (29.33)         \\
+\hline
+\(N\)       &       68207         &       72941         &       68207         &       72941         \\
+\hline\hline
+\multicolumn{5}{l}{\footnotesize \textit{t} statistics in parentheses}\\
+\multicolumn{5}{l}{\footnotesize \sym{*} \(p<0.10\), \sym{**} \(p<0.05\), \sym{***} \(p<0.01\)}\\
+\end{tabular}
+\end{table}

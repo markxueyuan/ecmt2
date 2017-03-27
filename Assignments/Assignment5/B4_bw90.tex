@@ -1,0 +1,49 @@
+\begin{table}[htbp]\centering
+\def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\caption{Birth weight class on mortality, bandwidth: 90 , 1500 and ounce heaps controlled}
+\begin{tabular}{l*{2}{c}}
+\hline\hline
+            &\multicolumn{1}{c}{Triangular}&\multicolumn{1}{c}{Rectangular}\\
+\hline
+bwtnorm     &   -0.000170\sym{***}&   -0.000169\sym{***}\\
+            &     (-3.73)         &     (-4.49)         \\
+[1em]
+cut         &     0.00118         &    0.000866         \\
+            &      (0.33)         &      (0.27)         \\
+[1em]
+inter       &    0.000168\sym{***}&    0.000174\sym{***}\\
+            &      (2.60)         &      (3.61)         \\
+[1em]
+heap\_1446   &           0         &           0         \\
+            &         (.)         &         (.)         \\
+[1em]
+heap\_1474   &           0         &           0         \\
+            &         (.)         &         (.)         \\
+[1em]
+heap\_1503   &           0         &           0         \\
+            &         (.)         &         (.)         \\
+[1em]
+heap\_1531   &           0         &           0         \\
+            &         (.)         &         (.)         \\
+[1em]
+heapinter\_1446&  -0.0000908\sym{**} &  -0.0000911\sym{**} \\
+            &     (-2.37)         &     (-2.45)         \\
+[1em]
+heapinter\_1474&   -0.000180\sym{**} &   -0.000180\sym{**} \\
+            &     (-2.10)         &     (-2.10)         \\
+[1em]
+heapinter\_1503&     0.00332\sym{***}&     0.00341\sym{***}\\
+            &      (3.50)         &      (4.05)         \\
+[1em]
+heapinter\_1531&    0.000163\sym{**} &    0.000166\sym{***}\\
+            &      (2.56)         &      (2.63)         \\
+[1em]
+\_cons      &      0.0497\sym{***}&      0.0497\sym{***}\\
+            &     (19.30)         &     (20.53)         \\
+\hline
+\(N\)       &      226704         &      230343         \\
+\hline\hline
+\multicolumn{3}{l}{\footnotesize \textit{t} statistics in parentheses}\\
+\multicolumn{3}{l}{\footnotesize \sym{*} \(p<0.10\), \sym{**} \(p<0.05\), \sym{***} \(p<0.01\)}\\
+\end{tabular}
+\end{table}

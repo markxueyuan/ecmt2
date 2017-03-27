@@ -1,0 +1,25 @@
+\begin{table}[htbp]\centering
+\def\sym#1{\ifmmode^{#1}\else\(^{#1}\)\fi}
+\caption{Birth weight class on mortality, bandwidth: 30 , 1500 and ounce heaps dropped}
+\begin{tabular}{l*{2}{c}}
+\hline\hline
+            &\multicolumn{1}{c}{Triangular}&\multicolumn{1}{c}{Rectangular}\\
+\hline
+bwtnorm     &   -0.000588         &   -0.000312         \\
+            &     (-1.60)         &     (-1.26)         \\
+[1em]
+cut         &     0.00951         &     0.00603         \\
+            &      (1.27)         &      (0.96)         \\
+[1em]
+inter       &    0.000377         &    0.000121         \\
+            &      (0.77)         &      (0.38)         \\
+[1em]
+\_cons      &      0.0442\sym{***}&      0.0475\sym{***}\\
+            &      (7.81)         &     (10.00)         \\
+\hline
+\(N\)       &       19856         &       24590         \\
+\hline\hline
+\multicolumn{3}{l}{\footnotesize \textit{t} statistics in parentheses}\\
+\multicolumn{3}{l}{\footnotesize \sym{*} \(p<0.10\), \sym{**} \(p<0.05\), \sym{***} \(p<0.01\)}\\
+\end{tabular}
+\end{table}

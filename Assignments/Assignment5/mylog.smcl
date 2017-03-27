@@ -93,11 +93,21 @@
 {txt}  4{com}.         replace cut = 0 if cut ==.
 {txt}  5{com}.         gen inter = cut * `bin'
 {txt}  6{com}.         
+.         local bws
+{txt}  7{com}.         
 .         forvalues bw = 150(-50)50 {c -(}
-{txt}  7{com}.                 display "`bin', bandwith=`bw':"
-{txt}  8{com}.                 regress freq cut `bin' inter if abs(`bin') < `bw'
-{txt}  9{com}.         {c )-}
-{txt} 10{com}. {c )-}
+{txt}  8{com}.                 local bws `bws' bandwidth:`bw'
+{txt}  9{com}.                 display "`bin', bandwith=`bw':"
+{txt} 10{com}.                 eststo : regress freq cut `bin' inter if abs(`bin') < `bw'
+{txt} 11{com}.         {c )-}
+{txt} 12{com}.         
+.         * print estimate table to latex format
+.         esttab using A2_`bin'.tex , mtitles(`bws') ///
+>         star(* 0.10 ** 0.05 *** 0.01) ///
+>         title("Test continuity via frequency, `bin'") nonumber replace 
+{txt} 13{com}. 
+.         eststo clear
+{txt} 14{com}. {c )-}
 {txt}(151 missing values generated)
 (151 real changes made)
 bin01, bandwith=150:
@@ -117,9 +127,10 @@ bin01, bandwith=150:
 {txt}{space 7}inter {c |}{col 14}{res}{space 2}-3.018299{col 26}{space 2} 11.24528{col 37}{space 1}   -0.27{col 46}{space 3}0.789{col 54}{space 4}-25.14912{col 67}{space 3} 19.11252
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} 1356.641{col 26}{space 2} 688.6258{col 37}{space 1}    1.97{col 46}{space 3}0.050{col 54}{space 4} 1.418413{col 67}{space 3} 2711.864
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}bin01, bandwith=100:
+{res}{txt}({res}est1{txt} stored)
+bin01, bandwith=100:
 
-{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}       200
+      Source {c |}       SS           df       MS      Number of obs   ={res}       200
 {txt}{hline 13}{c +}{hline 34}   F(3, 196)       = {res}     0.18
 {txt}       Model {c |} {res} 8949578.74         3  2983192.91   {txt}Prob > F        ={res}    0.9098
 {txt}    Residual {c |} {res} 3.2461e+09       196  16561675.8   {txt}R-squared       ={res}    0.0027
@@ -134,9 +145,10 @@ bin01, bandwith=150:
 {txt}{space 7}inter {c |}{col 14}{res}{space 2}  1.09949{col 26}{space 2}  19.9379{col 37}{space 1}    0.06{col 46}{space 3}0.956{col 54}{space 4}-38.22087{col 67}{space 3} 40.41985
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} 1600.046{col 26}{space 2} 813.9513{col 37}{space 1}    1.97{col 46}{space 3}0.051{col 54}{space 4}-5.180578{col 67}{space 3} 3205.273
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}bin01, bandwith=50:
+{res}{txt}({res}est2{txt} stored)
+bin01, bandwith=50:
 
-{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}       100
+      Source {c |}       SS           df       MS      Number of obs   ={res}       100
 {txt}{hline 13}{c +}{hline 34}   F(3, 96)        = {res}     0.50
 {txt}       Model {c |} {res} 22552516.1         3  7517505.37   {txt}Prob > F        ={res}    0.6802
 {txt}    Residual {c |} {res} 1.4308e+09        96  14903933.9   {txt}R-squared       ={res}    0.0155
@@ -151,7 +163,10 @@ bin01, bandwith=150:
 {txt}{space 7}inter {c |}{col 14}{res}{space 2} 33.74257{col 26}{space 2} 53.50421{col 37}{space 1}    0.63{col 46}{space 3}0.530{col 54}{space 4}-72.46245{col 67}{space 3} 139.9476
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} 2319.949{col 26}{space 2} 1092.095{col 37}{space 1}    2.12{col 46}{space 3}0.036{col 54}{space 4} 152.1567{col 67}{space 3} 4487.741
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}{txt}(16 missing values generated)
+{res}{txt}({res}est3{txt} stored)
+{res}{txt}(note: file A2_bin01.tex not found)
+(output written to {browse  `"A2_bin01.tex"'})
+(16 missing values generated)
 (16 real changes made)
 bin10, bandwith=150:
 
@@ -170,9 +185,10 @@ bin10, bandwith=150:
 {txt}{space 7}inter {c |}{col 14}{res}{space 2}-31.15857{col 26}{space 2} 99.83867{col 37}{space 1}   -0.31{col 46}{space 3}0.757{col 54}{space 4}-236.3799{col 67}{space 3} 174.0628
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} 13429.07{col 26}{space 2} 6110.448{col 37}{space 1}    2.20{col 46}{space 3}0.037{col 54}{space 4} 868.8655{col 67}{space 3} 25989.27
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}bin10, bandwith=100:
+{res}{txt}({res}est1{txt} stored)
+bin10, bandwith=100:
 
-{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}        20
+      Source {c |}       SS           df       MS      Number of obs   ={res}        20
 {txt}{hline 13}{c +}{hline 34}   F(3, 16)        = {res}     0.20
 {txt}       Model {c |} {res} 88287924.2         3  29429308.1   {txt}Prob > F        ={res}    0.8930
 {txt}    Residual {c |} {res} 2.3225e+09        16   145153302   {txt}R-squared       ={res}    0.0366
@@ -187,9 +203,10 @@ bin10, bandwith=150:
 {txt}{space 7}inter {c |}{col 14}{res}{space 2} 9.289697{col 26}{space 2} 187.5865{col 37}{space 1}    0.05{col 46}{space 3}0.961{col 54}{space 4}-388.3758{col 67}{space 3} 406.9552
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} 15924.74{col 26}{space 2} 7648.606{col 37}{space 1}    2.08{col 46}{space 3}0.054{col 54}{space 4}-289.5818{col 67}{space 3} 32139.06
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}bin10, bandwith=50:
+{res}{txt}({res}est2{txt} stored)
+bin10, bandwith=50:
 
-{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}        10
+      Source {c |}       SS           df       MS      Number of obs   ={res}        10
 {txt}{hline 13}{c +}{hline 34}   F(3, 6)         = {res}     0.25
 {txt}       Model {c |} {res}  122424828         3  40808276.1   {txt}Prob > F        ={res}    0.8620
 {txt}    Residual {c |} {res}  998734214         6   166455702   {txt}R-squared       ={res}    0.1092
@@ -204,7 +221,10 @@ bin10, bandwith=150:
 {txt}{space 7}inter {c |}{col 14}{res}{space 2}    238.2{col 26}{space 2} 576.9848{col 37}{space 1}    0.41{col 46}{space 3}0.694{col 54}{space 4}-1173.631{col 67}{space 3} 1650.031
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} 19447.85{col 26}{space 2} 11718.62{col 37}{space 1}    1.66{col 46}{space 3}0.148{col 54}{space 4} -9226.57{col 67}{space 3} 48122.27
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}{txt}(7 missing values generated)
+{res}{txt}({res}est3{txt} stored)
+{res}{txt}(note: file A2_bin10.tex not found)
+(output written to {browse  `"A2_bin10.tex"'})
+(7 missing values generated)
 (7 real changes made)
 bin25, bandwith=150:
 
@@ -223,9 +243,10 @@ bin25, bandwith=150:
 {txt}{space 7}inter {c |}{col 14}{res}{space 2} -141.392{col 26}{space 2} 81.49504{col 37}{space 1}   -1.73{col 46}{space 3}0.121{col 54}{space 4}-329.3199{col 67}{space 3} 46.53591
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} 32462.17{col 26}{space 2} 4973.173{col 37}{space 1}    6.53{col 46}{space 3}0.000{col 54}{space 4} 20994.01{col 67}{space 3} 43930.33
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}bin25, bandwith=100:
+{res}{txt}({res}est1{txt} stored)
+bin25, bandwith=100:
 
-{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}         8
+      Source {c |}       SS           df       MS      Number of obs   ={res}         8
 {txt}{hline 13}{c +}{hline 34}   F(3, 4)         = {res}     2.68
 {txt}       Model {c |} {res}  360303867         3   120101289   {txt}Prob > F        ={res}    0.1824
 {txt}    Residual {c |} {res}  179276727         4  44819181.8   {txt}R-squared       ={res}    0.6677
@@ -240,9 +261,10 @@ bin25, bandwith=150:
 {txt}{space 7}inter {c |}{col 14}{res}{space 2}  -279.72{col 26}{space 2} 169.3643{col 37}{space 1}   -1.65{col 46}{space 3}0.174{col 54}{space 4}-749.9508{col 67}{space 3} 190.5108
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2}    33075{col 26}{space 2} 6860.039{col 37}{space 1}    4.82{col 46}{space 3}0.009{col 54}{space 4} 14028.48{col 67}{space 3} 52121.52
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}bin25, bandwith=50:
+{res}{txt}({res}est2{txt} stored)
+bin25, bandwith=50:
 
-{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}         4
+      Source {c |}       SS           df       MS      Number of obs   ={res}         4
 {txt}{hline 13}{c +}{hline 34}   F(3, 0)         = {res}        .
 {txt}       Model {c |} {res}  446995413         3   148998471   {txt}Prob > F        ={res}         .
 {txt}    Residual {c |} {res}          0         0           .   {txt}R-squared       ={res}    1.0000
@@ -257,8 +279,13 @@ bin25, bandwith=150:
 {txt}{space 7}inter {c |}{col 14}{res}{space 2}  -867.72{col 26}{space 2}        .{col 37}{space 1}       .{col 46}{space 3}    .{col 54}{space 4}        .{col 67}{space 3}        .
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2}  35729.5{col 26}{space 2}        .{col 37}{space 1}       .{col 46}{space 3}    .{col 54}{space 4}        .{col 67}{space 3}        .
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}{txt}
+{res}{txt}({res}est3{txt} stored)
+{res}{txt}(note: file A2_bin25.tex not found)
+(output written to {browse  `"A2_bin25.tex"'})
+
 {com}. 
+. 
+. 
 . 
 . ***************
 . **     A3    **
@@ -300,16 +327,30 @@ bin25, bandwith=150:
 . forvalues bw = 90(-30)30{c -(}
 {txt}  2{com}.         tempvar wght
 {txt}  3{com}.         gen `wght' = 1 - abs(bwtnorm / `bw')
-{txt}  4{com}.         foreach c of local chars{c -(}
-{txt}  5{com}.                 display "reg: `c', bandwith: `bw', triangular kernel"
-{txt}  6{com}.                 regress `c' bwtnorm cut inter [pweight=`wght'] ///
+{txt}  4{com}.         
+.         local cs
+{txt}  5{com}.         
+.         foreach c of local chars{c -(}
+{txt}  6{com}.                 
+.                 display "reg: `c', bandwith: `bw', Triangular kernel"
+{txt}  7{com}.                 local cs `cs' "`c'_TK"
+{txt}  8{com}.                 eststo : regress `c' bwtnorm cut inter [pweight=`wght'] ///
 >                 if abs(bwtnorm) <= `bw'
-{txt}  7{com}.                 display "reg: `c', bandwith: `bw', Rectangular kernel"
-{txt}  8{com}.                 regress `c' bwtnorm cut inter ///
+{txt}  9{com}.                 display "reg: `c', bandwith: `bw', Rectangular kernel"
+{txt} 10{com}.                 local cs `cs' "`c'_RK"
+{txt} 11{com}.                 eststo : regress `c' bwtnorm cut inter ///
 >                 if abs(bwtnorm) <= `bw'
-{txt}  9{com}.         {c )-}
-{txt} 10{com}. {c )-}
-reg: mom_white, bandwith: 90, triangular kernel
+{txt} 12{com}.         {c )-}
+{txt} 13{com}.         
+.         * print estimate table to latex format
+.         esttab using A3_bw`bw'.tex , mtitles(`cs') ///
+>         star(* 0.10 ** 0.05 *** 0.01) ///
+>         title("Test continuity via characteristics, bandwidth: `bw'") ///
+>         nonumber replace 
+{txt} 14{com}. 
+.         eststo clear
+{txt} 15{com}. {c )-}
+reg: mom_white, bandwith: 90, Triangular kernel
 {txt}(sum of wgt is   1.0864e+05)
 
 Linear regression                               Number of obs     = {res}   230,248
@@ -327,9 +368,10 @@ Linear regression                               Number of obs     = {res}   230,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2} .0001878{col 26}{space 2} .0001032{col 37}{space 1}    1.82{col 46}{space 3}0.069{col 54}{space 4}-.0000144{col 67}{space 3}   .00039
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .6540018{col 26}{space 2} .0040418{col 37}{space 1}  161.81{col 46}{space 3}0.000{col 54}{space 4}   .64608{col 67}{space 3} .6619236
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: mom_white, bandwith: 90, Rectangular kernel
+{res}{txt}({res}est1{txt} stored)
+reg: mom_white, bandwith: 90, Rectangular kernel
 
-{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}   233,887
+      Source {c |}       SS           df       MS      Number of obs   ={res}   233,887
 {txt}{hline 13}{c +}{hline 34}   F(3, 233883)    = {res}     4.80
 {txt}       Model {c |} {res} 3.22240413         3  1.07413471   {txt}Prob > F        ={res}    0.0024
 {txt}    Residual {c |} {res} 52382.8355   233,883  .223970257   {txt}R-squared       ={res}    0.0001
@@ -344,8 +386,9 @@ Linear regression                               Number of obs     = {res}   230,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2} .0001541{col 26}{space 2} .0000752{col 37}{space 1}    2.05{col 46}{space 3}0.040{col 54}{space 4} 6.70e-06{col 67}{space 3} .0003016
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2}  .656655{col 26}{space 2} .0035392{col 37}{space 1}  185.54{col 46}{space 3}0.000{col 54}{space 4} .6497182{col 67}{space 3} .6635918
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: mom_high, bandwith: 90, triangular kernel
-{txt}(sum of wgt is   1.0864e+05)
+{res}{txt}({res}est2{txt} stored)
+reg: mom_high, bandwith: 90, Triangular kernel
+(sum of wgt is   1.0864e+05)
 
 Linear regression                               Number of obs     = {res}   230,248
                                                 {txt}F(3, 230244)      =  {res}     1.79
@@ -362,9 +405,10 @@ Linear regression                               Number of obs     = {res}   230,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2}-.0001767{col 26}{space 2} .0000946{col 37}{space 1}   -1.87{col 46}{space 3}0.062{col 54}{space 4}-.0003622{col 67}{space 3} 8.75e-06
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2}  .252662{col 26}{space 2} .0037012{col 37}{space 1}   68.26{col 46}{space 3}0.000{col 54}{space 4} .2454077{col 67}{space 3} .2599164
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: mom_high, bandwith: 90, Rectangular kernel
+{res}{txt}({res}est3{txt} stored)
+reg: mom_high, bandwith: 90, Rectangular kernel
 
-{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}   233,887
+      Source {c |}       SS           df       MS      Number of obs   ={res}   233,887
 {txt}{hline 13}{c +}{hline 34}   F(3, 233883)    = {res}     1.89
 {txt}       Model {c |} {res}   1.061171         3  .353723668   {txt}Prob > F        ={res}    0.1294
 {txt}    Residual {c |} {res} 43854.8763   233,883  .187507755   {txt}R-squared       ={res}    0.0000
@@ -379,8 +423,11 @@ Linear regression                               Number of obs     = {res}   230,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2}-.0001191{col 26}{space 2} .0000688{col 37}{space 1}   -1.73{col 46}{space 3}0.084{col 54}{space 4} -.000254{col 67}{space 3} .0000158
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .2519844{col 26}{space 2} .0032384{col 37}{space 1}   77.81{col 46}{space 3}0.000{col 54}{space 4} .2456374{col 67}{space 3} .2583315
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: mom_white, bandwith: 60, triangular kernel
-{txt}(sum of wgt is   7.2904e+04)
+{res}{txt}({res}est4{txt} stored)
+{res}{txt}(note: file A3_bw90.tex not found)
+(output written to {browse  `"A3_bw90.tex"'})
+reg: mom_white, bandwith: 60, Triangular kernel
+(sum of wgt is   7.2904e+04)
 
 Linear regression                               Number of obs     = {res}   158,693
                                                 {txt}F(3, 158689)      =  {res}     0.76
@@ -397,9 +444,10 @@ Linear regression                               Number of obs     = {res}   158,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2} .0002399{col 26}{space 2} .0001984{col 37}{space 1}    1.21{col 46}{space 3}0.227{col 54}{space 4} -.000149{col 67}{space 3} .0006288
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2}  .650969{col 26}{space 2} .0056191{col 37}{space 1}  115.85{col 46}{space 3}0.000{col 54}{space 4} .6399558{col 67}{space 3} .6619823
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: mom_white, bandwith: 60, Rectangular kernel
+{res}{txt}({res}est1{txt} stored)
+reg: mom_white, bandwith: 60, Rectangular kernel
 
-{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}   163,422
+      Source {c |}       SS           df       MS      Number of obs   ={res}   163,422
 {txt}{hline 13}{c +}{hline 34}   F(3, 163418)    = {res}     2.72
 {txt}       Model {c |} {res} 1.83124249         3  .610414163   {txt}Prob > F        ={res}    0.0426
 {txt}    Residual {c |} {res} 36633.0304   163,418  .224167658   {txt}R-squared       ={res}    0.0000
@@ -414,8 +462,9 @@ Linear regression                               Number of obs     = {res}   158,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2} .0003454{col 26}{space 2} .0001372{col 37}{space 1}    2.52{col 46}{space 3}0.012{col 54}{space 4} .0000765{col 67}{space 3} .0006143
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .6511002{col 26}{space 2} .0047601{col 37}{space 1}  136.78{col 46}{space 3}0.000{col 54}{space 4} .6417706{col 67}{space 3} .6604298
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: mom_high, bandwith: 60, triangular kernel
-{txt}(sum of wgt is   7.2904e+04)
+{res}{txt}({res}est2{txt} stored)
+reg: mom_high, bandwith: 60, Triangular kernel
+(sum of wgt is   7.2904e+04)
 
 Linear regression                               Number of obs     = {res}   158,693
                                                 {txt}F(3, 158689)      =  {res}     1.33
@@ -432,9 +481,10 @@ Linear regression                               Number of obs     = {res}   158,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2}-.0003138{col 26}{space 2} .0001824{col 37}{space 1}   -1.72{col 46}{space 3}0.085{col 54}{space 4}-.0006713{col 67}{space 3} .0000437
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .2563954{col 26}{space 2} .0051652{col 37}{space 1}   49.64{col 46}{space 3}0.000{col 54}{space 4} .2462717{col 67}{space 3}  .266519
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: mom_high, bandwith: 60, Rectangular kernel
+{res}{txt}({res}est3{txt} stored)
+reg: mom_high, bandwith: 60, Rectangular kernel
 
-{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}   163,422
+      Source {c |}       SS           df       MS      Number of obs   ={res}   163,422
 {txt}{hline 13}{c +}{hline 34}   F(3, 163418)    = {res}     2.35
 {txt}       Model {c |} {res} 1.32598122         3  .441993741   {txt}Prob > F        ={res}    0.0699
 {txt}    Residual {c |} {res} 30683.0043   163,418  .187757801   {txt}R-squared       ={res}    0.0000
@@ -449,8 +499,11 @@ Linear regression                               Number of obs     = {res}   158,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2}-.0001882{col 26}{space 2} .0001256{col 37}{space 1}   -1.50{col 46}{space 3}0.134{col 54}{space 4}-.0004343{col 67}{space 3} .0000579
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2}  .251592{col 26}{space 2} .0043564{col 37}{space 1}   57.75{col 46}{space 3}0.000{col 54}{space 4} .2430536{col 67}{space 3} .2601304
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: mom_white, bandwith: 30, triangular kernel
-{txt}(sum of wgt is   3.6456e+04)
+{res}{txt}({res}est4{txt} stored)
+{res}{txt}(note: file A3_bw60.tex not found)
+(output written to {browse  `"A3_bw60.tex"'})
+reg: mom_white, bandwith: 30, Triangular kernel
+(sum of wgt is   3.6456e+04)
 
 Linear regression                               Number of obs     = {res}    68,207
                                                 {txt}F(3, 68203)       =  {res}     0.59
@@ -467,9 +520,10 @@ Linear regression                               Number of obs     = {res}    68,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2}  .000397{col 26}{space 2} .0006275{col 37}{space 1}    0.63{col 46}{space 3}0.527{col 54}{space 4} -.000833{col 67}{space 3} .0016269
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .6515227{col 26}{space 2} .0105288{col 37}{space 1}   61.88{col 46}{space 3}0.000{col 54}{space 4} .6308863{col 67}{space 3} .6721592
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: mom_white, bandwith: 30, Rectangular kernel
+{res}{txt}({res}est1{txt} stored)
+reg: mom_white, bandwith: 30, Rectangular kernel
 
-{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}    72,941
+      Source {c |}       SS           df       MS      Number of obs   ={res}    72,941
 {txt}{hline 13}{c +}{hline 34}   F(3, 72937)     = {res}     6.07
 {txt}       Model {c |} {res} 4.11035915         3  1.37011972   {txt}Prob > F        ={res}    0.0004
 {txt}    Residual {c |} {res} 16451.7692    72,937  .225561364   {txt}R-squared       ={res}    0.0002
@@ -484,8 +538,9 @@ Linear regression                               Number of obs     = {res}    68,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2}-.0006892{col 26}{space 2} .0004908{col 37}{space 1}   -1.40{col 46}{space 3}0.160{col 54}{space 4}-.0016512{col 67}{space 3} .0002728
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .6474943{col 26}{space 2} .0099173{col 37}{space 1}   65.29{col 46}{space 3}0.000{col 54}{space 4} .6280564{col 67}{space 3} .6669322
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: mom_high, bandwith: 30, triangular kernel
-{txt}(sum of wgt is   3.6456e+04)
+{res}{txt}({res}est2{txt} stored)
+reg: mom_high, bandwith: 30, Triangular kernel
+(sum of wgt is   3.6456e+04)
 
 Linear regression                               Number of obs     = {res}    68,207
                                                 {txt}F(3, 68203)       =  {res}     1.25
@@ -502,9 +557,10 @@ Linear regression                               Number of obs     = {res}    68,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2}-.0010674{col 26}{space 2} .0005751{col 37}{space 1}   -1.86{col 46}{space 3}0.063{col 54}{space 4}-.0021946{col 67}{space 3} .0000597
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .2635726{col 26}{space 2} .0097265{col 37}{space 1}   27.10{col 46}{space 3}0.000{col 54}{space 4} .2445087{col 67}{space 3} .2826365
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: mom_high, bandwith: 30, Rectangular kernel
+{res}{txt}({res}est3{txt} stored)
+reg: mom_high, bandwith: 30, Rectangular kernel
 
-{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}    72,941
+      Source {c |}       SS           df       MS      Number of obs   ={res}    72,941
 {txt}{hline 13}{c +}{hline 34}   F(3, 72937)     = {res}     1.57
 {txt}       Model {c |} {res} .885489342         3  .295163114   {txt}Prob > F        ={res}    0.1954
 {txt}    Residual {c |} {res} 13750.1196    72,937  .188520498   {txt}R-squared       ={res}    0.0001
@@ -519,7 +575,10 @@ Linear regression                               Number of obs     = {res}    68,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2}-.0007758{col 26}{space 2} .0004487{col 37}{space 1}   -1.73{col 46}{space 3}0.084{col 54}{space 4}-.0016553{col 67}{space 3} .0001036
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .2659627{col 26}{space 2} .0090665{col 37}{space 1}   29.33{col 46}{space 3}0.000{col 54}{space 4} .2481924{col 67}{space 3} .2837331
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}{txt}
+{res}{txt}({res}est4{txt} stored)
+{res}{txt}(note: file A3_bw30.tex not found)
+(output written to {browse  `"A3_bw30.tex"'})
+
 {com}. 
 . 
 . ***************
@@ -544,14 +603,24 @@ Linear regression                               Number of obs     = {res}    68,
 {txt}  4{com}.         gen oz`oz' = 1 if bweight == `gram'
 {txt}  5{com}.         replace oz`oz' = 0 if oz`oz' == .
 {txt}  6{com}.         gen inter`oz' = oz`oz' * bweight
-{txt}  7{com}.         foreach c of local chars{c -(}
-{txt}  8{com}.                 display "reg: `c', bandwith: 25, jump: `oz'oz"
-{txt}  9{com}.                 regress `c' bweight inter`oz' if abs(bweight-`gram')<= 25
-{txt} 10{com}.         {c )-}       
-{txt} 11{com}. {c )-}
+{txt}  7{com}.         
+.         local cs
+{txt}  8{com}.         foreach c of local chars{c -(}
+{txt}  9{com}.                 local cs `cs' `c'
+{txt} 10{com}.                 display "reg: `c', bandwidth: 25, jump: `oz'oz"
+{txt} 11{com}.                 eststo : regress `c' bweight inter`oz' if abs(bweight-`gram')<= 25
+{txt} 12{com}.         {c )-}       
+{txt} 13{com}.         
+.         * print estimate table to latex format
+.         esttab using A4_oz`oz'.tex , mtitles(`cs') ///
+>         star(* 0.10 ** 0.05 *** 0.01) ///
+>         title("Test jump on oz `oz', bandwidth: 25") ///
+>         nonumber replace 
+{txt} 14{com}.         eststo clear
+{txt} 15{com}. {c )-}
 {txt}(352,828 missing values generated)
 (352,828 real changes made)
-reg: mom_white, bandwith: 25, jump: 51oz
+reg: mom_white, bandwidth: 25, jump: 51oz
 
       Source {c |}       SS           df       MS      Number of obs   ={res}    39,519
 {txt}{hline 13}{c +}{hline 34}   F(2, 39516)     = {res}    16.30
@@ -567,9 +636,10 @@ reg: mom_white, bandwith: 25, jump: 51oz
 {txt}{space 5}inter51 {c |}{col 14}{res}{space 2} .0000185{col 26}{space 2} 3.31e-06{col 37}{space 1}    5.58{col 46}{space 3}0.000{col 54}{space 4}  .000012{col 67}{space 3}  .000025
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .8900561{col 26}{space 2} .3490609{col 37}{space 1}    2.55{col 46}{space 3}0.011{col 54}{space 4} .2058882{col 67}{space 3} 1.574224
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: mom_high, bandwith: 25, jump: 51oz
+{res}{txt}({res}est1{txt} stored)
+reg: mom_high, bandwidth: 25, jump: 51oz
 
-{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}    39,519
+      Source {c |}       SS           df       MS      Number of obs   ={res}    39,519
 {txt}{hline 13}{c +}{hline 34}   F(2, 39516)     = {res}     0.06
 {txt}       Model {c |} {res} .023952681         2  .011976341   {txt}Prob > F        ={res}    0.9383
 {txt}    Residual {c |} {res} 7429.87255    39,516  .188021879   {txt}R-squared       ={res}    0.0000
@@ -583,9 +653,12 @@ reg: mom_white, bandwith: 25, jump: 51oz
 {txt}{space 5}inter51 {c |}{col 14}{res}{space 2}-9.25e-07{col 26}{space 2} 3.03e-06{col 37}{space 1}   -0.31{col 46}{space 3}0.760{col 54}{space 4}-6.86e-06{col 67}{space 3} 5.01e-06
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .3190132{col 26}{space 2}  .319267{col 37}{space 1}    1.00{col 46}{space 3}0.318{col 54}{space 4}-.3067578{col 67}{space 3} .9447842
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}{txt}(349,937 missing values generated)
+{res}{txt}({res}est2{txt} stored)
+{res}{txt}(note: file A4_oz51.tex not found)
+(output written to {browse  `"A4_oz51.tex"'})
+(349,937 missing values generated)
 (349,937 real changes made)
-reg: mom_white, bandwith: 25, jump: 52oz
+reg: mom_white, bandwidth: 25, jump: 52oz
 
       Source {c |}       SS           df       MS      Number of obs   ={res}    41,928
 {txt}{hline 13}{c +}{hline 34}   F(2, 41925)     = {res}     9.61
@@ -601,9 +674,10 @@ reg: mom_white, bandwith: 25, jump: 52oz
 {txt}{space 5}inter52 {c |}{col 14}{res}{space 2} .0000135{col 26}{space 2} 3.18e-06{col 37}{space 1}    4.24{col 46}{space 3}0.000{col 54}{space 4} 7.24e-06{col 67}{space 3} .0000197
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .3933215{col 26}{space 2} .3524947{col 37}{space 1}    1.12{col 46}{space 3}0.265{col 54}{space 4}-.2975754{col 67}{space 3} 1.084218
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: mom_high, bandwith: 25, jump: 52oz
+{res}{txt}({res}est1{txt} stored)
+reg: mom_high, bandwidth: 25, jump: 52oz
 
-{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}    41,928
+      Source {c |}       SS           df       MS      Number of obs   ={res}    41,928
 {txt}{hline 13}{c +}{hline 34}   F(2, 41925)     = {res}     1.66
 {txt}       Model {c |} {res} .624278477         2  .312139239   {txt}Prob > F        ={res}    0.1898
 {txt}    Residual {c |} {res} 7874.85702    41,925   .18783201   {txt}R-squared       ={res}    0.0001
@@ -617,9 +691,12 @@ reg: mom_white, bandwith: 25, jump: 52oz
 {txt}{space 5}inter52 {c |}{col 14}{res}{space 2}-4.60e-06{col 26}{space 2} 2.90e-06{col 37}{space 1}   -1.59{col 46}{space 3}0.112{col 54}{space 4}-.0000103{col 67}{space 3} 1.08e-06
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2}-.0809964{col 26}{space 2} .3213976{col 37}{space 1}   -0.25{col 46}{space 3}0.801{col 54}{space 4}-.7109422{col 67}{space 3} .5489495
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}{txt}(350,984 missing values generated)
+{res}{txt}({res}est2{txt} stored)
+{res}{txt}(note: file A4_oz52.tex not found)
+(output written to {browse  `"A4_oz52.tex"'})
+(350,984 missing values generated)
 (350,984 real changes made)
-reg: mom_white, bandwith: 25, jump: 53oz
+reg: mom_white, bandwidth: 25, jump: 53oz
 
       Source {c |}       SS           df       MS      Number of obs   ={res}    40,358
 {txt}{hline 13}{c +}{hline 34}   F(2, 40355)     = {res}    20.58
@@ -635,9 +712,10 @@ reg: mom_white, bandwith: 25, jump: 53oz
 {txt}{space 5}inter53 {c |}{col 14}{res}{space 2} .0000186{col 26}{space 2} 3.15e-06{col 37}{space 1}    5.90{col 46}{space 3}0.000{col 54}{space 4} .0000124{col 67}{space 3} .0000248
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2}-.1313147{col 26}{space 2} .3426568{col 37}{space 1}   -0.38{col 46}{space 3}0.702{col 54}{space 4}-.8029299{col 67}{space 3} .5403005
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: mom_high, bandwith: 25, jump: 53oz
+{res}{txt}({res}est1{txt} stored)
+reg: mom_high, bandwidth: 25, jump: 53oz
 
-{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}    40,358
+      Source {c |}       SS           df       MS      Number of obs   ={res}    40,358
 {txt}{hline 13}{c +}{hline 34}   F(2, 40355)     = {res}     1.47
 {txt}       Model {c |} {res} .558042146         2  .279021073   {txt}Prob > F        ={res}    0.2291
 {txt}    Residual {c |} {res} 7641.74824    40,355  .189363108   {txt}R-squared       ={res}    0.0001
@@ -651,9 +729,12 @@ reg: mom_white, bandwith: 25, jump: 53oz
 {txt}{space 5}inter53 {c |}{col 14}{res}{space 2} 1.20e-06{col 26}{space 2} 2.90e-06{col 37}{space 1}    0.41{col 46}{space 3}0.679{col 54}{space 4}-4.48e-06{col 67}{space 3} 6.87e-06
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .7824427{col 26}{space 2} .3147415{col 37}{space 1}    2.49{col 46}{space 3}0.013{col 54}{space 4} .1655423{col 67}{space 3} 1.399343
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}{txt}(350,464 missing values generated)
+{res}{txt}({res}est2{txt} stored)
+{res}{txt}(note: file A4_oz53.tex not found)
+(output written to {browse  `"A4_oz53.tex"'})
+(350,464 missing values generated)
 (350,464 real changes made)
-reg: mom_white, bandwith: 25, jump: 54oz
+reg: mom_white, bandwidth: 25, jump: 54oz
 
       Source {c |}       SS           df       MS      Number of obs   ={res}    43,655
 {txt}{hline 13}{c +}{hline 34}   F(2, 43652)     = {res}    12.46
@@ -669,9 +750,10 @@ reg: mom_white, bandwith: 25, jump: 54oz
 {txt}{space 5}inter54 {c |}{col 14}{res}{space 2} .0000147{col 26}{space 2} 2.97e-06{col 37}{space 1}    4.94{col 46}{space 3}0.000{col 54}{space 4} 8.84e-06{col 67}{space 3} .0000205
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .3173713{col 26}{space 2} .3552408{col 37}{space 1}    0.89{col 46}{space 3}0.372{col 54}{space 4}-.3789071{col 67}{space 3}  1.01365
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: mom_high, bandwith: 25, jump: 54oz
+{res}{txt}({res}est1{txt} stored)
+reg: mom_high, bandwidth: 25, jump: 54oz
 
-{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}    43,655
+      Source {c |}       SS           df       MS      Number of obs   ={res}    43,655
 {txt}{hline 13}{c +}{hline 34}   F(2, 43652)     = {res}     0.49
 {txt}       Model {c |} {res} .183012264         2  .091506132   {txt}Prob > F        ={res}    0.6153
 {txt}    Residual {c |} {res} 8226.09952    43,652  .188447254   {txt}R-squared       ={res}    0.0000
@@ -685,8 +767,12 @@ reg: mom_white, bandwith: 25, jump: 54oz
 {txt}{space 5}inter54 {c |}{col 14}{res}{space 2}-1.86e-06{col 26}{space 2} 2.72e-06{col 37}{space 1}   -0.68{col 46}{space 3}0.494{col 54}{space 4}-7.18e-06{col 67}{space 3} 3.47e-06
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0313763{col 26}{space 2} .3250584{col 37}{space 1}    0.10{col 46}{space 3}0.923{col 54}{space 4}-.6057441{col 67}{space 3} .6684968
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}{txt}
+{res}{txt}({res}est2{txt} stored)
+{res}{txt}(note: file A4_oz54.tex not found)
+(output written to {browse  `"A4_oz54.tex"'})
+
 {com}. 
+. 
 . ** jump on 1500
 . 
 . use `raw' , clear
@@ -712,7 +798,7 @@ reg: mom_white, bandwith: 25, jump: 54oz
 {com}. 
 . foreach c of local chars{c -(}
 {txt}  2{com}.                 display "reg: `c', bandwith: 25 jump: 1500g"
-{txt}  3{com}.                 regress `c' bweight inter2 if abs(bweight- 1500)<= 25
+{txt}  3{com}.                 eststo : regress `c' bweight inter2 if abs(bweight- 1500)<= 25
 {txt}  4{com}. {c )-}
 reg: mom_white, bandwith: 25 jump: 1500g
 
@@ -730,9 +816,10 @@ reg: mom_white, bandwith: 25 jump: 1500g
 {txt}{space 6}inter2 {c |}{col 14}{res}{space 2}-.0000137{col 26}{space 2} 5.85e-06{col 37}{space 1}   -2.34{col 46}{space 3}0.019{col 54}{space 4}-.0000252{col 67}{space 3}-2.24e-06
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .2055841{col 26}{space 2} .3317622{col 37}{space 1}    0.62{col 46}{space 3}0.535{col 54}{space 4}-.4446926{col 67}{space 3} .8558608
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: mom_high, bandwith: 25 jump: 1500g
+{res}{txt}({res}est1{txt} stored)
+reg: mom_high, bandwith: 25 jump: 1500g
 
-{txt}      Source {c |}       SS           df       MS      Number of obs   ={res}    22,613
+      Source {c |}       SS           df       MS      Number of obs   ={res}    22,613
 {txt}{hline 13}{c +}{hline 34}   F(2, 22610)     = {res}     2.60
 {txt}       Model {c |} {res} .984860652         2  .492430326   {txt}Prob > F        ={res}    0.0744
 {txt}    Residual {c |} {res} 4283.47143    22,610  .189450306   {txt}R-squared       ={res}    0.0002
@@ -746,7 +833,19 @@ reg: mom_white, bandwith: 25 jump: 1500g
 {txt}{space 6}inter2 {c |}{col 14}{res}{space 2} .0000116{col 26}{space 2} 5.31e-06{col 37}{space 1}    2.18{col 46}{space 3}0.029{col 54}{space 4} 1.16e-06{col 67}{space 3}  .000022
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .4497102{col 26}{space 2} .3009939{col 37}{space 1}    1.49{col 46}{space 3}0.135{col 54}{space 4}-.1402587{col 67}{space 3} 1.039679
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}{txt}
+{res}{txt}({res}est2{txt} stored)
+
+{com}. 
+. * print estimate table to latex format
+. esttab using A4_z1500.tex , mtitles(`cs') ///
+> star(* 0.10 ** 0.05 *** 0.01) ///
+> title("Test jump on 1500, bandwidth: 25") ///
+> nonumber replace 
+{res}{txt}(note: file A4_z1500.tex not found)
+(output written to {browse  `"A4_z1500.tex"'})
+
+{com}. eststo clear
+{txt}
 {com}. 
 . ***************
 . **     B1    **
@@ -758,14 +857,21 @@ reg: mom_white, bandwith: 25 jump: 1500g
 . forvalues bw = 90(-30)30{c -(}
 {txt}  2{com}.         tempvar wght
 {txt}  3{com}.         gen `wght' = 1 - abs(bwtnorm / `bw')
-{txt}  4{com}.         display "reg: one-year mortality, bandwith: `bw', triangular kernel"
-{txt}  5{com}.         regress agedth5 bwtnorm cut inter [pweight=`wght'] ///
+{txt}  4{com}.         display "reg: one-year mortality, bandwidth: `bw', triangular kernel"
+{txt}  5{com}.         eststo : regress agedth5 bwtnorm cut inter [pweight=`wght'] ///
 >         if abs(bwtnorm) <= `bw' , vce(robust)
-{txt}  6{com}.         display "reg: one-year mortality, bandwith: `bw', Rectangular kernel"
-{txt}  7{com}.         regress agedth5 bwtnorm cut inter ///
+{txt}  6{com}.         display "reg: one-year mortality, bandwidth: `bw', Rectangular kernel"
+{txt}  7{com}.         eststo : regress agedth5 bwtnorm cut inter ///
 >         if abs(bwtnorm) <= `bw' , vce(robust)
-{txt}  8{com}. {c )-}
-reg: one-year mortality, bandwith: 90, triangular kernel
+{txt}  8{com}.         
+.         * print estimate table to latex format
+.         esttab using B1_bw`bw'.tex , mtitles("Triangular" "Rectangular") ///
+>         star(* 0.10 ** 0.05 *** 0.01) ///
+>         title("Birth weight class on mortality, bandwidth: `bw'") ///
+>         nonumber replace 
+{txt}  9{com}.         eststo clear
+{txt} 10{com}. {c )-}
+reg: one-year mortality, bandwidth: 90, triangular kernel
 {txt}(sum of wgt is   1.0864e+05)
 
 Linear regression                               Number of obs     = {res}   230,248
@@ -783,9 +889,10 @@ Linear regression                               Number of obs     = {res}   230,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2}-.0000858{col 26}{space 2} .0000506{col 37}{space 1}   -1.70{col 46}{space 3}0.090{col 54}{space 4} -.000185{col 67}{space 3} .0000134
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0525216{col 26}{space 2} .0019256{col 37}{space 1}   27.28{col 46}{space 3}0.000{col 54}{space 4} .0487475{col 67}{space 3} .0562957
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: one-year mortality, bandwith: 90, Rectangular kernel
+{res}{txt}({res}est1{txt} stored)
+reg: one-year mortality, bandwidth: 90, Rectangular kernel
 
-{txt}Linear regression                               Number of obs     = {res}   233,887
+Linear regression                               Number of obs     = {res}   233,887
                                                 {txt}F(3, 233883)      =  {res}    35.10
                                                 {txt}Prob > F          = {res}    0.0000
                                                 {txt}R-squared         = {res}    0.0004
@@ -800,8 +907,11 @@ Linear regression                               Number of obs     = {res}   230,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2}-.0000175{col 26}{space 2} .0000374{col 37}{space 1}   -0.47{col 46}{space 3}0.640{col 54}{space 4}-.0000908{col 67}{space 3} .0000558
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2}  .053915{col 26}{space 2}  .001738{col 37}{space 1}   31.02{col 46}{space 3}0.000{col 54}{space 4} .0505085{col 67}{space 3} .0573215
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: one-year mortality, bandwith: 60, triangular kernel
-{txt}(sum of wgt is   7.2904e+04)
+{res}{txt}({res}est2{txt} stored)
+{res}{txt}(note: file B1_bw90.tex not found)
+(output written to {browse  `"B1_bw90.tex"'})
+reg: one-year mortality, bandwidth: 60, triangular kernel
+(sum of wgt is   7.2904e+04)
 
 Linear regression                               Number of obs     = {res}   158,693
                                                 {txt}F(3, 158689)      =  {res}    21.55
@@ -818,9 +928,10 @@ Linear regression                               Number of obs     = {res}   158,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2}-.0001281{col 26}{space 2} .0000952{col 37}{space 1}   -1.35{col 46}{space 3}0.178{col 54}{space 4}-.0003146{col 67}{space 3} .0000585
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0496651{col 26}{space 2} .0026027{col 37}{space 1}   19.08{col 46}{space 3}0.000{col 54}{space 4}  .044564{col 67}{space 3} .0547662
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: one-year mortality, bandwith: 60, Rectangular kernel
+{res}{txt}({res}est1{txt} stored)
+reg: one-year mortality, bandwidth: 60, Rectangular kernel
 
-{txt}Linear regression                               Number of obs     = {res}   163,422
+Linear regression                               Number of obs     = {res}   163,422
                                                 {txt}F(3, 163418)      =  {res}    20.14
                                                 {txt}Prob > F          = {res}    0.0000
                                                 {txt}R-squared         = {res}    0.0004
@@ -835,8 +946,11 @@ Linear regression                               Number of obs     = {res}   158,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2}-.0000431{col 26}{space 2} .0000676{col 37}{space 1}   -0.64{col 46}{space 3}0.524{col 54}{space 4}-.0001756{col 67}{space 3} .0000894
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0521945{col 26}{space 2} .0023054{col 37}{space 1}   22.64{col 46}{space 3}0.000{col 54}{space 4}  .047676{col 67}{space 3}  .056713
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: one-year mortality, bandwith: 30, triangular kernel
-{txt}(sum of wgt is   3.6456e+04)
+{res}{txt}({res}est2{txt} stored)
+{res}{txt}(note: file B1_bw60.tex not found)
+(output written to {browse  `"B1_bw60.tex"'})
+reg: one-year mortality, bandwidth: 30, triangular kernel
+(sum of wgt is   3.6456e+04)
 
 Linear regression                               Number of obs     = {res}    68,207
                                                 {txt}F(3, 68203)       =  {res}    23.88
@@ -853,9 +967,10 @@ Linear regression                               Number of obs     = {res}    68,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2}-.0011247{col 26}{space 2} .0002989{col 37}{space 1}   -3.76{col 46}{space 3}0.000{col 54}{space 4}-.0017105{col 67}{space 3}-.0005389
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0444994{col 26}{space 2}  .004718{col 37}{space 1}    9.43{col 46}{space 3}0.000{col 54}{space 4} .0352522{col 67}{space 3} .0537466
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: one-year mortality, bandwith: 30, Rectangular kernel
+{res}{txt}({res}est1{txt} stored)
+reg: one-year mortality, bandwidth: 30, Rectangular kernel
 
-{txt}Linear regression                               Number of obs     = {res}    72,941
+Linear regression                               Number of obs     = {res}    72,941
                                                 {txt}F(3, 72937)       =  {res}    18.36
                                                 {txt}Prob > F          = {res}    0.0000
                                                 {txt}R-squared         = {res}    0.0007
@@ -870,7 +985,10 @@ Linear regression                               Number of obs     = {res}    68,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2} -.000394{col 26}{space 2} .0002283{col 37}{space 1}   -1.73{col 46}{space 3}0.084{col 54}{space 4}-.0008415{col 67}{space 3} .0000535
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0460607{col 26}{space 2} .0045264{col 37}{space 1}   10.18{col 46}{space 3}0.000{col 54}{space 4}  .037189{col 67}{space 3} .0549323
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}{txt}
+{res}{txt}({res}est2{txt} stored)
+{res}{txt}(note: file B1_bw30.tex not found)
+(output written to {browse  `"B1_bw30.tex"'})
+
 {com}. 
 . ***************
 . **     B2    **
@@ -884,13 +1002,20 @@ Linear regression                               Number of obs     = {res}    68,
 {txt}  3{com}.         gen `wght' = 1 - abs(bwtnorm / `bw')
 {txt}  4{com}.         display "reg: one-year mortality, bandwith: `bw', triangular kernel" ///
 >         ", birth weight 1500 dropped"
-{txt}  5{com}.         regress agedth5 bwtnorm cut inter [pweight=`wght'] ///
+{txt}  5{com}.         eststo : regress agedth5 bwtnorm cut inter [pweight=`wght'] ///
 >         if abs(bwtnorm) <= `bw' , vce(robust)
 {txt}  6{com}.         display "reg: one-year mortality, bandwith: `bw', Rectangular kernel" ///
 >         ", birth weight 1500 dropped"
-{txt}  7{com}.         regress agedth5 bwtnorm cut inter ///
+{txt}  7{com}.         eststo : regress agedth5 bwtnorm cut inter ///
 >         if abs(bwtnorm) <= `bw' , vce(robust)
-{txt}  8{com}. {c )-}
+{txt}  8{com}.         
+.         * print estimate table to latex format
+.         esttab using B2_bw`bw'.tex , mtitles("Triangular" "Rectangular") ///
+>         star(* 0.10 ** 0.05 *** 0.01) ///
+>         title("Birth weight class on mortality, bandwidth: `bw'", 1500 dropped) ///
+>         nonumber replace 
+{txt}  9{com}.         eststo clear
+{txt} 10{com}. {c )-}
 reg: one-year mortality, bandwith: 90, triangular kernel, birth weight 1500 dropped
 {txt}(sum of wgt is   1.0509e+05)
 
@@ -909,9 +1034,10 @@ Linear regression                               Number of obs     = {res}   226,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2} .0000226{col 26}{space 2} .0000506{col 37}{space 1}    0.45{col 46}{space 3}0.655{col 54}{space 4}-.0000766{col 67}{space 3} .0001218
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0525216{col 26}{space 2} .0019256{col 37}{space 1}   27.28{col 46}{space 3}0.000{col 54}{space 4} .0487475{col 67}{space 3} .0562957
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: one-year mortality, bandwith: 90, Rectangular kernel, birth weight 1500 dropped
+{res}{txt}({res}est1{txt} stored)
+reg: one-year mortality, bandwith: 90, Rectangular kernel, birth weight 1500 dropped
 
-{txt}Linear regression                               Number of obs     = {res}   230,343
+Linear regression                               Number of obs     = {res}   230,343
                                                 {txt}F(3, 230339)      =  {res}    29.28
                                                 {txt}Prob > F          = {res}    0.0000
                                                 {txt}R-squared         = {res}    0.0004
@@ -926,8 +1052,11 @@ Linear regression                               Number of obs     = {res}   226,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2} .0000365{col 26}{space 2} .0000375{col 37}{space 1}    0.97{col 46}{space 3}0.331{col 54}{space 4} -.000037{col 67}{space 3}   .00011
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2}  .053915{col 26}{space 2}  .001738{col 37}{space 1}   31.02{col 46}{space 3}0.000{col 54}{space 4} .0505085{col 67}{space 3} .0573215
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: one-year mortality, bandwith: 60, triangular kernel, birth weight 1500 dropped
-{txt}(sum of wgt is   6.9360e+04)
+{res}{txt}({res}est2{txt} stored)
+{res}{txt}(note: file B2_bw90.tex not found)
+(output written to {browse  `"B2_bw90.tex"'})
+reg: one-year mortality, bandwith: 60, triangular kernel, birth weight 1500 dropped
+(sum of wgt is   6.9360e+04)
 
 Linear regression                               Number of obs     = {res}   155,149
                                                 {txt}F(3, 155145)      =  {res}    10.51
@@ -944,9 +1073,10 @@ Linear regression                               Number of obs     = {res}   155,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2} .0000771{col 26}{space 2} .0000954{col 37}{space 1}    0.81{col 46}{space 3}0.419{col 54}{space 4}-.0001098{col 67}{space 3} .0002641
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0496651{col 26}{space 2} .0026027{col 37}{space 1}   19.08{col 46}{space 3}0.000{col 54}{space 4}  .044564{col 67}{space 3} .0547662
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: one-year mortality, bandwith: 60, Rectangular kernel, birth weight 1500 dropped
+{res}{txt}({res}est1{txt} stored)
+reg: one-year mortality, bandwith: 60, Rectangular kernel, birth weight 1500 dropped
 
-{txt}Linear regression                               Number of obs     = {res}   159,878
+Linear regression                               Number of obs     = {res}   159,878
                                                 {txt}F(3, 159874)      =  {res}    12.70
                                                 {txt}Prob > F          = {res}    0.0000
                                                 {txt}R-squared         = {res}    0.0002
@@ -961,8 +1091,11 @@ Linear regression                               Number of obs     = {res}   155,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2} .0000544{col 26}{space 2} .0000678{col 37}{space 1}    0.80{col 46}{space 3}0.423{col 54}{space 4}-.0000786{col 67}{space 3} .0001873
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0521945{col 26}{space 2} .0023054{col 37}{space 1}   22.64{col 46}{space 3}0.000{col 54}{space 4}  .047676{col 67}{space 3}  .056713
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: one-year mortality, bandwith: 30, triangular kernel, birth weight 1500 dropped
-{txt}(sum of wgt is   3.2912e+04)
+{res}{txt}({res}est2{txt} stored)
+{res}{txt}(note: file B2_bw60.tex not found)
+(output written to {browse  `"B2_bw60.tex"'})
+reg: one-year mortality, bandwith: 30, triangular kernel, birth weight 1500 dropped
+(sum of wgt is   3.2912e+04)
 
 Linear regression                               Number of obs     = {res}    64,663
                                                 {txt}F(3, 64659)       =  {res}     6.41
@@ -979,9 +1112,10 @@ Linear regression                               Number of obs     = {res}    64,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2}-.0001528{col 26}{space 2} .0002911{col 37}{space 1}   -0.53{col 46}{space 3}0.600{col 54}{space 4}-.0007233{col 67}{space 3} .0004177
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0444994{col 26}{space 2}  .004718{col 37}{space 1}    9.43{col 46}{space 3}0.000{col 54}{space 4} .0352522{col 67}{space 3} .0537466
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: one-year mortality, bandwith: 30, Rectangular kernel, birth weight 1500 dropped
+{res}{txt}({res}est1{txt} stored)
+reg: one-year mortality, bandwith: 30, Rectangular kernel, birth weight 1500 dropped
 
-{txt}Linear regression                               Number of obs     = {res}    69,397
+Linear regression                               Number of obs     = {res}    69,397
                                                 {txt}F(3, 69393)       =  {res}     7.38
                                                 {txt}Prob > F          = {res}    0.0001
                                                 {txt}R-squared         = {res}    0.0003
@@ -996,7 +1130,10 @@ Linear regression                               Number of obs     = {res}    64,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2}-.0000515{col 26}{space 2} .0002294{col 37}{space 1}   -0.22{col 46}{space 3}0.822{col 54}{space 4}-.0005012{col 67}{space 3} .0003981
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0460607{col 26}{space 2} .0045264{col 37}{space 1}   10.18{col 46}{space 3}0.000{col 54}{space 4}  .037189{col 67}{space 3} .0549324
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}{txt}
+{res}{txt}({res}est2{txt} stored)
+{res}{txt}(note: file B2_bw30.tex not found)
+(output written to {browse  `"B2_bw30.tex"'})
+
 {com}. 
 . ***************
 . **     B3    **
@@ -1016,13 +1153,21 @@ Linear regression                               Number of obs     = {res}    64,
 {txt}  3{com}.         gen `wght' = 1 - abs(bwtnorm / `bw')
 {txt}  4{com}.         display "reg: one-year mortality, bandwith: `bw', triangular kernel" ///
 >         ", birth weight 1500 dropped, exact ounces dropped"
-{txt}  5{com}.         regress agedth5 bwtnorm cut inter [pweight=`wght'] ///
+{txt}  5{com}.         eststo : regress agedth5 bwtnorm cut inter [pweight=`wght'] ///
 >         if abs(bwtnorm) <= `bw' , vce(robust)
 {txt}  6{com}.         display "reg: one-year mortality, bandwith: `bw', Rectangular kernel" ///
 >         ", birth weight 1500 dropped, exact ounces dropped"
-{txt}  7{com}.         regress agedth5 bwtnorm cut inter ///
+{txt}  7{com}.         eststo : regress agedth5 bwtnorm cut inter ///
 >         if abs(bwtnorm) <= `bw' , vce(robust)
-{txt}  8{com}. {c )-}
+{txt}  8{com}.         
+.         * print estimate table to latex format
+.         esttab using B3_bw`bw'.tex , mtitles("Triangular" "Rectangular") ///
+>         star(* 0.10 ** 0.05 *** 0.01) ///
+>         title("Birth weight class on mortality, bandwidth: `bw'", ///
+>                "1500 and ounce heaps dropped") ///
+>         nonumber replace 
+{txt}  9{com}.         eststo clear
+{txt} 10{com}. {c )-}
 reg: one-year mortality, bandwith: 90, triangular kernel, birth weight 1500 dropped, exact ounces dropped
 {txt}(sum of wgt is   4.4941e+04)
 
@@ -1041,9 +1186,10 @@ Linear regression                               Number of obs     = {res}   139,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2} .0001679{col 26}{space 2} .0000645{col 37}{space 1}    2.60{col 46}{space 3}0.009{col 54}{space 4} .0000415{col 67}{space 3} .0002942
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0496614{col 26}{space 2} .0025732{col 37}{space 1}   19.30{col 46}{space 3}0.000{col 54}{space 4}  .044618{col 67}{space 3} .0547047
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: one-year mortality, bandwith: 90, Rectangular kernel, birth weight 1500 dropped, exact ounces dropped
+{res}{txt}({res}est1{txt} stored)
+reg: one-year mortality, bandwith: 90, Rectangular kernel, birth weight 1500 dropped, exact ounces dropped
 
-{txt}Linear regression                               Number of obs     = {res}   143,100
+Linear regression                               Number of obs     = {res}   143,100
                                                 {txt}F(3, 143096)      =  {res}    22.63
                                                 {txt}Prob > F          = {res}    0.0000
                                                 {txt}R-squared         = {res}    0.0005
@@ -1058,8 +1204,11 @@ Linear regression                               Number of obs     = {res}   139,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2} .0001743{col 26}{space 2} .0000482{col 37}{space 1}    3.61{col 46}{space 3}0.000{col 54}{space 4} .0000797{col 67}{space 3} .0002688
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0496883{col 26}{space 2} .0024203{col 37}{space 1}   20.53{col 46}{space 3}0.000{col 54}{space 4} .0449445{col 67}{space 3}  .054432
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: one-year mortality, bandwith: 60, triangular kernel, birth weight 1500 dropped, exact ounces dropped
-{txt}(sum of wgt is   2.2751e+04)
+{res}{txt}({res}est2{txt} stored)
+{res}{txt}(note: file B3_bw90.tex not found)
+(output written to {browse  `"B3_bw90.tex"'})
+reg: one-year mortality, bandwith: 60, triangular kernel, birth weight 1500 dropped, exact ounces dropped
+(sum of wgt is   2.2751e+04)
 
 Linear regression                               Number of obs     = {res}    67,906
                                                 {txt}F(3, 67902)       =  {res}     3.62
@@ -1076,9 +1225,10 @@ Linear regression                               Number of obs     = {res}    67,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2} .0002123{col 26}{space 2} .0001461{col 37}{space 1}    1.45{col 46}{space 3}0.146{col 54}{space 4} -.000074{col 67}{space 3} .0004987
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0479328{col 26}{space 2} .0035126{col 37}{space 1}   13.65{col 46}{space 3}0.000{col 54}{space 4}  .041048{col 67}{space 3} .0548175
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: one-year mortality, bandwith: 60, Rectangular kernel, birth weight 1500 dropped, exact ounces dropped
+{res}{txt}({res}est1{txt} stored)
+reg: one-year mortality, bandwith: 60, Rectangular kernel, birth weight 1500 dropped, exact ounces dropped
 
-{txt}Linear regression                               Number of obs     = {res}    72,635
+Linear regression                               Number of obs     = {res}    72,635
                                                 {txt}F(3, 72631)       =  {res}     2.52
                                                 {txt}Prob > F          = {res}    0.0562
                                                 {txt}R-squared         = {res}    0.0001
@@ -1093,8 +1243,11 @@ Linear regression                               Number of obs     = {res}    67,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2} .0001623{col 26}{space 2} .0000999{col 37}{space 1}    1.62{col 46}{space 3}0.104{col 54}{space 4}-.0000336{col 67}{space 3} .0003582
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0507792{col 26}{space 2}  .003127{col 37}{space 1}   16.24{col 46}{space 3}0.000{col 54}{space 4} .0446503{col 67}{space 3}  .056908
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: one-year mortality, bandwith: 30, triangular kernel, birth weight 1500 dropped, exact ounces dropped
-{txt}(sum of wgt is   1.0163e+04)
+{res}{txt}({res}est2{txt} stored)
+{res}{txt}(note: file B3_bw60.tex not found)
+(output written to {browse  `"B3_bw60.tex"'})
+reg: one-year mortality, bandwith: 30, triangular kernel, birth weight 1500 dropped, exact ounces dropped
+(sum of wgt is   1.0163e+04)
 
 Linear regression                               Number of obs     = {res}    19,856
                                                 {txt}F(3, 19852)       =  {res}     1.07
@@ -1111,9 +1264,10 @@ Linear regression                               Number of obs     = {res}    19,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2}  .000377{col 26}{space 2} .0004882{col 37}{space 1}    0.77{col 46}{space 3}0.440{col 54}{space 4}  -.00058{col 67}{space 3} .0013339
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2}  .044189{col 26}{space 2}  .005655{col 37}{space 1}    7.81{col 46}{space 3}0.000{col 54}{space 4} .0331048{col 67}{space 3} .0552732
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: one-year mortality, bandwith: 30, Rectangular kernel, birth weight 1500 dropped, exact ounces dropped
+{res}{txt}({res}est1{txt} stored)
+reg: one-year mortality, bandwith: 30, Rectangular kernel, birth weight 1500 dropped, exact ounces dropped
 
-{txt}Linear regression                               Number of obs     = {res}    24,590
+Linear regression                               Number of obs     = {res}    24,590
                                                 {txt}F(3, 24586)       =  {res}     1.14
                                                 {txt}Prob > F          = {res}    0.3306
                                                 {txt}R-squared         = {res}    0.0001
@@ -1128,7 +1282,10 @@ Linear regression                               Number of obs     = {res}    19,
 {txt}{space 7}inter {c |}{col 14}{res}{space 2} .0001207{col 26}{space 2} .0003204{col 37}{space 1}    0.38{col 46}{space 3}0.706{col 54}{space 4}-.0005074{col 67}{space 3} .0007488
 {txt}{space 7}_cons {c |}{col 14}{res}{space 2} .0474673{col 26}{space 2} .0047457{col 37}{space 1}   10.00{col 46}{space 3}0.000{col 54}{space 4} .0381655{col 67}{space 3} .0567691
 {txt}{hline 13}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}{txt}
+{res}{txt}({res}est2{txt} stored)
+{res}{txt}(note: file B3_bw30.tex not found)
+(output written to {browse  `"B3_bw30.tex"'})
+
 {com}. 
 . 
 . ***************
@@ -1165,13 +1322,21 @@ Linear regression                               Number of obs     = {res}    19,
 {txt}  3{com}.         gen `wght' = 1 - abs(bwtnorm / `bw')
 {txt}  4{com}.         display "reg: one-year mortality, bandwith: `bw', triangular kernel" ///
 >         ", birth weight 1500 dropped, ounce heap controlled"
-{txt}  5{com}.         regress agedth5 bwtnorm cut inter `heaps' `heapinters' [pweight=`wght'] ///
->         if abs(bwtnorm) <= `bw' , vce(robust)
+{txt}  5{com}.         eststo : regress agedth5 bwtnorm cut inter `heaps' `heapinters' ///
+>         [pweight=`wght'] if abs(bwtnorm) <= `bw' , vce(robust)
 {txt}  6{com}.         display "reg: one-year mortality, bandwith: `bw', Rectangular kernel" ///
 >         ", birth weight 1500 dropped, ounce heap controlled"
-{txt}  7{com}.         regress agedth5 bwtnorm cut inter `heaps' `heapinters' ///
+{txt}  7{com}.         eststo : regress agedth5 bwtnorm cut inter `heaps' `heapinters' ///
 >         if abs(bwtnorm) <= `bw' , vce(robust)
-{txt}  8{com}. {c )-}
+{txt}  8{com}.         
+.         * print estimate table to latex format
+.         esttab using B4_bw`bw'.tex , mtitles("Triangular" "Rectangular") ///
+>         star(* 0.10 ** 0.05 *** 0.01) ///
+>         title("Birth weight class on mortality, bandwidth: `bw'", ///
+>                "1500 and ounce heaps controlled") ///
+>         nonumber replace 
+{txt}  9{com}.         eststo clear
+{txt} 10{com}. {c )-}
 reg: one-year mortality, bandwith: 90, triangular kernel, birth weight 1500 dropped, ounce heap controlled
 {txt}(sum of wgt is   1.0509e+05)
 note: heap_1446 omitted because of collinearity
@@ -1202,8 +1367,9 @@ heapinter_1446 {c |}{col 16}{res}{space 2}-.0000908{col 28}{space 2} .0000383{co
 {txt}heapinter_1531 {c |}{col 16}{res}{space 2} .0001634{col 28}{space 2} .0000638{col 39}{space 1}    2.56{col 48}{space 3}0.010{col 56}{space 4} .0000382{col 69}{space 3} .0002885
 {txt}{space 9}_cons {c |}{col 16}{res}{space 2} .0496614{col 28}{space 2} .0025732{col 39}{space 1}   19.30{col 48}{space 3}0.000{col 56}{space 4}  .044618{col 69}{space 3} .0547047
 {txt}{hline 15}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: one-year mortality, bandwith: 90, Rectangular kernel, birth weight 1500 dropped, ounce heap controlled
-{txt}note: heap_1446 omitted because of collinearity
+{res}{txt}({res}est1{txt} stored)
+reg: one-year mortality, bandwith: 90, Rectangular kernel, birth weight 1500 dropped, ounce heap controlled
+note: heap_1446 omitted because of collinearity
 note: heap_1474 omitted because of collinearity
 note: heap_1503 omitted because of collinearity
 note: heap_1531 omitted because of collinearity
@@ -1231,8 +1397,11 @@ heapinter_1446 {c |}{col 16}{res}{space 2}-.0000911{col 28}{space 2} .0000372{co
 {txt}heapinter_1531 {c |}{col 16}{res}{space 2} .0001656{col 28}{space 2} .0000629{col 39}{space 1}    2.63{col 48}{space 3}0.008{col 56}{space 4} .0000423{col 69}{space 3} .0002889
 {txt}{space 9}_cons {c |}{col 16}{res}{space 2} .0496883{col 28}{space 2} .0024203{col 39}{space 1}   20.53{col 48}{space 3}0.000{col 56}{space 4} .0449445{col 69}{space 3}  .054432
 {txt}{hline 15}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: one-year mortality, bandwith: 60, triangular kernel, birth weight 1500 dropped, ounce heap controlled
-{txt}(sum of wgt is   6.9360e+04)
+{res}{txt}({res}est2{txt} stored)
+{res}{txt}(note: file B4_bw90.tex not found)
+(output written to {browse  `"B4_bw90.tex"'})
+reg: one-year mortality, bandwith: 60, triangular kernel, birth weight 1500 dropped, ounce heap controlled
+(sum of wgt is   6.9360e+04)
 note: heap_1446 omitted because of collinearity
 note: heap_1474 omitted because of collinearity
 note: heap_1503 omitted because of collinearity
@@ -1261,8 +1430,9 @@ heapinter_1446 {c |}{col 16}{res}{space 2}-.0000304{col 28}{space 2} .0000719{co
 {txt}heapinter_1531 {c |}{col 16}{res}{space 2} .0001851{col 28}{space 2} .0000664{col 39}{space 1}    2.79{col 48}{space 3}0.005{col 56}{space 4} .0000549{col 69}{space 3} .0003152
 {txt}{space 9}_cons {c |}{col 16}{res}{space 2} .0479328{col 28}{space 2} .0035126{col 39}{space 1}   13.65{col 48}{space 3}0.000{col 56}{space 4} .0410481{col 69}{space 3} .0548174
 {txt}{hline 15}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: one-year mortality, bandwith: 60, Rectangular kernel, birth weight 1500 dropped, ounce heap controlled
-{txt}note: heap_1446 omitted because of collinearity
+{res}{txt}({res}est1{txt} stored)
+reg: one-year mortality, bandwith: 60, Rectangular kernel, birth weight 1500 dropped, ounce heap controlled
+note: heap_1446 omitted because of collinearity
 note: heap_1474 omitted because of collinearity
 note: heap_1503 omitted because of collinearity
 note: heap_1531 omitted because of collinearity
@@ -1290,8 +1460,11 @@ heapinter_1446 {c |}{col 16}{res}{space 2}-.0001072{col 28}{space 2} .0000537{co
 {txt}heapinter_1531 {c |}{col 16}{res}{space 2}  .000163{col 28}{space 2} .0000636{col 39}{space 1}    2.56{col 48}{space 3}0.010{col 56}{space 4} .0000383{col 69}{space 3} .0002877
 {txt}{space 9}_cons {c |}{col 16}{res}{space 2} .0507792{col 28}{space 2}  .003127{col 39}{space 1}   16.24{col 48}{space 3}0.000{col 56}{space 4} .0446504{col 69}{space 3} .0569079
 {txt}{hline 15}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: one-year mortality, bandwith: 30, triangular kernel, birth weight 1500 dropped, ounce heap controlled
-{txt}(sum of wgt is   3.2912e+04)
+{res}{txt}({res}est2{txt} stored)
+{res}{txt}(note: file B4_bw60.tex not found)
+(output written to {browse  `"B4_bw60.tex"'})
+reg: one-year mortality, bandwith: 30, triangular kernel, birth weight 1500 dropped, ounce heap controlled
+(sum of wgt is   3.2912e+04)
 note: heap_1446 omitted because of collinearity
 note: heap_1474 omitted because of collinearity
 note: heap_1503 omitted because of collinearity
@@ -1322,8 +1495,9 @@ heapinter_1474 {c |}{col 16}{res}{space 2} .0000276{col 28}{space 2} .0002021{co
 {txt}heapinter_1531 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
 {space 9}_cons {c |}{col 16}{res}{space 2}  .044189{col 28}{space 2} .0056547{col 39}{space 1}    7.81{col 48}{space 3}0.000{col 56}{space 4} .0331059{col 69}{space 3} .0552721
 {txt}{hline 15}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}reg: one-year mortality, bandwith: 30, Rectangular kernel, birth weight 1500 dropped, ounce heap controlled
-{txt}note: heap_1446 omitted because of collinearity
+{res}{txt}({res}est1{txt} stored)
+reg: one-year mortality, bandwith: 30, Rectangular kernel, birth weight 1500 dropped, ounce heap controlled
+note: heap_1446 omitted because of collinearity
 note: heap_1474 omitted because of collinearity
 note: heap_1503 omitted because of collinearity
 note: heap_1531 omitted because of collinearity
@@ -1353,7 +1527,10 @@ heapinter_1474 {c |}{col 16}{res}{space 2}-.0001218{col 28}{space 2} .0001317{co
 {txt}heapinter_1531 {c |}{col 16}{res}{space 2}        0{col 28}{txt}  (omitted)
 {space 9}_cons {c |}{col 16}{res}{space 2} .0474673{col 28}{space 2} .0047455{col 39}{space 1}   10.00{col 48}{space 3}0.000{col 56}{space 4} .0381662{col 69}{space 3} .0567684
 {txt}{hline 15}{c BT}{hline 11}{hline 11}{hline 9}{hline 8}{hline 13}{hline 12}
-{res}{txt}
+{res}{txt}({res}est2{txt} stored)
+{res}{txt}(note: file B4_bw30.tex not found)
+(output written to {browse  `"B4_bw30.tex"'})
+
 {com}. 
 . 
 . 
@@ -1361,7 +1538,7 @@ heapinter_1474 {c |}{col 16}{res}{space 2}-.0001218{col 28}{space 2} .0001317{co
       {txt}name:  {res}<unnamed>
        {txt}log:  {res}D:\Lindo\Assignments\Assignment5\mylog.smcl
   {txt}log type:  {res}smcl
- {txt}closed on:  {res}25 Mar 2017, 00:21:02
+ {txt}closed on:  {res}26 Mar 2017, 19:54:32
 {txt}{.-}
 {smcl}
 {txt}{sf}{ul off}

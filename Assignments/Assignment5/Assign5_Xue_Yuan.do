@@ -72,11 +72,23 @@ foreach bin of local bins{
 	replace cut = 0 if cut ==.
 	gen inter = cut * `bin'
 	
+	local bws
+	
 	forvalues bw = 150(-50)50 {
+		local bws `bws' bandwidth:`bw'
 		display "`bin', bandwith=`bw':"
-		regress freq cut `bin' inter if abs(`bin') < `bw'
+		eststo : regress freq cut `bin' inter if abs(`bin') < `bw'
 	}
+	
+	* print estimate table to latex format
+	esttab using A2_`bin'.tex , mtitles(`bws') ///
+	star(* 0.10 ** 0.05 *** 0.01) ///
+	title("Test continuity via frequency, `bin'") nonumber replace 
+
+	eststo clear
 }
+
+
 
 
 ***************
@@ -102,14 +114,28 @@ local chars mom_white mom_high
 forvalues bw = 90(-30)30{
 	tempvar wght
 	gen `wght' = 1 - abs(bwtnorm / `bw')
+	
+	local cs
+	
 	foreach c of local chars{
-		display "reg: `c', bandwith: `bw', triangular kernel"
-		regress `c' bwtnorm cut inter [pweight=`wght'] ///
+		
+		display "reg: `c', bandwith: `bw', Triangular kernel"
+		local cs `cs' "`c'_TK"
+		eststo : regress `c' bwtnorm cut inter [pweight=`wght'] ///
 		if abs(bwtnorm) <= `bw'
 		display "reg: `c', bandwith: `bw', Rectangular kernel"
-		regress `c' bwtnorm cut inter ///
+		local cs `cs' "`c'_RK"
+		eststo : regress `c' bwtnorm cut inter ///
 		if abs(bwtnorm) <= `bw'
 	}
+	
+	* print estimate table to latex format
+	esttab using A3_bw`bw'.tex , mtitles(`cs') ///
+	star(* 0.10 ** 0.05 *** 0.01) ///
+	title("Test continuity via characteristics, bandwidth: `bw'") ///
+	nonumber replace 
+
+	eststo clear
 }
 
 
@@ -129,11 +155,22 @@ forvalues oz = 51(1)54{
 	gen oz`oz' = 1 if bweight == `gram'
 	replace oz`oz' = 0 if oz`oz' == .
 	gen inter`oz' = oz`oz' * bweight
+	
+	local cs
 	foreach c of local chars{
-		display "reg: `c', bandwith: 25, jump: `oz'oz"
-		regress `c' bweight inter`oz' if abs(bweight-`gram')<= 25
+		local cs `cs' `c'
+		display "reg: `c', bandwidth: 25, jump: `oz'oz"
+		eststo : regress `c' bweight inter`oz' if abs(bweight-`gram')<= 25
 	}	
+	
+	* print estimate table to latex format
+	esttab using A4_oz`oz'.tex , mtitles(`cs') ///
+	star(* 0.10 ** 0.05 *** 0.01) ///
+	title("Test jump on oz `oz', bandwidth: 25") ///
+	nonumber replace 
+	eststo clear
 }
+
 
 ** jump on 1500
 
@@ -149,8 +186,15 @@ foreach g of local grams{
 
 foreach c of local chars{
 		display "reg: `c', bandwith: 25 jump: 1500g"
-		regress `c' bweight inter2 if abs(bweight- 1500)<= 25
+		eststo : regress `c' bweight inter2 if abs(bweight- 1500)<= 25
 }
+
+* print estimate table to latex format
+esttab using A4_z1500.tex , mtitles(`cs') ///
+star(* 0.10 ** 0.05 *** 0.01) ///
+title("Test jump on 1500, bandwidth: 25") ///
+nonumber replace 
+eststo clear
 
 ***************
 **     B1    **
@@ -161,12 +205,19 @@ use `raw' , clear
 forvalues bw = 90(-30)30{
 	tempvar wght
 	gen `wght' = 1 - abs(bwtnorm / `bw')
-	display "reg: one-year mortality, bandwith: `bw', triangular kernel"
-	regress agedth5 bwtnorm cut inter [pweight=`wght'] ///
+	display "reg: one-year mortality, bandwidth: `bw', triangular kernel"
+	eststo : regress agedth5 bwtnorm cut inter [pweight=`wght'] ///
 	if abs(bwtnorm) <= `bw' , vce(robust)
-	display "reg: one-year mortality, bandwith: `bw', Rectangular kernel"
-	regress agedth5 bwtnorm cut inter ///
+	display "reg: one-year mortality, bandwidth: `bw', Rectangular kernel"
+	eststo : regress agedth5 bwtnorm cut inter ///
 	if abs(bwtnorm) <= `bw' , vce(robust)
+	
+	* print estimate table to latex format
+	esttab using B1_bw`bw'.tex , mtitles("Triangular" "Rectangular") ///
+	star(* 0.10 ** 0.05 *** 0.01) ///
+	title("Birth weight class on mortality, bandwidth: `bw'") ///
+	nonumber replace 
+	eststo clear
 }
 
 ***************
@@ -180,12 +231,19 @@ forvalues bw = 90(-30)30{
 	gen `wght' = 1 - abs(bwtnorm / `bw')
 	display "reg: one-year mortality, bandwith: `bw', triangular kernel" ///
 	", birth weight 1500 dropped"
-	regress agedth5 bwtnorm cut inter [pweight=`wght'] ///
+	eststo : regress agedth5 bwtnorm cut inter [pweight=`wght'] ///
 	if abs(bwtnorm) <= `bw' , vce(robust)
 	display "reg: one-year mortality, bandwith: `bw', Rectangular kernel" ///
 	", birth weight 1500 dropped"
-	regress agedth5 bwtnorm cut inter ///
+	eststo : regress agedth5 bwtnorm cut inter ///
 	if abs(bwtnorm) <= `bw' , vce(robust)
+	
+	* print estimate table to latex format
+	esttab using B2_bw`bw'.tex , mtitles("Triangular" "Rectangular") ///
+	star(* 0.10 ** 0.05 *** 0.01) ///
+	title("Birth weight class on mortality, bandwidth: `bw'", 1500 dropped) ///
+	nonumber replace 
+	eststo clear
 }
 
 ***************
@@ -201,12 +259,20 @@ forvalues bw = 90(-30)30{
 	gen `wght' = 1 - abs(bwtnorm / `bw')
 	display "reg: one-year mortality, bandwith: `bw', triangular kernel" ///
 	", birth weight 1500 dropped, exact ounces dropped"
-	regress agedth5 bwtnorm cut inter [pweight=`wght'] ///
+	eststo : regress agedth5 bwtnorm cut inter [pweight=`wght'] ///
 	if abs(bwtnorm) <= `bw' , vce(robust)
 	display "reg: one-year mortality, bandwith: `bw', Rectangular kernel" ///
 	", birth weight 1500 dropped, exact ounces dropped"
-	regress agedth5 bwtnorm cut inter ///
+	eststo : regress agedth5 bwtnorm cut inter ///
 	if abs(bwtnorm) <= `bw' , vce(robust)
+	
+	* print estimate table to latex format
+	esttab using B3_bw`bw'.tex , mtitles("Triangular" "Rectangular") ///
+	star(* 0.10 ** 0.05 *** 0.01) ///
+	title("Birth weight class on mortality, bandwidth: `bw'", ///
+	       "1500 and ounce heaps dropped") ///
+	nonumber replace 
+	eststo clear
 }
 
 
@@ -232,12 +298,20 @@ forvalues bw = 90(-30)30{
 	gen `wght' = 1 - abs(bwtnorm / `bw')
 	display "reg: one-year mortality, bandwith: `bw', triangular kernel" ///
 	", birth weight 1500 dropped, ounce heap controlled"
-	regress agedth5 bwtnorm cut inter `heaps' `heapinters' [pweight=`wght'] ///
-	if abs(bwtnorm) <= `bw' , vce(robust)
+	eststo : regress agedth5 bwtnorm cut inter `heaps' `heapinters' ///
+	[pweight=`wght'] if abs(bwtnorm) <= `bw' , vce(robust)
 	display "reg: one-year mortality, bandwith: `bw', Rectangular kernel" ///
 	", birth weight 1500 dropped, ounce heap controlled"
-	regress agedth5 bwtnorm cut inter `heaps' `heapinters' ///
+	eststo : regress agedth5 bwtnorm cut inter `heaps' `heapinters' ///
 	if abs(bwtnorm) <= `bw' , vce(robust)
+	
+	* print estimate table to latex format
+	esttab using B4_bw`bw'.tex , mtitles("Triangular" "Rectangular") ///
+	star(* 0.10 ** 0.05 *** 0.01) ///
+	title("Birth weight class on mortality, bandwidth: `bw'", ///
+	       "1500 and ounce heaps controlled") ///
+	nonumber replace 
+	eststo clear
 }
 
 
