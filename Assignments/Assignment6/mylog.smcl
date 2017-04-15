@@ -1,0 +1,3099 @@
+{smcl}
+{com}{sf}{ul off}{txt}
+{com}. capture program drop _all
+{txt}
+{com}. capture estimates drop _all
+{txt}
+{com}. clear all
+{txt}
+{com}. set more off
+{txt}
+{com}. 
+. capture cd "D:/Lindo/Assignments/Assignment6"
+{txt}
+{com}. 
+. if c(username)=="xueqingyan" {c -(}
+.         cd "C:\Users\yanxueqing\Desktop\ECMT 676 Assignments\Assignment 6"
+. {c )-}
+{txt}
+{com}. 
+. capture mkdir Output_Xue
+{txt}
+{com}. 
+. 
+. ** import data
+. 
+. use "stardata.dta"
+{txt}
+{com}. 
+. ** change data to long panel form
+. 
+. local panel star ctype stype hdeg clad totexp trace read math ses sysid ///
+> schid tchid csize
+{txt}
+{com}. 
+. reshape long `panel' , i(newid) j(grade) string
+{txt}(note: j = 1 2 3 k)
+
+Data{col 36}wide{col 43}->{col 48}long
+{hline 77}
+Number of obs.                 {res}   10807   {txt}->{res}   43228
+{txt}Number of variables            {res}      61   {txt}->{res}      20
+{txt}j variable (4 values)                     ->   {res}grade
+{txt}xij variables:
+                  {res}star1 star2 ... stark   {txt}->   {res}star
+               ctype1 ctype2 ... ctypek   {txt}->   {res}ctype
+               stype1 stype2 ... stypek   {txt}->   {res}stype
+                  hdeg1 hdeg2 ... hdegk   {txt}->   {res}hdeg
+                  clad1 clad2 ... cladk   {txt}->   {res}clad
+            totexp1 totexp2 ... totexpk   {txt}->   {res}totexp
+               trace1 trace2 ... tracek   {txt}->   {res}trace
+                  read1 read2 ... readk   {txt}->   {res}read
+                  math1 math2 ... mathk   {txt}->   {res}math
+                     ses1 ses2 ... sesk   {txt}->   {res}ses
+               sysid1 sysid2 ... sysidk   {txt}->   {res}sysid
+               schid1 schid2 ... schidk   {txt}->   {res}schid
+               tchid1 tchid2 ... tchidk   {txt}->   {res}tchid
+               csize1 csize2 ... csizek   {txt}->   {res}csize
+{txt}{hline 77}
+
+{com}. * denote kindergarten's grade to 0
+. replace grade = "0" if grade == "k"
+{txt}(10,807 real changes made)
+
+{com}. destring , replace
+{txt}newid already numeric; no {res}replace
+{txt}grade has all characters numeric; {res}replaced {txt}as {res}byte
+{txt}sex already numeric; no {res}replace
+{txt}race already numeric; no {res}replace
+{txt}qob already numeric; no {res}replace
+{txt}yob already numeric; no {res}replace
+{txt}star already numeric; no {res}replace
+{txt}ctype already numeric; no {res}replace
+{txt}stype already numeric; no {res}replace
+{txt}hdeg already numeric; no {res}replace
+{txt}clad already numeric; no {res}replace
+{txt}totexp already numeric; no {res}replace
+{txt}trace already numeric; no {res}replace
+{txt}read already numeric; no {res}replace
+{txt}math already numeric; no {res}replace
+{txt}ses already numeric; no {res}replace
+{txt}sysid already numeric; no {res}replace
+{txt}schid already numeric; no {res}replace
+{txt}tchid has all characters numeric; {res}replaced {txt}as {res}long
+{txt}csize already numeric; no {res}replace
+{txt}
+{com}. 
+. ****************
+. *    1.b       *
+. ****************
+. 
+. ** replace missing data to .
+. 
+. program recode_miss
+{txt}  1{com}.         args v
+{txt}  2{com}.         local missing 999999 9999 999 99 9
+{txt}  3{com}.         foreach m of local missing {c -(}
+{txt}  4{com}.                 display "try: `m'"
+{txt}  5{com}.                 quietly count if `v' == `m'
+{txt}  6{com}.                 display "match: `r(N)'"
+{txt}  7{com}.                 if `r(N)' != 0{c -(}
+{txt}  8{com}.                         replace `v' = . if `v' == `m'
+{txt}  9{com}.                         continue , break
+{txt} 10{com}.                 {c )-}
+{txt} 11{com}.                 else {c -(}
+{txt} 12{com}.                         continue
+{txt} 13{com}.                 {c )-}
+{txt} 14{com}.         {c )-}
+{txt} 15{com}. end
+{txt}
+{com}. 
+. foreach v of varlist _all {c -(}
+{txt}  2{com}.         display "`v': replace miss"
+{txt}  3{com}.         recode_miss `v'
+{txt}  4{com}. {c )-}
+newid: replace miss
+try: 999999
+match: 0
+try: 9999
+match: 0
+try: 999
+match: 0
+try: 99
+match: 0
+try: 9
+match: 0
+grade: replace miss
+try: 999999
+match: 0
+try: 9999
+match: 0
+try: 999
+match: 0
+try: 99
+match: 0
+try: 9
+match: 0
+sex: replace miss
+try: 999999
+match: 0
+try: 9999
+match: 0
+try: 999
+match: 0
+try: 99
+match: 0
+try: 9
+match: 68
+{txt}(68 real changes made, 68 to missing)
+race: replace miss
+try: 999999
+match: 0
+try: 9999
+match: 0
+try: 999
+match: 0
+try: 99
+match: 0
+try: 9
+match: 524
+(524 real changes made, 524 to missing)
+qob: replace miss
+try: 999999
+match: 0
+try: 9999
+match: 0
+try: 999
+match: 0
+try: 99
+match: 228
+(228 real changes made, 228 to missing)
+yob: replace miss
+try: 999999
+match: 0
+try: 9999
+match: 240
+(240 real changes made, 240 to missing)
+star: replace miss
+try: 999999
+match: 0
+try: 9999
+match: 0
+try: 999
+match: 0
+try: 99
+match: 0
+try: 9
+match: 0
+ctype: replace miss
+try: 999999
+match: 0
+try: 9999
+match: 0
+try: 999
+match: 0
+try: 99
+match: 0
+try: 9
+match: 18360
+(18,360 real changes made, 18,360 to missing)
+stype: replace miss
+try: 999999
+match: 0
+try: 9999
+match: 0
+try: 999
+match: 0
+try: 99
+match: 0
+try: 9
+match: 18254
+(18,254 real changes made, 18,254 to missing)
+hdeg: replace miss
+try: 999999
+match: 0
+try: 9999
+match: 0
+try: 999
+match: 0
+try: 99
+match: 0
+try: 9
+match: 18413
+(18,413 real changes made, 18,413 to missing)
+clad: replace miss
+try: 999999
+match: 0
+try: 9999
+match: 0
+try: 999
+match: 0
+try: 99
+match: 0
+try: 9
+match: 19015
+(19,015 real changes made, 19,015 to missing)
+totexp: replace miss
+try: 999999
+match: 0
+try: 9999
+match: 0
+try: 999
+match: 0
+try: 99
+match: 18439
+(18,439 real changes made, 18,439 to missing)
+trace: replace miss
+try: 999999
+match: 0
+try: 9999
+match: 0
+try: 999
+match: 0
+try: 99
+match: 0
+try: 9
+match: 18471
+(18,471 real changes made, 18,471 to missing)
+read: replace miss
+try: 999999
+match: 0
+try: 9999
+match: 0
+try: 999
+match: 20607
+(20,607 real changes made, 20,607 to missing)
+math: replace miss
+try: 999999
+match: 0
+try: 9999
+match: 0
+try: 999
+match: 20284
+(20,284 real changes made, 20,284 to missing)
+ses: replace miss
+try: 999999
+match: 0
+try: 9999
+match: 0
+try: 999
+match: 0
+try: 99
+match: 0
+try: 9
+match: 19017
+(19,017 real changes made, 19,017 to missing)
+sysid: replace miss
+try: 999999
+match: 0
+try: 9999
+match: 0
+try: 999
+match: 18254
+(18,254 real changes made, 18,254 to missing)
+schid: replace miss
+try: 999999
+match: 0
+try: 9999
+match: 0
+try: 999
+match: 18254
+(18,254 real changes made, 18,254 to missing)
+tchid: replace miss
+try: 999999
+match: 0
+try: 9999
+match: 0
+try: 999
+match: 0
+try: 99
+match: 0
+try: 9
+match: 0
+csize: replace miss
+try: 999999
+match: 0
+try: 9999
+match: 0
+try: 999
+match: 0
+try: 99
+match: 0
+try: 9
+match: 0
+
+{com}. 
+. 
+. 
+. ** generate new variables
+. 
+. *free lunch
+. gen frln = 1 if ses == 1
+{txt}(31,039 missing values generated)
+
+{com}. replace frln = 0 if ses == 2
+{txt}(12,022 real changes made)
+
+{com}. label variable frln "free lunch"
+{txt}
+{com}. 
+. * white or asian
+. gen whasn = 1 if race == 1 | race == 3
+{txt}(16,220 missing values generated)
+
+{com}. replace whasn = 2 if race == .
+{txt}(524 real changes made)
+
+{com}. replace whasn = 0 if whasn == .
+{txt}(15,696 real changes made)
+
+{com}. replace whasn = . if whasn == 2
+{txt}(524 real changes made, 524 to missing)
+
+{com}. label variable whasn "white/asian"
+{txt}
+{com}. 
+. * month of birth
+. gen mob = 1.5 if qob == 1
+{txt}(32,724 missing values generated)
+
+{com}. replace mob = 4.5 if qob == 2
+{txt}(10,672 real changes made)
+
+{com}. replace mob = 7.5 if qob == 3
+{txt}(12,756 real changes made)
+
+{com}. replace mob = 10.5 if qob == 4
+{txt}(9,068 real changes made)
+
+{com}. 
+. * age in 1985
+. gen agein1985 = 1985-yob+(9-mob)/12
+{txt}(244 missing values generated)
+
+{com}. label variable agein1985 "age in 1985"
+{txt}
+{com}. 
+. * attrition indicator
+. local panel `panel' frln
+{txt}
+{com}. reshape wide `panel' , i(newid) j(grade)
+{txt}(note: j = 0 1 2 3)
+
+Data{col 36}long{col 43}->{col 48}wide
+{hline 77}
+Number of obs.                 {res}   43228   {txt}->{res}   10807
+{txt}Number of variables            {res}      24   {txt}->{res}      68
+{txt}j variable (4 values)             {res}grade   {txt}->   (dropped)
+xij variables:
+                                   {res}star   {txt}->   {res}star0 star1 ... star3
+                                  ctype   {txt}->   {res}ctype0 ctype1 ... ctype3
+                                  stype   {txt}->   {res}stype0 stype1 ... stype3
+                                   hdeg   {txt}->   {res}hdeg0 hdeg1 ... hdeg3
+                                   clad   {txt}->   {res}clad0 clad1 ... clad3
+                                 totexp   {txt}->   {res}totexp0 totexp1 ... totexp3
+                                  trace   {txt}->   {res}trace0 trace1 ... trace3
+                                   read   {txt}->   {res}read0 read1 ... read3
+                                   math   {txt}->   {res}math0 math1 ... math3
+                                    ses   {txt}->   {res}ses0 ses1 ... ses3
+                                  sysid   {txt}->   {res}sysid0 sysid1 ... sysid3
+                                  schid   {txt}->   {res}schid0 schid1 ... schid3
+                                  tchid   {txt}->   {res}tchid0 tchid1 ... tchid3
+                                  csize   {txt}->   {res}csize0 csize1 ... csize3
+                                   frln   {txt}->   {res}frln0 frln1 ... frln3
+{txt}{hline 77}
+
+{com}. gen attr = 0 if star0 >= star1 & star1 >= star2 & star2 >= star3
+{txt}(4,649 missing values generated)
+
+{com}. replace attr = 2 if star0 == 2 & star1 == 2 & star2 == 2 & star3 == 1
+{txt}(1,186 real changes made)
+
+{com}. replace attr = 1 if attr == .
+{txt}(4,649 real changes made)
+
+{com}. replace attr = . if attr == 2
+{txt}(1,186 real changes made, 1,186 to missing)
+
+{com}. label variable attr "attrition"
+{txt}
+{com}. 
+. reshape long
+{txt}(note: j = 0 1 2 3)
+
+Data{col 36}wide{col 43}->{col 48}long
+{hline 77}
+Number of obs.                 {res}   10807   {txt}->{res}   43228
+{txt}Number of variables            {res}      69   {txt}->{res}      25
+{txt}j variable (4 values)                     ->   {res}grade
+{txt}xij variables:
+                  {res}star0 star1 ... star3   {txt}->   {res}star
+               ctype0 ctype1 ... ctype3   {txt}->   {res}ctype
+               stype0 stype1 ... stype3   {txt}->   {res}stype
+                  hdeg0 hdeg1 ... hdeg3   {txt}->   {res}hdeg
+                  clad0 clad1 ... clad3   {txt}->   {res}clad
+            totexp0 totexp1 ... totexp3   {txt}->   {res}totexp
+               trace0 trace1 ... trace3   {txt}->   {res}trace
+                  read0 read1 ... read3   {txt}->   {res}read
+                  math0 math1 ... math3   {txt}->   {res}math
+                     ses0 ses1 ... ses3   {txt}->   {res}ses
+               sysid0 sysid1 ... sysid3   {txt}->   {res}sysid
+               schid0 schid1 ... schid3   {txt}->   {res}schid
+               tchid0 tchid1 ... tchid3   {txt}->   {res}tchid
+               csize0 csize1 ... csize3   {txt}->   {res}csize
+                  frln0 frln1 ... frln3   {txt}->   {res}frln
+{txt}{hline 77}
+
+{com}. 
+. *average SAT score
+. 
+. local sat math read
+{txt}
+{com}. 
+. gen mathp = .
+{txt}(43,228 missing values generated)
+
+{com}. gen readp = .
+{txt}(43,228 missing values generated)
+
+{com}. 
+. foreach s of local sat{c -(}
+{txt}  2{com}.         forvalues g = 0(1)3{c -(}
+{txt}  3{com}.                 quietly summ `s' if grade == `g' & (ctype == 2 | ctype == 3)
+{txt}  4{com}.                 replace `s'p = 100 *(`s' - `r(min)') ///
+>                 / (`r(max)' - `r(min)') if grade ==`g'
+{txt}  5{com}.         {c )-}
+{txt}  6{com}.         replace `s'p = round(`s'p, 1) if `s'p != .
+{txt}  7{com}.         replace `s'p = 100 if `s'p >= 100 & `s'p < .
+{txt}  8{com}.         replace `s'p = 0 if `s'p <= 0
+{txt}  9{com}. {c )-}
+{txt}(5,468 real changes made)
+(6,156 real changes made)
+(5,667 real changes made)
+(5,653 real changes made)
+(22,194 real changes made)
+(0 real changes made)
+(1 real change made)
+(5,396 real changes made)
+(5,967 real changes made)
+(5,676 real changes made)
+(5,582 real changes made)
+(22,358 real changes made)
+(0 real changes made)
+(0 real changes made)
+
+{com}. 
+. 
+. gen percent = (mathp + readp) / 2
+{txt}(20,682 missing values generated)
+
+{com}. replace percent = mathp if readp == . & mathp != .
+{txt}(398 real changes made)
+
+{com}. replace percent = readp if mathp == . & readp != .
+{txt}(75 real changes made)
+
+{com}. label variable percent "average score percentile"
+{txt}
+{com}. 
+. ** descriptive statistics
+. 
+. bysort grade: summ frln
+
+{txt}{hline}
+-> grade = 0
+
+    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 8}frln {c |}{res}      5,871     .480838    .4996752          0          1
+
+{txt}{hline}
+-> grade = 1
+
+    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 8}frln {c |}{res}      6,209     .515703    .4997936          0          1
+
+{txt}{hline}
+-> grade = 2
+
+    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 8}frln {c |}{res}      6,064    .5126979      .49988          0          1
+
+{txt}{hline}
+-> grade = 3
+
+    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 8}frln {c |}{res}      6,067    .5035438    .5000287          0          1
+
+{txt}
+{com}. bysort grade: summ percent
+
+{txt}{hline}
+-> grade = 0
+
+    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 5}percent {c |}{res}      5,470    46.53702     11.9475          0        100
+
+{txt}{hline}
+-> grade = 1
+
+    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 5}percent {c |}{res}      6,173    46.27855    17.82801          3        100
+
+{txt}{hline}
+-> grade = 2
+
+    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 5}percent {c |}{res}      5,692    46.76713    15.39795          4        100
+
+{txt}{hline}
+-> grade = 3
+
+    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 5}percent {c |}{res}      5,684    41.56457    13.56158          0         96
+
+{txt}
+{com}. 
+. local panel `panel' mathp readp percent
+{txt}
+{com}. reshape wide `panel', i(newid) j(grade)
+{txt}(note: j = 0 1 2 3)
+
+Data{col 36}long{col 43}->{col 48}wide
+{hline 77}
+Number of obs.                 {res}   43228   {txt}->{res}   10807
+{txt}Number of variables            {res}      28   {txt}->{res}      81
+{txt}j variable (4 values)             {res}grade   {txt}->   (dropped)
+xij variables:
+                                   {res}star   {txt}->   {res}star0 star1 ... star3
+                                  ctype   {txt}->   {res}ctype0 ctype1 ... ctype3
+                                  stype   {txt}->   {res}stype0 stype1 ... stype3
+                                   hdeg   {txt}->   {res}hdeg0 hdeg1 ... hdeg3
+                                   clad   {txt}->   {res}clad0 clad1 ... clad3
+                                 totexp   {txt}->   {res}totexp0 totexp1 ... totexp3
+                                  trace   {txt}->   {res}trace0 trace1 ... trace3
+                                   read   {txt}->   {res}read0 read1 ... read3
+                                   math   {txt}->   {res}math0 math1 ... math3
+                                    ses   {txt}->   {res}ses0 ses1 ... ses3
+                                  sysid   {txt}->   {res}sysid0 sysid1 ... sysid3
+                                  schid   {txt}->   {res}schid0 schid1 ... schid3
+                                  tchid   {txt}->   {res}tchid0 tchid1 ... tchid3
+                                  csize   {txt}->   {res}csize0 csize1 ... csize3
+                                   frln   {txt}->   {res}frln0 frln1 ... frln3
+                                  mathp   {txt}->   {res}mathp0 mathp1 ... mathp3
+                                  readp   {txt}->   {res}readp0 readp1 ... readp3
+                                percent   {txt}->   {res}percent0 percent1 ... percent3
+{txt}{hline 77}
+
+{com}. summ whasn agein1985 attr
+
+{txt}    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 7}whasn {c |}{res}     10,676    .6324466    .4821615          0          1
+{txt}{space 3}agein1985 {c |}{res}     10,746    5.721059    .5672364      3.625      8.625
+{txt}{space 8}attr {c |}{res}      9,621    .4832138    .4997441          0          1
+{txt}
+{com}. 
+. ****************
+. *    1.b       *
+. ****************
+. 
+. ** generate first enter variable
+. 
+. generate enter1st = . 
+{txt}(10,807 missing values generated)
+
+{com}. 
+. replace enter1st = 0 if ctype0 != .
+{txt}(5,894 real changes made)
+
+{com}. replace enter1st = 1 if ctype0 == . & ctype1 != .
+{txt}(2,159 real changes made)
+
+{com}. replace enter1st = 2 if ctype0 == . & ctype1 == . & ctype2 != .
+{txt}(1,549 real changes made)
+
+{com}. replace enter1st = 3 if ctype0 == . & ctype1 == . & ctype2 == . & ctype3 != .
+{txt}(1,181 real changes made)
+
+{com}. 
+. tempfile long
+{txt}
+{com}. capture save `long' , replace
+{txt}
+{com}. 
+. 
+. ** export results similar to table 1 in the paper
+. 
+. forvalues i = 0(1)3 {c -(}
+{txt}  2{com}.         local vars frln`i' whasn agein1985 attr csize`i' percent`i'
+{txt}  3{com}.         foreach v of local vars {c -(}
+{txt}  4{com}.                 eststo : xi , noomit : ///
+>                 quietly regress `v' i.ctype`i' if enter1st == `i', noconstant
+{txt}  5{com}.                 testparm _I*, equal
+{txt}  6{com}.                 return list
+{txt}  7{com}.                 estadd scalar p_F = r(p)
+{txt}  8{com}.         {c )-}
+{txt}  9{com}.         
+.         esttab using "Output_Xue/q1b.csv" ///
+>         , scalars(p_F) plain append
+{txt} 10{com}.         eststo clear
+{txt} 11{com}. {c )-}
+{txt}({res}est1{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype0_1 + _Ictype0_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype0_1 + _Ictype0_3 = 0{p_end}
+
+{txt}       F(  2,  5867) ={res}    2.14
+{txt}{col 13}Prob > F ={res}    0.1177
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}5867
+                  {txt}r(F) =  {res}2.139979336377579
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.1177491032805697
+
+{txt}added scalar:
+                e(p_F) =  {res}.1177491
+{txt}({res}est2{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype0_1 + _Ictype0_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype0_1 + _Ictype0_3 = 0{p_end}
+
+{txt}       F(  2,  5888) ={res}    1.41
+{txt}{col 13}Prob > F ={res}    0.2453
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}5888
+                  {txt}r(F) =  {res}1.405624624352729
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.2452961137808112
+
+{txt}added scalar:
+                e(p_F) =  {res}.24529611
+{txt}({res}est3{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype0_1 + _Ictype0_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype0_1 + _Ictype0_3 = 0{p_end}
+
+{txt}       F(  2,  5884) ={res}    0.28
+{txt}{col 13}Prob > F ={res}    0.7579
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}5884
+                  {txt}r(F) =  {res}.2771874887818578
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.7579222799345295
+
+{txt}added scalar:
+                e(p_F) =  {res}.75792228
+{txt}({res}est4{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype0_1 + _Ictype0_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype0_1 + _Ictype0_3 = 0{p_end}
+
+{txt}       F(  2,  5891) ={res}    3.63
+{txt}{col 13}Prob > F ={res}    0.0266
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}5891
+                  {txt}r(F) =  {res}3.629358139643733
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.026592555235732
+
+{txt}added scalar:
+                e(p_F) =  {res}.02659256
+{txt}({res}est5{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype0_1 + _Ictype0_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype0_1 + _Ictype0_3 = 0{p_end}
+
+{txt}       F(  2,  5891) ={res} 4035.56
+{txt}{col 13}Prob > F ={res}    0.0000
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}5891
+                  {txt}r(F) =  {res}4035.563833930199
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}0
+
+{txt}added scalar:
+                e(p_F) =  {res}0
+{txt}({res}est6{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype0_1 + _Ictype0_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype0_1 + _Ictype0_3 = 0{p_end}
+
+{txt}       F(  2,  5467) ={res}   16.70
+{txt}{col 13}Prob > F ={res}    0.0000
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}5467
+                  {txt}r(F) =  {res}16.70471806275733
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}5.85208414241e-08
+
+{txt}added scalar:
+                e(p_F) =  {res}5.852e-08
+{txt}(note: file Output_Xue/q1b.csv not found)
+(output written to {browse  `"Output_Xue/q1b.csv"'})
+({res}est1{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype1_1 + _Ictype1_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype1_1 + _Ictype1_3 = 0{p_end}
+
+{txt}       F(  2,  2091) ={res}    0.74
+{txt}{col 13}Prob > F ={res}    0.4788
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}2091
+                  {txt}r(F) =  {res}.736694877457949
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.4788176470351674
+
+{txt}added scalar:
+                e(p_F) =  {res}.47881765
+{txt}({res}est2{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype1_1 + _Ictype1_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype1_1 + _Ictype1_3 = 0{p_end}
+
+{txt}       F(  2,  2132) ={res}    7.38
+{txt}{col 13}Prob > F ={res}    0.0006
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}2132
+                  {txt}r(F) =  {res}7.375060933037884
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0006428070073649
+
+{txt}added scalar:
+                e(p_F) =  {res}.00064281
+{txt}({res}est3{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype1_1 + _Ictype1_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype1_1 + _Ictype1_3 = 0{p_end}
+
+{txt}       F(  2,  2124) ={res}    2.97
+{txt}{col 13}Prob > F ={res}    0.0514
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}2124
+                  {txt}r(F) =  {res}2.972256449092437
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0514006266782665
+
+{txt}added scalar:
+                e(p_F) =  {res}.05140063
+{txt}({res}est4{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype1_1 + _Ictype1_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype1_1 + _Ictype1_3 = 0{p_end}
+
+{txt}       F(  2,  2156) ={res}    2.57
+{txt}{col 13}Prob > F ={res}    0.0771
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}2156
+                  {txt}r(F) =  {res}2.565481457928886
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0771168435652482
+
+{txt}added scalar:
+                e(p_F) =  {res}.07711684
+{txt}({res}est5{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype1_1 + _Ictype1_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype1_1 + _Ictype1_3 = 0{p_end}
+
+{txt}       F(  2,  2156) ={res} 1413.47
+{txt}{col 13}Prob > F ={res}    0.0000
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}2156
+                  {txt}r(F) =  {res}1413.469754221208
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}0
+
+{txt}added scalar:
+                e(p_F) =  {res}0
+{txt}({res}est6{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype1_1 + _Ictype1_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype1_1 + _Ictype1_3 = 0{p_end}
+
+{txt}       F(  2,  2033) ={res}   11.21
+{txt}{col 13}Prob > F ={res}    0.0000
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}2033
+                  {txt}r(F) =  {res}11.21455591523975
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0000143301509899
+
+{txt}added scalar:
+                e(p_F) =  {res}.00001433
+{txt}(output written to {browse  `"Output_Xue/q1b.csv"'})
+({res}est1{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype2_1 + _Ictype2_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype2_1 + _Ictype2_3 = 0{p_end}
+
+{txt}       F(  2,  1464) ={res}    0.20
+{txt}{col 13}Prob > F ={res}    0.8148
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}1464
+                  {txt}r(F) =  {res}.204802583993091
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.8148314972193557
+
+{txt}added scalar:
+                e(p_F) =  {res}.8148315
+{txt}({res}est2{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype2_1 + _Ictype2_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype2_1 + _Ictype2_3 = 0{p_end}
+
+{txt}       F(  2,  1461) ={res}    6.05
+{txt}{col 13}Prob > F ={res}    0.0024
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}1461
+                  {txt}r(F) =  {res}6.051883212110412
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0024128367045181
+
+{txt}added scalar:
+                e(p_F) =  {res}.00241284
+{txt}({res}est3{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype2_1 + _Ictype2_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype2_1 + _Ictype2_3 = 0{p_end}
+
+{txt}       F(  2,  1539) ={res}    0.82
+{txt}{col 13}Prob > F ={res}    0.4413
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}1539
+                  {txt}r(F) =  {res}.8184264610574467
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.4413171338835077
+
+{txt}added scalar:
+                e(p_F) =  {res}.44131713
+{txt}({res}est4{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype2_1 + _Ictype2_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype2_1 + _Ictype2_3 = 0{p_end}
+
+{txt}       F(  2,  1546) ={res}    0.62
+{txt}{col 13}Prob > F ={res}    0.5391
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}1546
+                  {txt}r(F) =  {res}.6181664954126194
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.5390648209086044
+
+{txt}added scalar:
+                e(p_F) =  {res}.53906482
+{txt}({res}est5{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype2_1 + _Ictype2_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype2_1 + _Ictype2_3 = 0{p_end}
+
+{txt}       F(  2,  1546) ={res} 2248.14
+{txt}{col 13}Prob > F ={res}    0.0000
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}1546
+                  {txt}r(F) =  {res}2248.141463358382
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}0
+
+{txt}added scalar:
+                e(p_F) =  {res}0
+{txt}({res}est6{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype2_1 + _Ictype2_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype2_1 + _Ictype2_3 = 0{p_end}
+
+{txt}       F(  2,  1179) ={res}    2.47
+{txt}{col 13}Prob > F ={res}    0.0853
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}1179
+                  {txt}r(F) =  {res}2.466665198548199
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0853052845954735
+
+{txt}added scalar:
+                e(p_F) =  {res}.08530528
+{txt}(output written to {browse  `"Output_Xue/q1b.csv"'})
+({res}est1{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype3_1 + _Ictype3_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype3_1 + _Ictype3_3 = 0{p_end}
+
+{txt}       F(  2,  1105) ={res}    1.97
+{txt}{col 13}Prob > F ={res}    0.1398
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}1105
+                  {txt}r(F) =  {res}1.971261968090341
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.1397704726890252
+
+{txt}added scalar:
+                e(p_F) =  {res}.13977047
+{txt}({res}est2{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype3_1 + _Ictype3_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype3_1 + _Ictype3_3 = 0{p_end}
+
+{txt}       F(  2,  1160) ={res}    3.60
+{txt}{col 13}Prob > F ={res}    0.0277
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}1160
+                  {txt}r(F) =  {res}3.595862286259416
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0277432864343176
+
+{txt}added scalar:
+                e(p_F) =  {res}.02774329
+{txt}({res}est3{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype3_1 + _Ictype3_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype3_1 + _Ictype3_3 = 0{p_end}
+
+{txt}       F(  2,  1163) ={res}    1.41
+{txt}{col 13}Prob > F ={res}    0.2440
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}1163
+                  {txt}r(F) =  {res}1.412251108742975
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.2440117353264382
+
+{txt}added scalar:
+                e(p_F) =  {res}.24401174
+{txt}({res}est4{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype3_1 + _Ictype3_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype3_1 + _Ictype3_3 = 0{p_end}
+
+{txt}       F(  2,    10) ={res}       .
+{txt}{col 13}Prob > F ={res}         .
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}10
+                  {txt}r(F) =  {res}.
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.
+
+{txt}added scalar:
+                e(p_F) =  {res}.
+{txt}({res}est5{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype3_1 + _Ictype3_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype3_1 + _Ictype3_3 = 0{p_end}
+
+{txt}       F(  2,  1178) ={res} 1578.45
+{txt}{col 13}Prob > F ={res}    0.0000
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}1178
+                  {txt}r(F) =  {res}1578.4507332868
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}0
+
+{txt}added scalar:
+                e(p_F) =  {res}0
+{txt}({res}est6{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype3_1 + _Ictype3_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype3_1 + _Ictype3_3 = 0{p_end}
+
+{txt}       F(  2,   939) ={res}    3.61
+{txt}{col 13}Prob > F ={res}    0.0273
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}939
+                  {txt}r(F) =  {res}3.612982775607568
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0273469016799599
+
+{txt}added scalar:
+                e(p_F) =  {res}.0273469
+{txt}(output written to {browse  `"Output_Xue/q1b.csv"'})
+
+{com}. 
+. return list
+
+{txt}macros:
+              r(names) : "{res}est6{txt}"
+
+{com}. 
+. ****************
+. *     1.c      *
+. ****************
+. 
+. * generate teacher white covariate
+. reshape long
+{txt}(note: j = 0 1 2 3)
+
+Data{col 36}wide{col 43}->{col 48}long
+{hline 77}
+Number of obs.                 {res}   10807   {txt}->{res}   43228
+{txt}Number of variables            {res}      85   {txt}->{res}      32
+{txt}j variable (4 values)                     ->   {res}grade
+{txt}xij variables:
+                  {res}star0 star1 ... star3   {txt}->   {res}star
+               ctype0 ctype1 ... ctype3   {txt}->   {res}ctype
+               stype0 stype1 ... stype3   {txt}->   {res}stype
+                  hdeg0 hdeg1 ... hdeg3   {txt}->   {res}hdeg
+                  clad0 clad1 ... clad3   {txt}->   {res}clad
+            totexp0 totexp1 ... totexp3   {txt}->   {res}totexp
+               trace0 trace1 ... trace3   {txt}->   {res}trace
+                  read0 read1 ... read3   {txt}->   {res}read
+                  math0 math1 ... math3   {txt}->   {res}math
+                     ses0 ses1 ... ses3   {txt}->   {res}ses
+               sysid0 sysid1 ... sysid3   {txt}->   {res}sysid
+               schid0 schid1 ... schid3   {txt}->   {res}schid
+               tchid0 tchid1 ... tchid3   {txt}->   {res}tchid
+               csize0 csize1 ... csize3   {txt}->   {res}csize
+                  frln0 frln1 ... frln3   {txt}->   {res}frln
+               mathp0 mathp1 ... mathp3   {txt}->   {res}mathp
+               readp0 readp1 ... readp3   {txt}->   {res}readp
+         percent0 percent1 ... percent3   {txt}->   {res}percent
+{txt}{hline 77}
+
+{com}. gen twhite = 1 if trace == 1
+{txt}(23,143 missing values generated)
+
+{com}. replace twhite = 0 if trace == 2
+{txt}(4,659 real changes made)
+
+{com}. 
+. * generate teacher master covariate
+. gen tmaster = 1 if hdeg >= 3
+{txt}(22,530 missing values generated)
+
+{com}. replace tmaster = 0 if hdeg < 3
+{txt}(22,530 real changes made)
+
+{com}. 
+. * summarize twhite tmaster totexp
+. bysort grade :summ twhite tmaster totexp
+
+{txt}{hline}
+-> grade = 0
+
+    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 6}twhite {c |}{res}      5,833    .8359335    .3703677          0          1
+{txt}{space 5}tmaster {c |}{res}     10,807    .6459702    .4782404          0          1
+{txt}{space 6}totexp {c |}{res}      5,873    9.248766    5.797525          0         27
+
+{txt}{hline}
+-> grade = 1
+
+    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 6}twhite {c |}{res}      6,319    .8256053    .3794785          0          1
+{txt}{space 5}tmaster {c |}{res}     10,807    .4178773    .4932326          0          1
+{txt}{space 6}totexp {c |}{res}      6,350    11.61449     8.91503          0         42
+
+{txt}{hline}
+-> grade = 2
+
+    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 6}twhite {c |}{res}      6,324    .7956989    .4032218          0          1
+{txt}{space 5}tmaster {c |}{res}     10,807    .4237069    .4941679          0          1
+{txt}{space 6}totexp {c |}{res}      6,285    13.16675    8.645479          0         40
+
+{txt}{hline}
+-> grade = 3
+
+    Variable {c |}        Obs        Mean    Std. Dev.       Min        Max
+{hline 13}{c +}{hline 57}
+{space 6}twhite {c |}{res}      6,268     .791321    .4063969          0          1
+{txt}{space 5}tmaster {c |}{res}     10,807    .4276858    .4947659          0          1
+{txt}{space 6}totexp {c |}{res}      6,281    13.95319    8.626284          0         38
+
+{txt}
+{com}. 
+. 
+. ** export results similar to table 1 in the paper
+. 
+. local panel `panel' twhite tmaster
+{txt}
+{com}. reshape wide `panel' , i(newid) j(grade)
+{txt}(note: j = 0 1 2 3)
+
+Data{col 36}long{col 43}->{col 48}wide
+{hline 77}
+Number of obs.                 {res}   43228   {txt}->{res}   10807
+{txt}Number of variables            {res}      34   {txt}->{res}      93
+{txt}j variable (4 values)             {res}grade   {txt}->   (dropped)
+xij variables:
+                                   {res}star   {txt}->   {res}star0 star1 ... star3
+                                  ctype   {txt}->   {res}ctype0 ctype1 ... ctype3
+                                  stype   {txt}->   {res}stype0 stype1 ... stype3
+                                   hdeg   {txt}->   {res}hdeg0 hdeg1 ... hdeg3
+                                   clad   {txt}->   {res}clad0 clad1 ... clad3
+                                 totexp   {txt}->   {res}totexp0 totexp1 ... totexp3
+                                  trace   {txt}->   {res}trace0 trace1 ... trace3
+                                   read   {txt}->   {res}read0 read1 ... read3
+                                   math   {txt}->   {res}math0 math1 ... math3
+                                    ses   {txt}->   {res}ses0 ses1 ... ses3
+                                  sysid   {txt}->   {res}sysid0 sysid1 ... sysid3
+                                  schid   {txt}->   {res}schid0 schid1 ... schid3
+                                  tchid   {txt}->   {res}tchid0 tchid1 ... tchid3
+                                  csize   {txt}->   {res}csize0 csize1 ... csize3
+                                   frln   {txt}->   {res}frln0 frln1 ... frln3
+                                  mathp   {txt}->   {res}mathp0 mathp1 ... mathp3
+                                  readp   {txt}->   {res}readp0 readp1 ... readp3
+                                percent   {txt}->   {res}percent0 percent1 ... percent3
+                                 twhite   {txt}->   {res}twhite0 twhite1 ... twhite3
+                                tmaster   {txt}->   {res}tmaster0 tmaster1 ... tmaster3
+{txt}{hline 77}
+
+{com}. 
+. forvalues i = 0(1)3 {c -(}
+{txt}  2{com}.         local vars twhite`i' tmaster`i' totexp`i'
+{txt}  3{com}.         foreach v of local vars {c -(}
+{txt}  4{com}.                 eststo : xi , noomit : ///
+>                 quietly regress `v' i.ctype`i' if enter1st == `i' , noconstant
+{txt}  5{com}.                 testparm _I*, equal
+{txt}  6{com}.                 return list
+{txt}  7{com}.                 estadd scalar p_F = r(p)
+{txt}  8{com}.         {c )-}
+{txt}  9{com}.         
+.         esttab using "Output_Xue/q1c.csv", scalars(p_F) plain append
+{txt} 10{com}.         eststo clear
+{txt} 11{com}. {c )-}
+{txt}({res}est1{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype0_1 + _Ictype0_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype0_1 + _Ictype0_3 = 0{p_end}
+
+{txt}       F(  2,  5830) ={res}   13.83
+{txt}{col 13}Prob > F ={res}    0.0000
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}5830
+                  {txt}r(F) =  {res}13.825688070706
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}1.02276161015e-06
+
+{txt}added scalar:
+                e(p_F) =  {res}1.023e-06
+{txt}({res}est2{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype0_1 + _Ictype0_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype0_1 + _Ictype0_3 = 0{p_end}
+
+{txt}       F(  2,  5891) ={res}    6.26
+{txt}{col 13}Prob > F ={res}    0.0019
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}5891
+                  {txt}r(F) =  {res}6.261306644839405
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0019214768995589
+
+{txt}added scalar:
+                e(p_F) =  {res}.00192148
+{txt}({res}est3{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype0_1 + _Ictype0_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype0_1 + _Ictype0_3 = 0{p_end}
+
+{txt}       F(  2,  5870) ={res}   12.04
+{txt}{col 13}Prob > F ={res}    0.0000
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}5870
+                  {txt}r(F) =  {res}12.0361716866701
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}6.07359833368e-06
+
+{txt}added scalar:
+                e(p_F) =  {res}6.074e-06
+{txt}(note: file Output_Xue/q1c.csv not found)
+(output written to {browse  `"Output_Xue/q1c.csv"'})
+({res}est1{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype1_1 + _Ictype1_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype1_1 + _Ictype1_3 = 0{p_end}
+
+{txt}       F(  2,  2138) ={res}    1.00
+{txt}{col 13}Prob > F ={res}    0.3693
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}2138
+                  {txt}r(F) =  {res}.9966912618242396
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.3692701039719435
+
+{txt}added scalar:
+                e(p_F) =  {res}.3692701
+{txt}({res}est2{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype1_1 + _Ictype1_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype1_1 + _Ictype1_3 = 0{p_end}
+
+{txt}       F(  2,  2156) ={res}    8.05
+{txt}{col 13}Prob > F ={res}    0.0003
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}2156
+                  {txt}r(F) =  {res}8.054891348618398
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0003271973460445
+
+{txt}added scalar:
+                e(p_F) =  {res}.0003272
+{txt}({res}est3{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype1_1 + _Ictype1_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype1_1 + _Ictype1_3 = 0{p_end}
+
+{txt}       F(  2,  2152) ={res}   21.13
+{txt}{col 13}Prob > F ={res}    0.0000
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}2152
+                  {txt}r(F) =  {res}21.12804166300804
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}8.18714689630e-10
+
+{txt}added scalar:
+                e(p_F) =  {res}8.187e-10
+{txt}(output written to {browse  `"Output_Xue/q1c.csv"'})
+({res}est1{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype2_1 + _Ictype2_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype2_1 + _Ictype2_3 = 0{p_end}
+
+{txt}       F(  2,  1546) ={res}    2.95
+{txt}{col 13}Prob > F ={res}    0.0524
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}1546
+                  {txt}r(F) =  {res}2.95493523420557
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0523762678593891
+
+{txt}added scalar:
+                e(p_F) =  {res}.05237627
+{txt}({res}est2{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype2_1 + _Ictype2_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype2_1 + _Ictype2_3 = 0{p_end}
+
+{txt}       F(  2,  1546) ={res}    0.27
+{txt}{col 13}Prob > F ={res}    0.7626
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}1546
+                  {txt}r(F) =  {res}.2710574179604637
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.7626089426845548
+
+{txt}added scalar:
+                e(p_F) =  {res}.76260894
+{txt}({res}est3{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype2_1 + _Ictype2_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype2_1 + _Ictype2_3 = 0{p_end}
+
+{txt}       F(  2,  1523) ={res}    1.98
+{txt}{col 13}Prob > F ={res}    0.1390
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}1523
+                  {txt}r(F) =  {res}1.976123985479286
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.1389606678450852
+
+{txt}added scalar:
+                e(p_F) =  {res}.13896067
+{txt}(output written to {browse  `"Output_Xue/q1c.csv"'})
+({res}est1{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype3_1 + _Ictype3_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype3_1 + _Ictype3_3 = 0{p_end}
+
+{txt}       F(  2,  1177) ={res}    1.36
+{txt}{col 13}Prob > F ={res}    0.2567
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}1177
+                  {txt}r(F) =  {res}1.361288411695753
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.2567335753231204
+
+{txt}added scalar:
+                e(p_F) =  {res}.25673358
+{txt}({res}est2{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype3_1 + _Ictype3_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype3_1 + _Ictype3_3 = 0{p_end}
+
+{txt}       F(  2,  1178) ={res}    2.26
+{txt}{col 13}Prob > F ={res}    0.1045
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}1178
+                  {txt}r(F) =  {res}2.262718878771837
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.1045192811617763
+
+{txt}added scalar:
+                e(p_F) =  {res}.10451928
+{txt}({res}est3{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype3_1 + _Ictype3_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype3_1 + _Ictype3_3 = 0{p_end}
+
+{txt}       F(  2,  1178) ={res}   10.14
+{txt}{col 13}Prob > F ={res}    0.0000
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}1178
+                  {txt}r(F) =  {res}10.13888427909473
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0000430732257424
+
+{txt}added scalar:
+                e(p_F) =  {res}.00004307
+{txt}(output written to {browse  `"Output_Xue/q1c.csv"'})
+
+{com}. 
+. ****************
+. *     1.d      *
+. ****************
+. reshape long
+{txt}(note: j = 0 1 2 3)
+
+Data{col 36}wide{col 43}->{col 48}long
+{hline 77}
+Number of obs.                 {res}   10807   {txt}->{res}   43228
+{txt}Number of variables            {res}      93   {txt}->{res}      34
+{txt}j variable (4 values)                     ->   {res}grade
+{txt}xij variables:
+                  {res}star0 star1 ... star3   {txt}->   {res}star
+               ctype0 ctype1 ... ctype3   {txt}->   {res}ctype
+               stype0 stype1 ... stype3   {txt}->   {res}stype
+                  hdeg0 hdeg1 ... hdeg3   {txt}->   {res}hdeg
+                  clad0 clad1 ... clad3   {txt}->   {res}clad
+            totexp0 totexp1 ... totexp3   {txt}->   {res}totexp
+               trace0 trace1 ... trace3   {txt}->   {res}trace
+                  read0 read1 ... read3   {txt}->   {res}read
+                  math0 math1 ... math3   {txt}->   {res}math
+                     ses0 ses1 ... ses3   {txt}->   {res}ses
+               sysid0 sysid1 ... sysid3   {txt}->   {res}sysid
+               schid0 schid1 ... schid3   {txt}->   {res}schid
+               tchid0 tchid1 ... tchid3   {txt}->   {res}tchid
+               csize0 csize1 ... csize3   {txt}->   {res}csize
+                  frln0 frln1 ... frln3   {txt}->   {res}frln
+               mathp0 mathp1 ... mathp3   {txt}->   {res}mathp
+               readp0 readp1 ... readp3   {txt}->   {res}readp
+         percent0 percent1 ... percent3   {txt}->   {res}percent
+            twhite0 twhite1 ... twhite3   {txt}->   {res}twhite
+         tmaster0 tmaster1 ... tmaster3   {txt}->   {res}tmaster
+{txt}{hline 77}
+
+{com}. 
+. local student frln whasn agein1985 attr csize percent
+{txt}
+{com}. local teacher twhite tmaster totexp
+{txt}
+{com}. 
+. local all `student' `teacher'
+{txt}
+{com}. forvalues i = 0(1)3 {c -(}
+{txt}  2{com}.         foreach v of local all {c -(}
+{txt}  3{com}.                 eststo : xi , noomit : ///
+>                 quietly regress `v' i.ctype if enter1st == `i' ///
+>                 , noconstant cluster(grade)
+{txt}  4{com}.                 testparm _I*, equal
+{txt}  5{com}.                 return list
+{txt}  6{com}.                 estadd scalar p_F = r(p)
+{txt}  7{com}.         {c )-}
+{txt}  8{com}.         esttab using "Output_Xue/q1d.csv", scalars(p_F) plain append
+{txt}  9{com}.         eststo clear
+{txt} 10{com}. {c )-}
+{txt}({res}est1{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     3) ={res}21474.82
+{txt}{col 13}Prob > F ={res}    0.0000
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}3
+                  {txt}r(F) =  {res}21474.81865887049
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}5.83709994717e-07
+
+{txt}added scalar:
+                e(p_F) =  {res}5.837e-07
+{txt}({res}est2{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     3) ={res}    2.54
+{txt}{col 13}Prob > F ={res}    0.2266
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}3
+                  {txt}r(F) =  {res}2.535718313019712
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.226597764119585
+
+{txt}added scalar:
+                e(p_F) =  {res}.22659776
+{txt}({res}est3{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     3) ={res}   25.99
+{txt}{col 13}Prob > F ={res}    0.0127
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}3
+                  {txt}r(F) =  {res}25.99271567950378
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0127441368806296
+
+{txt}added scalar:
+                e(p_F) =  {res}.01274414
+{txt}({res}est4{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     3) ={res}   22.69
+{txt}{col 13}Prob > F ={res}    0.0154
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}3
+                  {txt}r(F) =  {res}22.69176826320747
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0154395795007479
+
+{txt}added scalar:
+                e(p_F) =  {res}.01543958
+{txt}({res}est5{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     3) ={res}  841.34
+{txt}{col 13}Prob > F ={res}    0.0001
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}3
+                  {txt}r(F) =  {res}841.3418843322285
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0000750788694838
+
+{txt}added scalar:
+                e(p_F) =  {res}.00007508
+{txt}({res}est6{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     3) ={res}   19.49
+{txt}{col 13}Prob > F ={res}    0.0191
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}3
+                  {txt}r(F) =  {res}19.48758812479637
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0191070257776042
+
+{txt}added scalar:
+                e(p_F) =  {res}.01910703
+{txt}({res}est7{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     3) ={res}    1.34
+{txt}{col 13}Prob > F ={res}    0.3837
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}3
+                  {txt}r(F) =  {res}1.340586245029239
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.3837292625100384
+
+{txt}added scalar:
+                e(p_F) =  {res}.38372926
+{txt}({res}est8{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     3) ={res}    1.57
+{txt}{col 13}Prob > F ={res}    0.3419
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}3
+                  {txt}r(F) =  {res}1.567902851100423
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.3418806209139051
+
+{txt}added scalar:
+                e(p_F) =  {res}.34188062
+{txt}({res}est9{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     3) ={res}   46.88
+{txt}{col 13}Prob > F ={res}    0.0055
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}3
+                  {txt}r(F) =  {res}46.87758233416662
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0054597234805113
+
+{txt}added scalar:
+                e(p_F) =  {res}.00545972
+{txt}(note: file Output_Xue/q1d.csv not found)
+(output written to {browse  `"Output_Xue/q1d.csv"'})
+({res}est1{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     2) ={res}    7.79
+{txt}{col 13}Prob > F ={res}    0.1138
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}2
+                  {txt}r(F) =  {res}7.785976683084792
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.1138177388889787
+
+{txt}added scalar:
+                e(p_F) =  {res}.11381774
+{txt}({res}est2{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     2) ={res}  905.48
+{txt}{col 13}Prob > F ={res}    0.0011
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}2
+                  {txt}r(F) =  {res}905.4827682753121
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0011031649304295
+
+{txt}added scalar:
+                e(p_F) =  {res}.00110316
+{txt}({res}est3{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     2) ={res}  140.52
+{txt}{col 13}Prob > F ={res}    0.0071
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}2
+                  {txt}r(F) =  {res}140.518486051838
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0070662146543435
+
+{txt}added scalar:
+                e(p_F) =  {res}.00706621
+{txt}({res}est4{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     2) ={res}    4.04
+{txt}{col 13}Prob > F ={res}    0.1985
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}2
+                  {txt}r(F) =  {res}4.038385299994972
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.1984762856467126
+
+{txt}added scalar:
+                e(p_F) =  {res}.19847629
+{txt}({res}est5{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     2) ={res}  324.54
+{txt}{col 13}Prob > F ={res}    0.0031
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}2
+                  {txt}r(F) =  {res}324.5389000607073
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0030718295104318
+
+{txt}added scalar:
+                e(p_F) =  {res}.00307183
+{txt}({res}est6{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     2) ={res}    8.11
+{txt}{col 13}Prob > F ={res}    0.1097
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}2
+                  {txt}r(F) =  {res}8.114177389433792
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.1097191723697759
+
+{txt}added scalar:
+                e(p_F) =  {res}.10971917
+{txt}({res}est7{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     2) ={res}    2.09
+{txt}{col 13}Prob > F ={res}    0.3235
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}2
+                  {txt}r(F) =  {res}2.09079490020879
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.3235413646930916
+
+{txt}added scalar:
+                e(p_F) =  {res}.32354136
+{txt}({res}est8{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     2) ={res}    6.70
+{txt}{col 13}Prob > F ={res}    0.1299
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}2
+                  {txt}r(F) =  {res}6.698860273785297
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.1298893556238462
+
+{txt}added scalar:
+                e(p_F) =  {res}.12988936
+{txt}({res}est9{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     2) ={res}   13.22
+{txt}{col 13}Prob > F ={res}    0.0703
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}2
+                  {txt}r(F) =  {res}13.2205729416204
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0703206547377023
+
+{txt}added scalar:
+                e(p_F) =  {res}.07032065
+{txt}(output written to {browse  `"Output_Xue/q1d.csv"'})
+({res}est1{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 2 dropped
+
+       F(  1,     1) ={res}   22.63
+{txt}{col 13}Prob > F ={res}    0.1319
+
+{txt}scalars:
+          r(dropped_1) =  {res}2
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}1
+                  {txt}r(F) =  {res}22.62992763338234
+                 {txt}r(df) =  {res}1
+                  {txt}r(p) =  {res}.1319048504457928
+
+{txt}added scalar:
+                e(p_F) =  {res}.13190485
+{txt}({res}est2{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 2 dropped
+
+       F(  1,     1) ={res}    0.76
+{txt}{col 13}Prob > F ={res}    0.5440
+
+{txt}scalars:
+          r(dropped_1) =  {res}2
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}1
+                  {txt}r(F) =  {res}.7579603753919204
+                 {txt}r(df) =  {res}1
+                  {txt}r(p) =  {res}.5439652210135061
+
+{txt}added scalar:
+                e(p_F) =  {res}.54396522
+{txt}({res}est3{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 2 dropped
+
+       F(  1,     1) ={res}    0.03
+{txt}{col 13}Prob > F ={res}    0.8972
+
+{txt}scalars:
+          r(dropped_1) =  {res}2
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}1
+                  {txt}r(F) =  {res}.0265572852254136
+                 {txt}r(df) =  {res}1
+                  {txt}r(p) =  {res}.8971578995770548
+
+{txt}added scalar:
+                e(p_F) =  {res}.8971579
+{txt}({res}est4{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 2 dropped
+
+       F(  1,     1) ={res}    0.04
+{txt}{col 13}Prob > F ={res}    0.8815
+
+{txt}scalars:
+          r(dropped_1) =  {res}2
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}1
+                  {txt}r(F) =  {res}.0354782375053308
+                 {txt}r(df) =  {res}1
+                  {txt}r(p) =  {res}.8814770572967885
+
+{txt}added scalar:
+                e(p_F) =  {res}.88147706
+{txt}({res}est5{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 1 dropped
+
+       F(  1,     1) ={res}  568.92
+{txt}{col 13}Prob > F ={res}    0.0267
+
+{txt}scalars:
+          r(dropped_1) =  {res}1
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}1
+                  {txt}r(F) =  {res}568.9224259982123
+                 {txt}r(df) =  {res}1
+                  {txt}r(p) =  {res}.0266746872075
+
+{txt}added scalar:
+                e(p_F) =  {res}.02667469
+{txt}({res}est6{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 1 dropped
+
+       F(  1,     1) ={res}   41.02
+{txt}{col 13}Prob > F ={res}    0.0986
+
+{txt}scalars:
+          r(dropped_1) =  {res}1
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}1
+                  {txt}r(F) =  {res}41.02082209458517
+                 {txt}r(df) =  {res}1
+                  {txt}r(p) =  {res}.0986019759897252
+
+{txt}added scalar:
+                e(p_F) =  {res}.09860198
+{txt}({res}est7{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 1 dropped
+
+       F(  1,     1) ={res}    2.13
+{txt}{col 13}Prob > F ={res}    0.3821
+
+{txt}scalars:
+          r(dropped_1) =  {res}1
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}1
+                  {txt}r(F) =  {res}2.134169482969694
+                 {txt}r(df) =  {res}1
+                  {txt}r(p) =  {res}.3821375993949343
+
+{txt}added scalar:
+                e(p_F) =  {res}.3821376
+{txt}({res}est8{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 1 dropped
+
+       F(  1,     1) ={res}    4.18
+{txt}{col 13}Prob > F ={res}    0.2897
+
+{txt}scalars:
+          r(dropped_1) =  {res}1
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}1
+                  {txt}r(F) =  {res}4.176223038075897
+                 {txt}r(df) =  {res}1
+                  {txt}r(p) =  {res}.2897135448236965
+
+{txt}added scalar:
+                e(p_F) =  {res}.28971354
+{txt}({res}est9{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 1 dropped
+
+       F(  1,     1) ={res}    8.36
+{txt}{col 13}Prob > F ={res}    0.2120
+
+{txt}scalars:
+          r(dropped_1) =  {res}1
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}1
+                  {txt}r(F) =  {res}8.361884543511321
+                 {txt}r(df) =  {res}1
+                  {txt}r(p) =  {res}.2119591082823148
+
+{txt}added scalar:
+                e(p_F) =  {res}.21195911
+{txt}(output written to {browse  `"Output_Xue/q1d.csv"'})
+({res}est1{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 1 dropped
+       Constraint 2 dropped
+
+       F(  0,     0) ={res}       .
+{txt}{col 13}Prob > F ={res}         .
+
+{txt}scalars:
+          r(dropped_2) =  {res}2
+          {txt}r(dropped_1) =  {res}1
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}0
+                  {txt}r(F) =  {res}.
+                 {txt}r(df) =  {res}0
+                  {txt}r(p) =  {res}.
+
+{txt}added scalar:
+                e(p_F) =  {res}.
+{txt}({res}est2{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 1 dropped
+       Constraint 2 dropped
+
+       F(  0,     0) ={res}       .
+{txt}{col 13}Prob > F ={res}         .
+
+{txt}scalars:
+          r(dropped_2) =  {res}2
+          {txt}r(dropped_1) =  {res}1
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}0
+                  {txt}r(F) =  {res}.
+                 {txt}r(df) =  {res}0
+                  {txt}r(p) =  {res}.
+
+{txt}added scalar:
+                e(p_F) =  {res}.
+{txt}({res}est3{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 1 dropped
+       Constraint 2 dropped
+
+       F(  0,     0) ={res}       .
+{txt}{col 13}Prob > F ={res}         .
+
+{txt}scalars:
+          r(dropped_2) =  {res}2
+          {txt}r(dropped_1) =  {res}1
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}0
+                  {txt}r(F) =  {res}.
+                 {txt}r(df) =  {res}0
+                  {txt}r(p) =  {res}.
+
+{txt}added scalar:
+                e(p_F) =  {res}.
+{txt}({res}est4{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 1 dropped
+       Constraint 2 dropped
+
+       F(  0,     0) ={res}       .
+{txt}{col 13}Prob > F ={res}         .
+
+{txt}scalars:
+          r(dropped_2) =  {res}2
+          {txt}r(dropped_1) =  {res}1
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}0
+                  {txt}r(F) =  {res}.
+                 {txt}r(df) =  {res}0
+                  {txt}r(p) =  {res}.
+
+{txt}added scalar:
+                e(p_F) =  {res}.
+{txt}({res}est5{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 1 dropped
+       Constraint 2 dropped
+
+       F(  0,     0) ={res}       .
+{txt}{col 13}Prob > F ={res}         .
+
+{txt}scalars:
+          r(dropped_2) =  {res}2
+          {txt}r(dropped_1) =  {res}1
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}0
+                  {txt}r(F) =  {res}.
+                 {txt}r(df) =  {res}0
+                  {txt}r(p) =  {res}.
+
+{txt}added scalar:
+                e(p_F) =  {res}.
+{txt}({res}est6{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 1 dropped
+       Constraint 2 dropped
+
+       F(  0,     0) ={res}       .
+{txt}{col 13}Prob > F ={res}         .
+
+{txt}scalars:
+          r(dropped_2) =  {res}2
+          {txt}r(dropped_1) =  {res}1
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}0
+                  {txt}r(F) =  {res}.
+                 {txt}r(df) =  {res}0
+                  {txt}r(p) =  {res}.
+
+{txt}added scalar:
+                e(p_F) =  {res}.
+{txt}({res}est7{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 1 dropped
+       Constraint 2 dropped
+
+       F(  0,     0) ={res}       .
+{txt}{col 13}Prob > F ={res}         .
+
+{txt}scalars:
+          r(dropped_2) =  {res}2
+          {txt}r(dropped_1) =  {res}1
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}0
+                  {txt}r(F) =  {res}.
+                 {txt}r(df) =  {res}0
+                  {txt}r(p) =  {res}.
+
+{txt}added scalar:
+                e(p_F) =  {res}.
+{txt}({res}est8{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 1 dropped
+       Constraint 2 dropped
+
+       F(  0,     0) ={res}       .
+{txt}{col 13}Prob > F ={res}         .
+
+{txt}scalars:
+          r(dropped_2) =  {res}2
+          {txt}r(dropped_1) =  {res}1
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}0
+                  {txt}r(F) =  {res}.
+                 {txt}r(df) =  {res}0
+                  {txt}r(p) =  {res}.
+
+{txt}added scalar:
+                e(p_F) =  {res}.
+{txt}({res}est9{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 1 dropped
+       Constraint 2 dropped
+
+       F(  0,     0) ={res}       .
+{txt}{col 13}Prob > F ={res}         .
+
+{txt}scalars:
+          r(dropped_2) =  {res}2
+          {txt}r(dropped_1) =  {res}1
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}0
+                  {txt}r(F) =  {res}.
+                 {txt}r(df) =  {res}0
+                  {txt}r(p) =  {res}.
+
+{txt}added scalar:
+                e(p_F) =  {res}.
+{txt}(output written to {browse  `"Output_Xue/q1d.csv"'})
+
+{com}. 
+. 
+. ****************
+. *     2.b      *
+. ****************
+. 
+. forvalues i = 0(1)3 {c -(}
+{txt}  2{com}.         foreach v of local all {c -(}
+{txt}  3{com}.                 * control on school id
+.                 eststo : xi , noomit : ///
+>                 quietly regress `v' schid i.ctype if enter1st == `i' ///
+>                 , noconstant cluster(grade)
+{txt}  4{com}.                 testparm _I*, equal
+{txt}  5{com}.                 return list
+{txt}  6{com}.                 estadd scalar p_F = r(p)
+{txt}  7{com}.         {c )-}
+{txt}  8{com}.         esttab using "Output_Xue/q2b.csv", scalars(p_F) plain append
+{txt}  9{com}.         eststo clear
+{txt} 10{com}. {c )-}
+{txt}({res}est1{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     3) ={res}    1.02
+{txt}{col 13}Prob > F ={res}    0.4597
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}3
+                  {txt}r(F) =  {res}1.018353858405383
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.4596865091093532
+
+{txt}added scalar:
+                e(p_F) =  {res}.45968651
+{txt}({res}est2{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     3) ={res}    0.41
+{txt}{col 13}Prob > F ={res}    0.6957
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}3
+                  {txt}r(F) =  {res}.4104714079777186
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.695706522299268
+
+{txt}added scalar:
+                e(p_F) =  {res}.69570652
+{txt}({res}est3{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     3) ={res}   30.76
+{txt}{col 13}Prob > F ={res}    0.0100
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}3
+                  {txt}r(F) =  {res}30.76219054160122
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0100252707617724
+
+{txt}added scalar:
+                e(p_F) =  {res}.01002527
+{txt}({res}est4{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     3) ={res}   18.69
+{txt}{col 13}Prob > F ={res}    0.0202
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}3
+                  {txt}r(F) =  {res}18.6911338878672
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0202486384392681
+
+{txt}added scalar:
+                e(p_F) =  {res}.02024864
+{txt}({res}est5{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     3) ={res}  871.27
+{txt}{col 13}Prob > F ={res}    0.0001
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}3
+                  {txt}r(F) =  {res}871.2719348835624
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0000712501412799
+
+{txt}added scalar:
+                e(p_F) =  {res}.00007125
+{txt}({res}est6{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     3) ={res}   29.76
+{txt}{col 13}Prob > F ={res}    0.0105
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}3
+                  {txt}r(F) =  {res}29.75770821081161
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0105123833442455
+
+{txt}added scalar:
+                e(p_F) =  {res}.01051238
+{txt}({res}est7{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     3) ={res}    1.09
+{txt}{col 13}Prob > F ={res}    0.4396
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}3
+                  {txt}r(F) =  {res}1.094390385315122
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.4396265366022716
+
+{txt}added scalar:
+                e(p_F) =  {res}.43962654
+{txt}({res}est8{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     3) ={res}    1.34
+{txt}{col 13}Prob > F ={res}    0.3838
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}3
+                  {txt}r(F) =  {res}1.340395838787284
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.3837678481555293
+
+{txt}added scalar:
+                e(p_F) =  {res}.38376785
+{txt}({res}est9{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     3) ={res}   26.80
+{txt}{col 13}Prob > F ={res}    0.0122
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}3
+                  {txt}r(F) =  {res}26.80480106790743
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0121996319370488
+
+{txt}added scalar:
+                e(p_F) =  {res}.01219963
+{txt}(note: file Output_Xue/q2b.csv not found)
+(output written to {browse  `"Output_Xue/q2b.csv"'})
+({res}est1{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     2) ={res}    5.54
+{txt}{col 13}Prob > F ={res}    0.1529
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}2
+                  {txt}r(F) =  {res}5.540137326569664
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.1529019881490019
+
+{txt}added scalar:
+                e(p_F) =  {res}.15290199
+{txt}({res}est2{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     2) ={res}  114.38
+{txt}{col 13}Prob > F ={res}    0.0087
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}2
+                  {txt}r(F) =  {res}114.3771034574023
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0086672309326018
+
+{txt}added scalar:
+                e(p_F) =  {res}.00866723
+{txt}({res}est3{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     2) ={res}  132.93
+{txt}{col 13}Prob > F ={res}    0.0075
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}2
+                  {txt}r(F) =  {res}132.9250865317553
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0074668609585919
+
+{txt}added scalar:
+                e(p_F) =  {res}.00746686
+{txt}({res}est4{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     2) ={res}    3.75
+{txt}{col 13}Prob > F ={res}    0.2107
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}2
+                  {txt}r(F) =  {res}3.745676932937719
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.210718094411237
+
+{txt}added scalar:
+                e(p_F) =  {res}.21071809
+{txt}({res}est5{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     2) ={res}  322.90
+{txt}{col 13}Prob > F ={res}    0.0031
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}2
+                  {txt}r(F) =  {res}322.9003133136226
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0030873696594166
+
+{txt}added scalar:
+                e(p_F) =  {res}.00308737
+{txt}({res}est6{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     2) ={res}    7.32
+{txt}{col 13}Prob > F ={res}    0.1201
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}2
+                  {txt}r(F) =  {res}7.322990071957001
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.1201491280602799
+
+{txt}added scalar:
+                e(p_F) =  {res}.12014913
+{txt}({res}est7{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     2) ={res}    1.16
+{txt}{col 13}Prob > F ={res}    0.4622
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}2
+                  {txt}r(F) =  {res}1.16361803960804
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.4621887882674336
+
+{txt}added scalar:
+                e(p_F) =  {res}.46218879
+{txt}({res}est8{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     2) ={res}    6.54
+{txt}{col 13}Prob > F ={res}    0.1325
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}2
+                  {txt}r(F) =  {res}6.544349581037548
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.1325495311767451
+
+{txt}added scalar:
+                e(p_F) =  {res}.13254953
+{txt}({res}est9{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+
+{txt}       F(  2,     2) ={res}   11.29
+{txt}{col 13}Prob > F ={res}    0.0814
+
+{txt}scalars:
+               r(drop) =  {res}0
+               {txt}r(df_r) =  {res}2
+                  {txt}r(F) =  {res}11.28842128077418
+                 {txt}r(df) =  {res}2
+                  {txt}r(p) =  {res}.0813774183966616
+
+{txt}added scalar:
+                e(p_F) =  {res}.08137742
+{txt}(output written to {browse  `"Output_Xue/q2b.csv"'})
+({res}est1{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 1 dropped
+
+       F(  1,     1) ={res}   13.08
+{txt}{col 13}Prob > F ={res}    0.1717
+
+{txt}scalars:
+          r(dropped_1) =  {res}1
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}1
+                  {txt}r(F) =  {res}13.08311013609908
+                 {txt}r(df) =  {res}1
+                  {txt}r(p) =  {res}.1717156214479513
+
+{txt}added scalar:
+                e(p_F) =  {res}.17171562
+{txt}({res}est2{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 2 dropped
+
+       F(  1,     1) ={res}    2.50
+{txt}{col 13}Prob > F ={res}    0.3591
+
+{txt}scalars:
+          r(dropped_1) =  {res}2
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}1
+                  {txt}r(F) =  {res}2.498824725404634
+                 {txt}r(df) =  {res}1
+                  {txt}r(p) =  {res}.3590846560088732
+
+{txt}added scalar:
+                e(p_F) =  {res}.35908466
+{txt}({res}est3{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 2 dropped
+
+       F(  1,     1) ={res}    0.02
+{txt}{col 13}Prob > F ={res}    0.9182
+
+{txt}scalars:
+          r(dropped_1) =  {res}2
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}1
+                  {txt}r(F) =  {res}.0166818023092297
+                 {txt}r(df) =  {res}1
+                  {txt}r(p) =  {res}.9182281260548262
+
+{txt}added scalar:
+                e(p_F) =  {res}.91822813
+{txt}({res}est4{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 2 dropped
+
+       F(  1,     1) ={res}    0.04
+{txt}{col 13}Prob > F ={res}    0.8811
+
+{txt}scalars:
+          r(dropped_1) =  {res}2
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}1
+                  {txt}r(F) =  {res}.0357115563569496
+                 {txt}r(df) =  {res}1
+                  {txt}r(p) =  {res}.8810969407303982
+
+{txt}added scalar:
+                e(p_F) =  {res}.88109694
+{txt}({res}est5{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 1 dropped
+
+       F(  1,     1) ={res}  536.29
+{txt}{col 13}Prob > F ={res}    0.0275
+
+{txt}scalars:
+          r(dropped_1) =  {res}1
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}1
+                  {txt}r(F) =  {res}536.2903307201048
+                 {txt}r(df) =  {res}1
+                  {txt}r(p) =  {res}.0274732741591737
+
+{txt}added scalar:
+                e(p_F) =  {res}.02747327
+{txt}({res}est6{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 1 dropped
+
+       F(  1,     1) ={res}   17.20
+{txt}{col 13}Prob > F ={res}    0.1506
+
+{txt}scalars:
+          r(dropped_1) =  {res}1
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}1
+                  {txt}r(F) =  {res}17.20233121741756
+                 {txt}r(df) =  {res}1
+                  {txt}r(p) =  {res}.1506176206906538
+
+{txt}added scalar:
+                e(p_F) =  {res}.15061762
+{txt}({res}est7{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 1 dropped
+
+       F(  1,     1) ={res}    1.84
+{txt}{col 13}Prob > F ={res}    0.4046
+
+{txt}scalars:
+          r(dropped_1) =  {res}1
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}1
+                  {txt}r(F) =  {res}1.837752405890009
+                 {txt}r(df) =  {res}1
+                  {txt}r(p) =  {res}.4046080956699132
+
+{txt}added scalar:
+                e(p_F) =  {res}.4046081
+{txt}({res}est8{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 1 dropped
+
+       F(  1,     1) ={res}    5.92
+{txt}{col 13}Prob > F ={res}    0.2483
+
+{txt}scalars:
+          r(dropped_1) =  {res}1
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}1
+                  {txt}r(F) =  {res}5.917012573807608
+                 {txt}r(df) =  {res}1
+                  {txt}r(p) =  {res}.248306922436657
+
+{txt}added scalar:
+                e(p_F) =  {res}.24830692
+{txt}({res}est9{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 1 dropped
+
+       F(  1,     1) ={res}    9.59
+{txt}{col 13}Prob > F ={res}    0.1988
+
+{txt}scalars:
+          r(dropped_1) =  {res}1
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}1
+                  {txt}r(F) =  {res}9.592532628892382
+                 {txt}r(df) =  {res}1
+                  {txt}r(p) =  {res}.1988214449956437
+
+{txt}added scalar:
+                e(p_F) =  {res}.19882144
+{txt}(output written to {browse  `"Output_Xue/q2b.csv"'})
+({res}est1{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 1 dropped
+       Constraint 2 dropped
+
+       F(  0,     0) ={res}       .
+{txt}{col 13}Prob > F ={res}         .
+
+{txt}scalars:
+          r(dropped_2) =  {res}2
+          {txt}r(dropped_1) =  {res}1
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}0
+                  {txt}r(F) =  {res}.
+                 {txt}r(df) =  {res}0
+                  {txt}r(p) =  {res}.
+
+{txt}added scalar:
+                e(p_F) =  {res}.
+{txt}({res}est2{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 1 dropped
+       Constraint 2 dropped
+
+       F(  0,     0) ={res}       .
+{txt}{col 13}Prob > F ={res}         .
+
+{txt}scalars:
+          r(dropped_2) =  {res}2
+          {txt}r(dropped_1) =  {res}1
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}0
+                  {txt}r(F) =  {res}.
+                 {txt}r(df) =  {res}0
+                  {txt}r(p) =  {res}.
+
+{txt}added scalar:
+                e(p_F) =  {res}.
+{txt}({res}est3{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 1 dropped
+       Constraint 2 dropped
+
+       F(  0,     0) ={res}       .
+{txt}{col 13}Prob > F ={res}         .
+
+{txt}scalars:
+          r(dropped_2) =  {res}2
+          {txt}r(dropped_1) =  {res}1
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}0
+                  {txt}r(F) =  {res}.
+                 {txt}r(df) =  {res}0
+                  {txt}r(p) =  {res}.
+
+{txt}added scalar:
+                e(p_F) =  {res}.
+{txt}({res}est4{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 1 dropped
+       Constraint 2 dropped
+
+       F(  0,     0) ={res}       .
+{txt}{col 13}Prob > F ={res}         .
+
+{txt}scalars:
+          r(dropped_2) =  {res}2
+          {txt}r(dropped_1) =  {res}1
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}0
+                  {txt}r(F) =  {res}.
+                 {txt}r(df) =  {res}0
+                  {txt}r(p) =  {res}.
+
+{txt}added scalar:
+                e(p_F) =  {res}.
+{txt}({res}est5{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 1 dropped
+       Constraint 2 dropped
+
+       F(  0,     0) ={res}       .
+{txt}{col 13}Prob > F ={res}         .
+
+{txt}scalars:
+          r(dropped_2) =  {res}2
+          {txt}r(dropped_1) =  {res}1
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}0
+                  {txt}r(F) =  {res}.
+                 {txt}r(df) =  {res}0
+                  {txt}r(p) =  {res}.
+
+{txt}added scalar:
+                e(p_F) =  {res}.
+{txt}({res}est6{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 1 dropped
+       Constraint 2 dropped
+
+       F(  0,     0) ={res}       .
+{txt}{col 13}Prob > F ={res}         .
+
+{txt}scalars:
+          r(dropped_2) =  {res}2
+          {txt}r(dropped_1) =  {res}1
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}0
+                  {txt}r(F) =  {res}.
+                 {txt}r(df) =  {res}0
+                  {txt}r(p) =  {res}.
+
+{txt}added scalar:
+                e(p_F) =  {res}.
+{txt}({res}est7{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 1 dropped
+       Constraint 2 dropped
+
+       F(  0,     0) ={res}       .
+{txt}{col 13}Prob > F ={res}         .
+
+{txt}scalars:
+          r(dropped_2) =  {res}2
+          {txt}r(dropped_1) =  {res}1
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}0
+                  {txt}r(F) =  {res}.
+                 {txt}r(df) =  {res}0
+                  {txt}r(p) =  {res}.
+
+{txt}added scalar:
+                e(p_F) =  {res}.
+{txt}({res}est8{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 1 dropped
+       Constraint 2 dropped
+
+       F(  0,     0) ={res}       .
+{txt}{col 13}Prob > F ={res}         .
+
+{txt}scalars:
+          r(dropped_2) =  {res}2
+          {txt}r(dropped_1) =  {res}1
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}0
+                  {txt}r(F) =  {res}.
+                 {txt}r(df) =  {res}0
+                  {txt}r(p) =  {res}.
+
+{txt}added scalar:
+                e(p_F) =  {res}.
+{txt}({res}est9{txt} stored)
+
+{p 0 7}{space 1}{text:( 1)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_2 = 0{p_end}
+{p 0 7}{space 1}{text:( 2)}{space 1}{space 1}{res}- _Ictype_1 + _Ictype_3 = 0{p_end}
+{txt}       Constraint 1 dropped
+       Constraint 2 dropped
+
+       F(  0,     0) ={res}       .
+{txt}{col 13}Prob > F ={res}         .
+
+{txt}scalars:
+          r(dropped_2) =  {res}2
+          {txt}r(dropped_1) =  {res}1
+               {txt}r(drop) =  {res}1
+               {txt}r(df_r) =  {res}0
+                  {txt}r(F) =  {res}.
+                 {txt}r(df) =  {res}0
+                  {txt}r(p) =  {res}.
+
+{txt}added scalar:
+                e(p_F) =  {res}.
+{txt}(output written to {browse  `"Output_Xue/q2b.csv"'})
+
+{com}. 
+. ****************
+. *     3.a      *
+. ****************
+. 
+. gen smallc = 0 if ctype == 2
+{txt}(34,712 missing values generated)
+
+{com}. replace smallc = 1 if ctype == 1
+{txt}(7,476 real changes made)
+
+{com}. replace smallc = 2 if ctype == 3
+{txt}(8,876 real changes made)
+
+{com}. 
+. gen girl = 1 if sex == 2
+{txt}(22,828 missing values generated)
+
+{com}. replace girl = 0 if sex == 1
+{txt}(22,760 real changes made)
+
+{com}. 
+. local st whasn girl frln
+{txt}
+{com}. local tch twhite tmaster totexp
+{txt}
+{com}. 
+. 
+. local rg1 i.smallc
+{txt}
+{com}. local rg2  `rg1' schid
+{txt}
+{com}. local rg3 `rg2' `st'
+{txt}
+{com}. local rg4 `rg3' `teacher'
+{txt}
+{com}. 
+. 
+. forvalues g = 0(1)3 {c -(}
+{txt}  2{com}.         forvalues i = 1/4 {c -(}
+{txt}  3{com}.                 eststo : xi : quietly regress percent `rg`i'' if grade == `g'
+{txt}  4{com}.         {c )-}
+{txt}  5{com}.         esttab using "Output_Xue/q3a.csv", append
+{txt}  6{com}.         eststo clear
+{txt}  7{com}. {c )-}
+{txt}i.smallc{col 19}_Ismallc_0-2{col 39}(naturally coded; _Ismallc_0 omitted)
+({res}est1{txt} stored)
+i.smallc{col 19}_Ismallc_0-2{col 39}(naturally coded; _Ismallc_0 omitted)
+({res}est2{txt} stored)
+i.smallc{col 19}_Ismallc_0-2{col 39}(naturally coded; _Ismallc_0 omitted)
+({res}est3{txt} stored)
+i.smallc{col 19}_Ismallc_0-2{col 39}(naturally coded; _Ismallc_0 omitted)
+({res}est4{txt} stored)
+{res}{txt}(note: file Output_Xue/q3a.csv not found)
+(output written to {browse  `"Output_Xue/q3a.csv"'})
+i.smallc{col 19}_Ismallc_0-2{col 39}(naturally coded; _Ismallc_0 omitted)
+({res}est1{txt} stored)
+i.smallc{col 19}_Ismallc_0-2{col 39}(naturally coded; _Ismallc_0 omitted)
+({res}est2{txt} stored)
+i.smallc{col 19}_Ismallc_0-2{col 39}(naturally coded; _Ismallc_0 omitted)
+({res}est3{txt} stored)
+i.smallc{col 19}_Ismallc_0-2{col 39}(naturally coded; _Ismallc_0 omitted)
+({res}est4{txt} stored)
+{res}{txt}(output written to {browse  `"Output_Xue/q3a.csv"'})
+i.smallc{col 19}_Ismallc_0-2{col 39}(naturally coded; _Ismallc_0 omitted)
+({res}est1{txt} stored)
+i.smallc{col 19}_Ismallc_0-2{col 39}(naturally coded; _Ismallc_0 omitted)
+({res}est2{txt} stored)
+i.smallc{col 19}_Ismallc_0-2{col 39}(naturally coded; _Ismallc_0 omitted)
+({res}est3{txt} stored)
+i.smallc{col 19}_Ismallc_0-2{col 39}(naturally coded; _Ismallc_0 omitted)
+({res}est4{txt} stored)
+{res}{txt}(output written to {browse  `"Output_Xue/q3a.csv"'})
+i.smallc{col 19}_Ismallc_0-2{col 39}(naturally coded; _Ismallc_0 omitted)
+({res}est1{txt} stored)
+i.smallc{col 19}_Ismallc_0-2{col 39}(naturally coded; _Ismallc_0 omitted)
+({res}est2{txt} stored)
+i.smallc{col 19}_Ismallc_0-2{col 39}(naturally coded; _Ismallc_0 omitted)
+({res}est3{txt} stored)
+i.smallc{col 19}_Ismallc_0-2{col 39}(naturally coded; _Ismallc_0 omitted)
+({res}est4{txt} stored)
+{res}{txt}(output written to {browse  `"Output_Xue/q3a.csv"'})
+
+{com}. 
+. drop _Ismallc_1
+{txt}
+{com}. drop _Ismallc_2
+{txt}
+{com}. 
+. 
+. ****************
+. *     4.a      *
+. ****************
+. 
+. local panel `panel' smallc
+{txt}
+{com}. reshape wide `panel' , i(newid) j(grade)
+{txt}(note: j = 0 1 2 3)
+
+Data{col 36}long{col 43}->{col 48}wide
+{hline 77}
+Number of obs.                 {res}   43228   {txt}->{res}   10807
+{txt}Number of variables            {res}      33   {txt}->{res}      95
+{txt}j variable (4 values)             {res}grade   {txt}->   (dropped)
+xij variables:
+                                   {res}star   {txt}->   {res}star0 star1 ... star3
+                                  ctype   {txt}->   {res}ctype0 ctype1 ... ctype3
+                                  stype   {txt}->   {res}stype0 stype1 ... stype3
+                                   hdeg   {txt}->   {res}hdeg0 hdeg1 ... hdeg3
+                                   clad   {txt}->   {res}clad0 clad1 ... clad3
+                                 totexp   {txt}->   {res}totexp0 totexp1 ... totexp3
+                                  trace   {txt}->   {res}trace0 trace1 ... trace3
+                                   read   {txt}->   {res}read0 read1 ... read3
+                                   math   {txt}->   {res}math0 math1 ... math3
+                                    ses   {txt}->   {res}ses0 ses1 ... ses3
+                                  sysid   {txt}->   {res}sysid0 sysid1 ... sysid3
+                                  schid   {txt}->   {res}schid0 schid1 ... schid3
+                                  tchid   {txt}->   {res}tchid0 tchid1 ... tchid3
+                                  csize   {txt}->   {res}csize0 csize1 ... csize3
+                                   frln   {txt}->   {res}frln0 frln1 ... frln3
+                                  mathp   {txt}->   {res}mathp0 mathp1 ... mathp3
+                                  readp   {txt}->   {res}readp0 readp1 ... readp3
+                                percent   {txt}->   {res}percent0 percent1 ... percent3
+                                 twhite   {txt}->   {res}twhite0 twhite1 ... twhite3
+                                tmaster   {txt}->   {res}tmaster0 tmaster1 ... tmaster3
+                                 smallc   {txt}->   {res}smallc0 smallc1 ... smallc3
+{txt}{hline 77}
+
+{com}. 
+. * generate initial allocated class size  variable
+. 
+. gen initc = .
+{txt}(10,807 missing values generated)
+
+{com}. 
+. forvalues e = 0(1)3 {c -(}
+{txt}  2{com}.         replace initc = ctype`e' if enter1st == `e'
+{txt}  3{com}. {c )-}
+{txt}(5,894 real changes made)
+(2,159 real changes made)
+(1,549 real changes made)
+(1,181 real changes made)
+
+{com}. 
+. reshape long
+{txt}(note: j = 0 1 2 3)
+
+Data{col 36}wide{col 43}->{col 48}long
+{hline 77}
+Number of obs.                 {res}   10807   {txt}->{res}   43228
+{txt}Number of variables            {res}      96   {txt}->{res}      34
+{txt}j variable (4 values)                     ->   {res}grade
+{txt}xij variables:
+                  {res}star0 star1 ... star3   {txt}->   {res}star
+               ctype0 ctype1 ... ctype3   {txt}->   {res}ctype
+               stype0 stype1 ... stype3   {txt}->   {res}stype
+                  hdeg0 hdeg1 ... hdeg3   {txt}->   {res}hdeg
+                  clad0 clad1 ... clad3   {txt}->   {res}clad
+            totexp0 totexp1 ... totexp3   {txt}->   {res}totexp
+               trace0 trace1 ... trace3   {txt}->   {res}trace
+                  read0 read1 ... read3   {txt}->   {res}read
+                  math0 math1 ... math3   {txt}->   {res}math
+                     ses0 ses1 ... ses3   {txt}->   {res}ses
+               sysid0 sysid1 ... sysid3   {txt}->   {res}sysid
+               schid0 schid1 ... schid3   {txt}->   {res}schid
+               tchid0 tchid1 ... tchid3   {txt}->   {res}tchid
+               csize0 csize1 ... csize3   {txt}->   {res}csize
+                  frln0 frln1 ... frln3   {txt}->   {res}frln
+               mathp0 mathp1 ... mathp3   {txt}->   {res}mathp
+               readp0 readp1 ... readp3   {txt}->   {res}readp
+         percent0 percent1 ... percent3   {txt}->   {res}percent
+            twhite0 twhite1 ... twhite3   {txt}->   {res}twhite
+         tmaster0 tmaster1 ... tmaster3   {txt}->   {res}tmaster
+            smallc0 smallc1 ... smallc3   {txt}->   {res}smallc
+{txt}{hline 77}
+
+{com}. 
+. ** regression of ctype over initc
+. 
+. local rg1 initc
+{txt}
+{com}. local rg2  `rg1' schid
+{txt}
+{com}. local rg3 `rg2' `st'
+{txt}
+{com}. local rg4 `rg3' `teacher'
+{txt}
+{com}. 
+. forvalues i = 1/4 {c -(}
+{txt}  2{com}.         eststo : quietly regress ctype `rg`i''  if enter1st == 0
+{txt}  3{com}. {c )-}
+{txt}({res}est1{txt} stored)
+({res}est2{txt} stored)
+({res}est3{txt} stored)
+({res}est4{txt} stored)
+
+{com}.         esttab using "Output_Xue/q4a.csv", append
+{res}{txt}(note: file Output_Xue/q4a.csv not found)
+(output written to {browse  `"Output_Xue/q4a.csv"'})
+
+{com}.         eststo clear
+{txt}
+{com}. 
+. ****************
+. *     4.b      *
+. ****************
+. 
+. gen s = 1 if initc == 1
+{txt}(31,956 missing values generated)
+
+{com}. replace s = 0 if initc == 2 | initc == 3
+{txt}(31,860 real changes made)
+
+{com}. gen r = 1 if initc == 2
+{txt}(27,124 missing values generated)
+
+{com}. replace r = 0 if initc == 1 | initc == 3
+{txt}(27,028 real changes made)
+
+{com}. 
+. local rg1       
+{txt}
+{com}. local rg2  `rg1' schid
+{txt}
+{com}. local rg3 `rg2' `st'
+{txt}
+{com}. local rg4 `rg3' `teacher'
+{txt}
+{com}. 
+. forvalues g = 0(1)3 {c -(}
+{txt}  2{com}.         forvalues i = 1/4 {c -(}
+{txt}  3{com}.                 eststo : quietly ivreg percent `rg`i'' (csize = s r)
+{txt}  4{com}.         {c )-}
+{txt}  5{com}.         esttab using "Output_Xue/q4b.csv", append
+{txt}  6{com}.         eststo clear
+{txt}  7{com}. {c )-}
+{txt}({res}est1{txt} stored)
+({res}est2{txt} stored)
+({res}est3{txt} stored)
+({res}est4{txt} stored)
+{res}{txt}(note: file Output_Xue/q4b.csv not found)
+(output written to {browse  `"Output_Xue/q4b.csv"'})
+({res}est1{txt} stored)
+({res}est2{txt} stored)
+({res}est3{txt} stored)
+({res}est4{txt} stored)
+{res}{txt}(output written to {browse  `"Output_Xue/q4b.csv"'})
+({res}est1{txt} stored)
+({res}est2{txt} stored)
+({res}est3{txt} stored)
+({res}est4{txt} stored)
+{res}{txt}(output written to {browse  `"Output_Xue/q4b.csv"'})
+({res}est1{txt} stored)
+({res}est2{txt} stored)
+({res}est3{txt} stored)
+({res}est4{txt} stored)
+{res}{txt}(output written to {browse  `"Output_Xue/q4b.csv"'})
+
+{com}. 
+{txt}end of do-file
+
+{com}. exit, clear
